@@ -1,26 +1,101 @@
 {
   "tables": [
     {
+      "tableName": "UserDetails",
+      "columns": [
+        {
+          "name": "USER_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "autoIncrement": true
+        },
+        {
+          "name": "USER_EMAIL",
+          "type": "VARCHAR(255)",
+          "unique": true,
+          "notNull": true
+        },
+        {
+          "name": "CREATED_TIME",
+          "type": "TIMESTAMP",
+          "defaultValue": "CURRENT_TIMESTAMP"
+        }
+      ]
+    },
+    {
+      "tableName": "OrgDetails",
+      "columns": [
+        {
+          "name": "ORG_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "autoIncrement": true
+        },
+        {
+          "name": "USER_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "UserDetails",
+            "referencedColumn": "USER_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "CREATED_TIME",
+          "type": "TIMESTAMP",
+          "defaultValue": "CURRENT_TIMESTAMP"
+        }
+      ]
+    },
+    {
       "tableName": "SASSchemaDetails",
       "columns": [
         {
-          "name": "SASSCHEMA_ID",
-          "type": "SERIAL",
-          "defaultValue": null,
-          "primaryKey": true,
-          "uniqueKey": true
-        },
-        {
           "name": "SCHEMA_ID",
-          "type": "SERIAL",
-          "primaryKey": false,
-          "uniqueKey": true
+          "type": "BIGINT",
+          "primaryKey": true,
+          "autoIncrement": true
         },
         {
-          "name": "SAS_ORG_ID",
-          "type": "SERIAL",
-          "primaryKey": false,
-          "uniqueKey": true
+          "name": "SCHEMA_NAME",
+          "type": "VARCHAR(255)",
+          "notNull": true
+        },
+        {
+          "name": "ORG_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "OrgDetails",
+            "referencedColumn": "ORG_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        }
+      ]
+    },
+    {
+      "tableName": "OrgUsersMapping",
+      "columns": [
+        {
+          "name": "ORG_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "OrgDetails",
+            "referencedColumn": "ORG_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "USER_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "UserDetails",
+            "referencedColumn": "USER_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
         }
       ]
     }

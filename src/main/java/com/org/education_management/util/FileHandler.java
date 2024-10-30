@@ -2,6 +2,7 @@ package com.org.education_management.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.org.education_management.model.TableMetaData;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -88,6 +89,11 @@ public class FileHandler {
     public static JsonNode readJsonFile(String filePath) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper(); // Create an ObjectMapper instance
         return objectMapper.readTree(new File(filePath)); // Parse the file and return JsonNode
+    }
+
+    public static TableMetaData readSchemaFromFile(String filePath) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(new File(filePath), TableMetaData.class);
     }
 
     // Write a Java object to a JSON file
