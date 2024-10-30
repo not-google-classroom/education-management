@@ -1,0 +1,28 @@
+{
+  "tables": [
+    {
+      "tableName": "SASSchemaDetails",
+      "columns": [
+        {
+          "name": "SASSCHEMA_ID",
+          "type": "SERIAL",
+          "defaultValue": null,
+          "primaryKey": true,
+          "uniqueKey": true
+        },
+        {
+          "name": "SCHEMA_ID",
+          "type": "SERIAL",
+          "primaryKey": false,
+          "uniqueKey": true
+        },
+        {
+          "name": "SAS_ORG_ID",
+          "type": "SERIAL",
+          "primaryKey": false,
+          "uniqueKey": true
+        }
+      ]
+    }
+  ]
+}

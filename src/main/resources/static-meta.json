@@ -1,0 +1,10 @@
+{
+  "AccountsManagement": {
+    "file_name": "accounts-management.json",
+    "file_path": "\\resources\\AccountManagement\\accounts-management.json"
+  },
+  "UserManagement": {
+    "file_name": "user-management.json",
+    "file_path": "\\resources\\UserManagement\\user-management.json"
+  }
+}

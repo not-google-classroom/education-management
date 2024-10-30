@@ -1,0 +1,103 @@
+{
+  "tables": [
+    {
+      "tableName": "Users",
+      "columns": [
+        {
+          "name": "USER_ID",
+          "type": "SERIAL",
+          "defaultValue": null,
+          "primaryKey": true,
+          "uniqueKey": true
+        },
+        {
+          "name": "USERNAME",
+          "type": "VARCHAR(50)",
+          "defaultValue": null,
+          "primaryKey": false,
+          "uniqueKey": false
+        },
+        {
+          "name": "EMAIL",
+          "type": "VARCHAR(100)",
+          "defaultValue": null,
+          "primaryKey": false,
+          "uniqueKey": true
+        },
+        {
+          "name": "FIRST_NAME",
+          "type": "VARCHAR(50)",
+          "defaultValue": "''",
+          "primaryKey": false,
+          "uniqueKey": false
+        },
+        {
+          "name": "LAST_NAME",
+          "type": "VARCHAR(50)",
+          "defaultValue": "''",
+          "primaryKey": false,
+          "uniqueKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "type": "TIMESTAMP",
+          "defaultValue": "CURRENT_TIMESTAMP",
+          "primaryKey": false,
+          "uniqueKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "type": "TIMESTAMP",
+          "defaultValue": "CURRENT_TIMESTAMP",
+          "primaryKey": false,
+          "uniqueKey": false
+        }
+      ]
+    },
+    {
+      "tableName": "Passwords",
+      "columns": [
+        {
+          "name": "PASSWORD_ID",
+          "type": "SERIAL",
+          "defaultValue": null,
+          "primaryKey": true,
+          "uniqueKey": true
+        },
+        {
+          "name": "USER_ID",
+          "type": "INTEGER",
+          "defaultValue": null,
+          "primaryKey": false,
+          "uniqueKey": false,
+          "foreignKey": {
+            "referencedTable": "Users",
+            "referencedColumn": "USER_ID",
+            "onDelete": "CASCADE"
+          }
+        },
+        {
+          "name": "HASHED_PASSWORD",
+          "type": "VARCHAR(255)",
+          "defaultValue": null,
+          "primaryKey": false,
+          "uniqueKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "type": "TIMESTAMP",
+          "defaultValue": "CURRENT_TIMESTAMP",
+          "primaryKey": false,
+          "uniqueKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "type": "TIMESTAMP",
+          "defaultValue": "CURRENT_TIMESTAMP",
+          "primaryKey": false,
+          "uniqueKey": false
+        }
+      ]
+    }
+  ]
+}
