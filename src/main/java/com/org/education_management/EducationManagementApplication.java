@@ -12,32 +12,32 @@ import java.util.logging.Logger;
 @SpringBootApplication
 public class EducationManagementApplication {
 
-	private static final Logger logger = Logger.getLogger(String.valueOf(EducationManagementApplication.class));
+    private static final Logger logger = Logger.getLogger(String.valueOf(EducationManagementApplication.class));
 
-	public static void main(String[] args) {
-		try {
-			String dbUrl = AppProperty.getInstance().getProperty("spring.datasource.url.without");
-			String user = AppProperty.getInstance().getProperty("spring.datasource.username");
-			String pwd = AppProperty.getInstance().getProperty("spring.datasource.password");
-			String dbName = AppProperty.getInstance().getProperty("spring.datasource.database");
+    public static void main(String[] args) {
+        try {
+            String dbUrl = AppProperty.getInstance().getProperty("spring.datasource.url.without");
+            String user = AppProperty.getInstance().getProperty("spring.datasource.username");
+            String pwd = AppProperty.getInstance().getProperty("spring.datasource.password");
+            String dbName = AppProperty.getInstance().getProperty("spring.datasource.database");
 
-			logger.log(Level.INFO, "Startup initiated...connecting to database");
-			StartUpController controller = new StartUpController();
-			boolean isFreshStart = controller.isFreshStart();
-			if(isFreshStart) {
-				DatabaseInitializer.dropDatabaseIfExists(dbUrl, user, pwd, dbName);
-				DatabaseInitializer.createDatabaseIfNotExists(dbUrl, user, pwd, dbName);
-			}
-			try {
-				controller.populateIfNeeded();
-			} catch (Exception e1) {
-				logger.log(Level.SEVERE, "Exception when starting server ! , {0}", e1);
-			}
+            logger.log(Level.INFO, "Startup initiated...connecting to database");
+            StartUpController controller = new StartUpController();
+            boolean isFreshStart = controller.isFreshStart();
+            if (isFreshStart) {
+                DatabaseInitializer.dropDatabaseIfExists(dbUrl, user, pwd, dbName);
+                DatabaseInitializer.createDatabaseIfNotExists(dbUrl, user, pwd, dbName);
+            }
+            try {
+                controller.populateIfNeeded();
+            } catch (Exception e1) {
+                logger.log(Level.SEVERE, "Exception when starting server ! , {0}", e1);
+            }
 
-			SpringApplication.run(EducationManagementApplication.class, args);
-		} catch (Exception e){
-			logger.log(Level.SEVERE, "Exception when starting server !, {0}", e);
-		}
-	}
+            SpringApplication.run(EducationManagementApplication.class, args);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception when starting server !, {0}", e);
+        }
+    }
 
 }

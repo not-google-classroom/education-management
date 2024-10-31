@@ -12,12 +12,12 @@ public class AppProperty {
 
     // Constructor to initialize the utility with the properties file path
     public AppProperty() {
-        this.propertiesFilePath = System.getProperty("user.dir") + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "application.properties";
+        this.propertiesFilePath = System.getProperty("user.dir") + FileHandler.getFileSeparator() + "src" + FileHandler.getFileSeparator() + "main" + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "application.properties";
         loadProperties();
     }
 
     public static AppProperty getInstance() {
-        if(appProperty == null){
+        if (appProperty == null) {
             appProperty = new AppProperty();
         }
         return appProperty;
