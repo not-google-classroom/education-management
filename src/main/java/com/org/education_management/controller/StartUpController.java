@@ -25,14 +25,13 @@ public class StartUpController {
     }
 
     private void populateStaticMetaData() throws Exception {
-        String jsonConfFilesPath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "static-meta.json";
+        String jsonConfFilesPath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "static-meta-public.json";
         if(FileHandler.fileExists(jsonConfFilesPath)) {
             startUpService.populateStaticMetaDataFiles(jsonConfFilesPath);
         } else {
-            logger.log(Level.WARNING, "static-meta.json file doesn't exist ! , unable to populate static data");
-            throw new FileNotFoundException("static-meta.json file doesn't exist");
+            logger.log(Level.WARNING, "static-meta-public.json file doesn't exist ! , unable to populate static data");
+            throw new FileNotFoundException("static-meta-public.json file doesn't exist");
         }
-
     }
 
     public boolean isFreshStart() throws IOException {

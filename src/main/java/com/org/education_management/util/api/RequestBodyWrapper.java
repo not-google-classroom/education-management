@@ -2,6 +2,7 @@ package com.org.education_management.util.api;
 
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+@MultipartConfig
 public class RequestBodyWrapper extends HttpServletRequestWrapper {
     private final byte[] body;
 

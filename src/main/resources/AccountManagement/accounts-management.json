@@ -17,8 +17,8 @@
         },
         {
           "name": "CREATED_TIME",
-          "type": "TIMESTAMP",
-          "defaultValue": "CURRENT_TIMESTAMP"
+          "type": "BIGINT",
+          "defaultValue": -1
         }
       ]
     },
@@ -48,8 +48,8 @@
         },
         {
           "name": "CREATED_TIME",
-          "type": "TIMESTAMP",
-          "defaultValue": "CURRENT_TIMESTAMP"
+          "type": "BIGINT",
+          "defaultValue": -1
         }
       ]
     },

@@ -10,11 +10,15 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
@@ -22,6 +26,7 @@ import java.util.regex.Pattern;
 import java.util.logging.Logger;
 
 @Component
+@MultipartConfig
 public class ApiSecurityFilter implements Filter {
 
     private static final Logger logger = Logger.getLogger(ApiSecurityFilter.class.getName());
@@ -55,6 +60,11 @@ public class ApiSecurityFilter implements Filter {
                     }
                 }
 
+                MultipartHttpServletRequest multipartHttpServletRequest = null;
+                if(isMultipartRequest(httpRequest)) {
+                    multipartHttpServletRequest = new StandardMultipartHttpServletRequest(httpRequest);
+                }
+
                 RequestBodyWrapper wrapper = new RequestBodyWrapper(httpRequest);
                 JSONObject requestBody = null;
                 try {
@@ -69,6 +79,9 @@ public class ApiSecurityFilter implements Filter {
                     if(paramValue == null) {
                         if(requestBody != null) {
                             paramValue = requestBody.opt(paramRule.getName());
+                        }
+                        if(requestBody == null && multipartHttpServletRequest != null) {
+                            paramValue = multipartHttpServletRequest.getParameter(paramRule.getName());
                         }
                     }
                     if (!validateParam(paramValue, paramRule)) {
@@ -110,6 +123,10 @@ public class ApiSecurityFilter implements Filter {
             default:
                 return false;
         }
+    }
+
+    private boolean isMultipartRequest(HttpServletRequest request) {
+        return request.getContentType() != null && request.getContentType().startsWith("multipart/");
     }
 
     @Override
