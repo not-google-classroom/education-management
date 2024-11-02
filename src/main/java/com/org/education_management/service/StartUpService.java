@@ -42,7 +42,7 @@ public class StartUpService {
             String fileName = moduleData.get("file_name").asText();
             String filePath = moduleData.get("file_path").asText();
 
-            String fullFilePath = System.getProperty("user.dir") + FileHandler.getFileSeparator() + filePath;
+            String fullFilePath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + filePath;
 
             populateTablesToDB(fullFilePath);
 

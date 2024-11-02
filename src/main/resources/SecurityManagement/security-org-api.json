@@ -1,0 +1,57 @@
+[
+  {
+    "path": "/api/org/getOrgDetails",
+    "method": "GET",
+    "roles": ["admin", "user"],
+    "params": [
+      {
+        "name": "orgID",
+        "type": "long",
+        "required": false
+      }
+    ]
+  },
+  {
+    "path": "/api/org/createOrg",
+    "method": "POST",
+    "roles": ["admin"],
+    "params": [
+      {
+        "name": "orgName",
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9 ]{3,30}$",
+        "required": true
+      },
+      {
+        "name": "userEmail",
+        "type": "string",
+        "pattern": "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$",
+        "required": true
+      },
+      {
+        "name": "password",
+        "type": "string",
+        "pattern": "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,15}$",
+        "required": true
+      },
+      {
+        "name": "confirmPassword",
+        "type": "string",
+        "pattern": "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,15}$",
+        "required": true
+      },
+      {
+        "name": "firstName",
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9 ]{3,30}$",
+        "required": true
+      },
+      {
+        "name": "lastName",
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9 ]{3,30}$",
+        "required": true
+      }
+    ]
+  }
+]

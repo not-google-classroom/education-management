@@ -25,7 +25,7 @@ public class StartUpController {
     }
 
     private void populateStaticMetaData() throws Exception {
-        String jsonConfFilesPath = System.getProperty("user.dir") + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "static-meta.json";
+        String jsonConfFilesPath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "static-meta.json";
         if(FileHandler.fileExists(jsonConfFilesPath)) {
             startUpService.populateStaticMetaDataFiles(jsonConfFilesPath);
         } else {

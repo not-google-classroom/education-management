@@ -1,0 +1,52 @@
+<!DOCTYPE web-app PUBLIC
+        "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+         http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5">
+
+    <!-- Define the servlet -->
+    <servlet>
+        <servlet-name>exampleServlet</servlet-name>
+        <servlet-class>com.example.ExampleServlet</servlet-class>
+    </servlet>
+
+    <!-- Map the servlet to a URL -->
+    <servlet-mapping>
+        <servlet-name>exampleServlet</servlet-name>
+        <url-pattern>/example</url-pattern>
+    </servlet-mapping>
+
+    <!-- Define welcome file(s) -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+    <!-- Set session timeout -->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+
+    <!-- Filter configuration -->
+    <filter>
+        <filter-name>ApiSecurityFilter</filter-name>
+        <filter-class>com.org.education_management.filter.api.ApiSecurityFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>ApiSecurityFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Error page configuration -->
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error404.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/error500.jsp</location>
+    </error-page>
+</web-app>

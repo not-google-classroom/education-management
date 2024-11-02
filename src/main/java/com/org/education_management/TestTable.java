@@ -9,7 +9,7 @@ import org.jooq.impl.SQLDataType;
 import static org.jooq.impl.DSL.*;
 
 public class TestTable {
-    private final DSLContext dslContext = DataBaseUtil.createDSLContext();
+    private final DSLContext dslContext = DataBaseUtil.getDSLContext();
 
     public void createTable() {
         dslContext.createSchemaIfNotExists("my_schema").execute();

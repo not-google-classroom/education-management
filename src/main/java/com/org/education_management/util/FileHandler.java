@@ -96,6 +96,20 @@ public class FileHandler {
         return mapper.readValue(new File(filePath), TableMetaData.class);
     }
 
+    public static <T> T readJsonFile(String filePath, Class<T> tClass) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper(); // Create an ObjectMapper instance
+        return objectMapper.readValue(new File(filePath), tClass); // Parse the file and return the object of type T
+    }
+
+    // Read a JSON file and return a JsonNode
+    public static JsonNode readJsonNode(String filePath) throws IOException {
+        return objectMapper.readTree(new File(filePath)); // Parse the file and return JsonNode
+    }
+
+    public static String getHomeDir() {
+        return System.getProperty("user.dir") + getFileSeparator() + "src" + getFileSeparator() + "main";
+    }
+
     // Write a Java object to a JSON file
     public static <T> void writeJsonFile(String filePath, T object) {
         try {

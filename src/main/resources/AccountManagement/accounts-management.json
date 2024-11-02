@@ -32,6 +32,11 @@
           "autoIncrement": true
         },
         {
+          "name": "ORG_NAME",
+          "type": "VARCHAR(30)",
+          "unique":true
+        },
+        {
           "name": "USER_ID",
           "type": "BIGINT",
           "foreignKey": {
