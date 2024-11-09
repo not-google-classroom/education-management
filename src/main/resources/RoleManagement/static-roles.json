@@ -1,0 +1,41 @@
+{
+  "Roles": [
+    {
+      "role_id": 1,
+      "name": "Admin",
+      "description": "Full access to manage users, roles, and permissions",
+      "created_at": "2023-11-01T09:00:00",
+      "updated_at": "2023-11-01T09:00:00"
+    },
+    {
+      "role_id": 2,
+      "name": "User",
+      "description": "Standard access to use the application features",
+      "created_at": "2023-11-01T09:05:00",
+      "updated_at": "2023-11-01T09:05:00"
+    }
+  ],
+  "Permissions": [
+    {
+      "permission_id": 1,
+      "name": "VIEW_DASHBOARD",
+      "description": "Permission to view the dashboard",
+      "created_at": "2023-11-01T08:50:00",
+      "updated_at": "2023-11-01T08:50:00"
+    },
+    {
+      "permission_id": 2,
+      "name": "EDIT_USERS",
+      "description": "Permission to edit users",
+      "created_at": "2023-11-01T08:55:00",
+      "updated_at": "2023-11-01T08:55:00"
+    },
+    {
+      "permission_id": 3,
+      "name": "DELETE_PROJECTS",
+      "description": "Permission to delete projects",
+      "created_at": "2023-11-01T09:10:00",
+      "updated_at": "2023-11-01T09:10:00"
+    }
+  ]
+}

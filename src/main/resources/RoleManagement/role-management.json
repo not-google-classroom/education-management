@@ -1,0 +1,136 @@
+{
+  "tables": [
+    {
+      "tableName": "Roles",
+      "columns": [
+        {
+          "name": "ROLE_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "autoIncrement": true
+        },
+        {
+          "name": "ROLE_NAME",
+          "type": "VARCHAR(255)",
+          "unique": true,
+          "notNull": true
+        },
+        {
+          "name": "DESCRIPTION",
+          "type": "TEXT"
+        }
+      ]
+    },
+    {
+      "tableName": "Permissions",
+      "columns": [
+        {
+          "name": "PERMISSION_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "autoIncrement": true
+        },
+        {
+          "name": "PERMISSION_NAME",
+          "type": "VARCHAR(255)",
+          "unique": true,
+          "notNull": true
+        },
+        {
+          "name": "DESCRIPTION",
+          "type": "TEXT"
+        }
+      ]
+    },
+    {
+      "tableName": "UserRoles",
+      "columns": [
+        {
+          "name": "USER_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Users",
+            "referencedColumn": "USER_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "ROLE_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Roles",
+            "referencedColumn": "ROLE_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        }
+      ]
+    },
+    {
+      "tableName": "RolePermissions",
+      "columns": [
+        {
+          "name": "ROLE_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Roles",
+            "referencedColumn": "ROLE_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "PERMISSION_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Permissions",
+            "referencedColumn": "PERMISSION_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        }
+      ]
+    },
+    {
+      "tableName": "UserRolePermissions",
+      "columns": [
+        {
+          "name": "USER_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Users",
+            "referencedColumn": "USER_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "ROLE_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Roles",
+            "referencedColumn": "ROLE_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "PERMISSION_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Permissions",
+            "referencedColumn": "PERMISSION_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "GRANTED_AT",
+          "type": "BIGINT",
+          "defaultValue": -1
+        }
+      ]
+    }
+  ]
+}

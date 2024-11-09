@@ -1,0 +1,84 @@
+{
+  "tables": [
+    {
+      "tableName": "TableDetails",
+      "columns": [
+        {
+          "name": "TABLE_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "autoIncrement": true
+        },
+        {
+          "name": "TABLE_NAME",
+          "type": "VARCHAR(30)",
+          "unique": true,
+          "notNull": true
+        },
+        {
+          "name": "DESCRIPTION",
+          "type": "TEXT"
+        }
+      ]
+    },
+    {
+      "tableName": "ColumnDetails",
+      "columns": [
+        {
+          "name": "COLUMN_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "autoIncrement": true
+        },
+        {
+          "name": "COLUMN_NAME",
+          "type": "VARCHAR(20)",
+          "notNull": true
+        },
+        {
+          "name": "COLUMN_TYPE",
+          "type": "VARCHAR(20)",
+          "notNull": true
+        },
+        {
+          "name": "TABLE_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "TableDetails",
+            "referencedColumn": "TABLE_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "IS_PRIMARY_KEY",
+          "type": "BOOLEAN",
+          "defaultValue": false
+        },
+        {
+          "name": "IS_UNIQUE",
+          "type": "BOOLEAN",
+          "defaultValue": false
+        },
+        {
+          "name": "IS_FOREIGN_KEY",
+          "type": "BOOLEAN",
+          "defaultValue": false
+        },
+        {
+          "name": "IS_NULLABLE",
+          "type": "BOOLEAN",
+          "defaultValue": false
+        },
+        {
+          "name": "FKEY_TABLE_ID",
+          "type": "BIGINT"
+        },{
+          "name": "FKEY_COLUMN_ID",
+          "type": "BIGINT"
+        }
+      ],
+      "description": "Table to hold all column details"
+    }
+  ]
+}

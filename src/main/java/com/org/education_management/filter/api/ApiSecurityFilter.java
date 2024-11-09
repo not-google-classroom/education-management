@@ -11,11 +11,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
@@ -25,8 +25,8 @@ import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.logging.Logger;
 
-@Component
 @MultipartConfig
+@WebFilter(urlPatterns = "/api/*")
 public class ApiSecurityFilter implements Filter {
 
     private static final Logger logger = Logger.getLogger(ApiSecurityFilter.class.getName());

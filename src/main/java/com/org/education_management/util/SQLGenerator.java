@@ -23,7 +23,11 @@ public class SQLGenerator {
                 sql.append(" PRIMARY KEY");
             }
             if (column.getDefaultValue() != null) {
-                sql.append(" DEFAULT ").append(column.getDefaultValue());
+                if(column.getType().toLowerCase().contains("varchar") || column.getType().equalsIgnoreCase("text")) {
+                    sql.append(" DEFAULT '").append(column.getDefaultValue()).append("'");
+                } else {
+                    sql.append(" DEFAULT ").append(column.getDefaultValue());
+                }
             }
             if (Boolean.TRUE.equals(column.getAutoIncrement())) {
                 sql.append(" GENERATED ALWAYS AS IDENTITY");

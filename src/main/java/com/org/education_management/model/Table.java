@@ -11,6 +11,9 @@ public class Table {
     @JsonProperty("columns")
     private List<Column> columns;
 
+    @JsonProperty("description")
+    private String descritpion;
+
     public String getTableName() {
         return tableName;
     }
@@ -25,5 +28,13 @@ public class Table {
 
     public void setColumns(List<Column> columns) {
         this.columns = columns;
+    }
+
+    public String getDescritpion() {
+        return descritpion;
+    }
+
+    public void setDescritpion(String descritpion) {
+        this.descritpion = descritpion;
     }
 }

@@ -13,39 +13,33 @@
         {
           "name": "USERNAME",
           "type": "VARCHAR(50)",
-          "defaultValue": null,
-          "primaryKey": false
+          "defaultValue": null
         },
         {
           "name": "EMAIL",
           "type": "VARCHAR(100)",
           "defaultValue": null,
-          "primaryKey": false,
           "unique": true
         },
         {
           "name": "FIRST_NAME",
           "type": "VARCHAR(50)",
-          "defaultValue": "''",
-          "primaryKey": false
+          "defaultValue": "''"
         },
         {
           "name": "LAST_NAME",
           "type": "VARCHAR(50)",
-          "defaultValue": "''",
-          "primaryKey": false
+          "defaultValue": "''"
         },
         {
           "name": "CREATED_AT",
-          "type": "TIMESTAMP",
-          "defaultValue": "CURRENT_TIMESTAMP",
-          "primaryKey": false
+          "type": "BIGINT",
+          "defaultValue": -1
         },
         {
           "name": "UPDATED_AT",
-          "type": "TIMESTAMP",
-          "defaultValue": "CURRENT_TIMESTAMP",
-          "primaryKey": false
+          "type": "BIGINT",
+          "defaultValue": -1
         }
       ]
     },
@@ -63,7 +57,6 @@
           "name": "USER_ID",
           "type": "INTEGER",
           "defaultValue": null,
-          "primaryKey": false,
           "foreignKey": {
             "referencedTable": "Users",
             "referencedColumn": "USER_ID",
@@ -73,20 +66,17 @@
         {
           "name": "HASHED_PASSWORD",
           "type": "VARCHAR(255)",
-          "defaultValue": null,
-          "primaryKey": false
+          "defaultValue": null
         },
         {
           "name": "CREATED_AT",
-          "type": "TIMESTAMP",
-          "defaultValue": "CURRENT_TIMESTAMP",
-          "primaryKey": false
+          "type": "BIGINT",
+          "defaultValue": -1
         },
         {
           "name": "UPDATED_AT",
-          "type": "TIMESTAMP",
-          "defaultValue": "CURRENT_TIMESTAMP",
-          "primaryKey": false
+          "type": "BIGINT",
+          "defaultValue": -1
         }
       ]
     }
