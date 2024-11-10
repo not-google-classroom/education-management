@@ -1,5 +1,9 @@
 package com.org.education_management.MessageUtil;
 
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Message;
+import org.jsoup.Jsoup;
+
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
@@ -9,15 +13,15 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Properties;
 
-public class EmailSender {
+public class MessageSender {
 
-    private static EmailSender emailSenderUtil = null;
+    private static MessageSender messageSenderUtil = null;
 
-    public static EmailSender getInstance(){
-        if(emailSenderUtil == null){
-            emailSenderUtil = new EmailSender();
+    public static MessageSender getInstance(){
+        if(messageSenderUtil == null){
+            messageSenderUtil = new MessageSender();
         }
-        return emailSenderUtil;
+        return messageSenderUtil;
     }
 
     public HashMap sendMail(String recipient, String subject, String htmlContent, String attachmentPath){
@@ -74,6 +78,27 @@ public class EmailSender {
         }
         catch (Exception e){
             response.put("Email status","Mail sent failed with an exception : "+ e);
+        }
+        return response;
+    }
+
+    public HashMap sendText(String recipient, String content){
+        HashMap response = new HashMap<>();
+        try{
+            Twilio.init("ACacb2519f03a73e88aa1cfcff82fae60c", "559e3a898aca3955b84a89f5ac979b7f");
+
+            String textContent = Jsoup.parse(content).text();
+
+            Message message = Message.creator(
+                    new com.twilio.type.PhoneNumber(recipient),
+                    "MG7e41d04ccc2a8da8b647cc1f399d2c8a",
+                    textContent).create();
+            if(message.getSid() != null){
+                response.put("Text status","Text sent successfully");
+            }
+        }
+        catch (Exception e){
+            response.put("Text status","Text sent failed with an exception : "+ e);
         }
         return response;
     }
