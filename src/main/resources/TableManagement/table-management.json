@@ -79,6 +79,28 @@
         }
       ],
       "description": "Table to hold all column details"
+    },
+    {
+      "tableName": "UVHDetails",
+      "columns": [
+        {
+          "name": "UVH_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "autoIncrement": true
+        },
+        {
+          "name": "UVH_NAME",
+          "type": "VARCHAR(200)",
+          "notNull": true
+        },
+        {
+          "name": "UVH_VALUE",
+          "type": "BIGINT",
+          "notNull": true,
+          "defaultValue": 0
+        }
+      ]
     }
   ]
 }

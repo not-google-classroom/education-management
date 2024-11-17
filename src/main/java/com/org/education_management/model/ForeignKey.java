@@ -5,12 +5,19 @@ public class ForeignKey {
     private String referencedColumn;
     private String onDelete;
 
+    public ForeignKey() {}
+
+    public ForeignKey(String refTableName, String refColName) {
+        this.referencedTable = refTableName.toLowerCase();
+        this.referencedColumn = refColName.toLowerCase();
+    }
+
     public String getReferencedTable() {
         return referencedTable;
     }
 
     public void setReferencedTable(String referencedTable) {
-        this.referencedTable = referencedTable;
+        this.referencedTable = referencedTable.toLowerCase();
     }
 
     public String getReferencedColumn() {
@@ -18,7 +25,7 @@ public class ForeignKey {
     }
 
     public void setReferencedColumn(String referencedColumn) {
-        this.referencedColumn = referencedColumn;
+        this.referencedColumn = referencedColumn.toLowerCase();
     }
 
     public String getOnDelete() {

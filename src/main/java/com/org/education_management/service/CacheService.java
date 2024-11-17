@@ -1,17 +1,18 @@
 package com.org.education_management.service;
 
-import com.org.education_management.config.RedisConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.stereotype.Service;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Service
 public class CacheService {
-    public static final Logger logger = Logger.getLogger(CacheService.class.getName());
-    public static CacheService cacheService = null;
 
-    RedisConfig redisConfig = new RedisConfig();
+    private static final Logger logger = Logger.getLogger(CacheService.class.getName());
+    CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager("SimpleCache");
+    static CacheService cacheService = null;
 
     public static CacheService getInstance() {
         if(cacheService == null) {
@@ -20,30 +21,39 @@ public class CacheService {
         return cacheService;
     }
 
-    @Autowired
-    private CacheManager cacheManager;
-
-    // Manually add a value to the cache
-    public void addToCache(String cacheName, Object key, Object value) {
-        Cache cache = cacheManager.getCache(cacheName);
-        if (cache != null) {
-            cache.put(key, value);
+    // Put data into cache
+    public void putInCache(String cacheName, String key, Object value) {
+        Cache cache = caffeineCacheManager.getCache(cacheName);
+        if(isCacheAvailable(cacheName, key)) {
+            if (cache != null) {
+                cache.putIfAbsent(key, value);
+            } else {
+                throw new RuntimeException("Cache not found for name: " + cacheName);
+            }
+        } else {
+            logger.log(Level.SEVERE, "CacheName : {0} Not found!", cacheName);
         }
     }
 
-    // Manually evict (delete) a value from the cache
-    public void removeFromCache(String cacheName, Object key) {
-        Cache cache = cacheManager.getCache(cacheName);
+    // Get data from cache
+    public Object getFromCache(String cacheName, String key) {
+        Cache cache = caffeineCacheManager.getCache(cacheName);
         if (cache != null) {
-            cache.evict(key);
+            return cache.get(key, Object.class);
+        }
+        return null;
+    }
+
+    // Remove data from cache
+    public void removeFromCache(String cacheName, String key) {
+        Cache cache = caffeineCacheManager.getCache(cacheName);
+        if (cache != null) {
+            cache.evictIfPresent(key);
         }
     }
 
-    // Manually clear all entries from the cache
-    public void clearCache(String cacheName) {
-        Cache cache = cacheManager.getCache(cacheName);
-        if (cache != null) {
-            cache.clear();
-        }
+    // Check if cache exists
+    public boolean isCacheAvailable(String cacheName, String key) {
+        return caffeineCacheManager != null && caffeineCacheManager.getCache(cacheName) != null;
     }
 }

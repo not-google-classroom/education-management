@@ -17,20 +17,20 @@ public class StartUpController {
     public void populateIfNeeded() throws Exception {
         boolean isFreshStart = isFreshStart();
         if(isFreshStart) {
-            populateStaticMetaData();
+            populateStaticTableData();
             AppProperty.getInstance().setProperty("server", "startup_type", "warm");
         } else {
             logger.log(Level.INFO, "Server startup_type is warm, so skipping static data population");
         }
     }
 
-    private void populateStaticMetaData() throws Exception {
-        String jsonConfFilesPath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "static-meta-public.json";
+    private void populateStaticTableData() throws Exception {
+        String jsonConfFilesPath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "static-table-public.json";
         if(FileHandler.fileExists(jsonConfFilesPath)) {
-            startUpService.populateStaticMetaDataFiles(jsonConfFilesPath);
+            startUpService.populateStaticTableDataFiles(jsonConfFilesPath);
         } else {
-            logger.log(Level.WARNING, "static-meta-public.json file doesn't exist ! , unable to populate static data");
-            throw new FileNotFoundException("static-meta-public.json file doesn't exist");
+            logger.log(Level.WARNING, "static-table-public.json file doesn't exist ! , unable to populate static data");
+            throw new FileNotFoundException("static-table-public.json file doesn't exist");
         }
     }
 

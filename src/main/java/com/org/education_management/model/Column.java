@@ -10,12 +10,23 @@ public class Column {
     private ForeignKey foreignKey;
     private String defaultValue;
 
+    public Column() {}
+
+    public Column(String colName, String colType, Boolean isPrimary, Boolean isUnique, Boolean isNull, ForeignKey foreignKey) {
+        this.name = colName.toLowerCase();
+        this.type = colType;
+        this.primaryKey = isPrimary;
+        this.unique = isUnique;
+        this.notNull = isNull;
+        this.foreignKey = foreignKey;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name.toLowerCase();
     }
 
     public String getType() {

@@ -1,14 +1,6 @@
 {
-  "TableManagement": {
-    "file_name": "table-management.json",
-    "file_path": "\\resources\\TableManagement\\table-management.json"
-  },
-  "UserManagement": {
-    "file_name": "user-management.json",
-    "file_path": "\\resources\\UserManagement\\user-management.json"
-  },
   "RoleManagement": {
-    "file_name": "role-management.json",
-    "file_path": "\\resources\\RoleManagement\\role-management.json"
+    "file_name": "static-roles.json",
+    "file_path": "\\resources\\RoleManagement\\static-roles.json"
   }
 }

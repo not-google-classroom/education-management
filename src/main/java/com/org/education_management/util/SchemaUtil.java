@@ -67,7 +67,7 @@ public class SchemaUtil {
         }
     }
 
-    private void setSearchPathToPublic() {
+    public void setSearchPathToPublic() {
         String publicSchema = "public";
         setSearchPathForSchema(publicSchema);
     }
@@ -93,13 +93,18 @@ public class SchemaUtil {
     }
 
     private void populateUserSpecificData() throws IOException {
-        String jsonConfFilesPath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "static-meta-specific.json";
-        if(FileHandler.fileExists(jsonConfFilesPath)) {
-            new StartUpService().populateStaticMetaDataFiles(jsonConfFilesPath);
+        String jsonConfTablePath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "static-table-specific.json";
+        String jsonConfMetaPath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "static-meta-specific.json";
+        if(FileHandler.fileExists(jsonConfTablePath)) {
+            StartUpService.getInstance().populateStaticTableDataFiles(jsonConfTablePath);
             logger.log(Level.INFO, "Table data populated successfully");
+            if(FileHandler.fileExists(jsonConfMetaPath)) {
+                StartUpService.getInstance().populateStaticMetaDataFiles(jsonConfMetaPath);
+                logger.log(Level.INFO, "Meta data for tables populated successfully");
+            }
         } else {
-            logger.log(Level.WARNING, "static-meta-specific.json file doesn't exist ! , unable to populate static data");
-            throw new FileNotFoundException("static-meta-specific.json file doesn't exist");
+            logger.log(Level.WARNING, "static-table-specific.json file doesn't exist ! , unable to populate static data");
+            throw new FileNotFoundException("static-table-specific.json file doesn't exist");
         }
     }
 

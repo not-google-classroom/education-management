@@ -14,12 +14,20 @@ public class Table {
     @JsonProperty("description")
     private String descritpion;
 
+    public Table() {}
+
+    public Table(String tableName, String tableDesc, List<Column> columns) {
+        this.tableName = tableName.toLowerCase();
+        this.columns = columns;
+        this.descritpion = tableDesc;
+    }
+
     public String getTableName() {
         return tableName;
     }
 
     public void setTableName(String tableName) {
-        this.tableName = tableName;
+        this.tableName = tableName.toLowerCase();
     }
 
     public List<Column> getColumns() {

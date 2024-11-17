@@ -131,6 +131,7 @@ public class OrgUtil {
 
     public void deletePrepopulatedDataForSchemaFailure(Long orgID, Long userID) {
         DSLContext dslContext = DataBaseUtil.getDSLContext();
+        SchemaUtil.getInstance().setSearchPathToPublic();
         if(orgID != null) {
             dslContext.deleteFrom(table("OrgDetails")).where(field("ORG_ID").eq(orgID)).execute();
             if(userID != null) {
