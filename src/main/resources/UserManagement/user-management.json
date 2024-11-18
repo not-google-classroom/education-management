@@ -5,20 +5,17 @@
       "columns": [
         {
           "name": "USER_ID",
-          "type": "SERIAL",
-          "defaultValue": null,
+          "type": "BIGINT",
           "primaryKey": true,
-          "unique": true
+          "autoIncrement": true
         },
         {
           "name": "USERNAME",
-          "type": "VARCHAR(50)",
-          "defaultValue": null
+          "type": "VARCHAR(50)"
         },
         {
           "name": "EMAIL",
           "type": "VARCHAR(100)",
-          "defaultValue": null,
           "unique": true
         },
         {
@@ -48,15 +45,13 @@
       "columns": [
         {
           "name": "PASSWORD_ID",
-          "type": "SERIAL",
-          "defaultValue": null,
+          "type": "BIGINT",
           "primaryKey": true,
-          "unique": true
+          "autoIncrement": true
         },
         {
           "name": "USER_ID",
           "type": "INTEGER",
-          "defaultValue": null,
           "foreignKey": {
             "referencedTable": "Users",
             "referencedColumn": "USER_ID",
@@ -65,8 +60,7 @@
         },
         {
           "name": "HASHED_PASSWORD",
-          "type": "VARCHAR(255)",
-          "defaultValue": null
+          "type": "VARCHAR(255)"
         },
         {
           "name": "CREATED_AT",

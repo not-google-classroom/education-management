@@ -27,7 +27,7 @@ public class SchemaUtil {
     }
 
 
-    public void createSchemaAndPopulateData(String userEmail) throws Exception {
+    public String createSchemaAndPopulateData(String userEmail) throws Exception {
         Long userID = OrgUtil.getInstance().getUserIDByEmail(userEmail);
         if(userID != null) {
             Map<String, Object> orgDetails = new HashMap<>();
@@ -44,6 +44,7 @@ public class SchemaUtil {
                         populateUserSpecificData();
                         setSearchPathToPublic();
                         updateSchemaDetails(orgID, schemaName);
+                        return schemaName;
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "Schema creation failed!, deleting prepopulated entry");
                         OrgUtil.getInstance().deletePrepopulatedDataForSchemaFailure(orgID, userID);
@@ -53,6 +54,7 @@ public class SchemaUtil {
             }
         }
 
+        return null;
     }
 
     private void updateSchemaDetails(Long orgID, String schemaName) {
@@ -72,7 +74,7 @@ public class SchemaUtil {
         setSearchPathForSchema(publicSchema);
     }
 
-    private void setSearchPathForSchema(String schemaName) {
+    public void setSearchPathForSchema(String schemaName) {
         if(schemaName != null && !schemaName.isEmpty()) {
             String sqlForSearchPath = "SET search_path TO " + schemaName;
             DSLContext dslContext = DataBaseUtil.getDSLContext();

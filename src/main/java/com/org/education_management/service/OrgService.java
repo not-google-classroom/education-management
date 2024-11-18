@@ -2,6 +2,8 @@ package com.org.education_management.service;
 
 import com.org.education_management.util.OrgUtil;
 import com.org.education_management.util.SchemaUtil;
+import com.org.education_management.util.UniqueValueGenerator;
+import com.org.education_management.util.UserMgmtUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +39,12 @@ public class OrgService {
         }
         try {
             OrgUtil.getInstance().createOrgAndSchema(orgName, userEmail);
-            SchemaUtil.getInstance().createSchemaAndPopulateData(userEmail);
+            String schemaName = SchemaUtil.getInstance().createSchemaAndPopulateData(userEmail);
+            if(schemaName != null && !schemaName.isEmpty()) {
+                UserMgmtUtil.getInstance().addAdminToOrg(schemaName, orgName, userEmail, password, userName, firstName, lastName);
+                //UniqueValueGenerator.getInstance().updateValuesToDB(); getting error
+            }
+
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception when creating organization : {0}", e);
             throw new Exception(e);

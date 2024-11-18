@@ -6,10 +6,12 @@ import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.Row;
 import org.jooq.Rows;
+import org.jooq.Table;
 import org.jooq.TableRecord;
 import org.jooq.impl.DSL;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -76,14 +78,19 @@ public class UniqueValueGenerator {
     }
 
     public void updateValuesToDB() {
-        if(!updateRequiredValues.isEmpty()) {
+        if (!updateRequiredValues.isEmpty()) {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
-            dslContext.batchInsert(
-                    (TableRecord<?>) updateRequiredValues.entrySet().stream()
-                            .map(entry -> DSL.insertInto(table(DSL.name("uvhdetails")))
-                                    .values(entry.getKey(), entry.getValue()))
-                            .toList()
-            ).execute();
+            List<? extends TableRecord<?>> records = updateRequiredValues.entrySet().stream()
+                    .map(entry -> {
+                        Table<?> uvhDetailsTable = table(DSL.name("uvhdetails"));
+                        TableRecord<?> record = (TableRecord<?>) dslContext.newRecord(uvhDetailsTable);
+                        record.set(DSL.field(DSL.name("uvh_name")), entry.getKey());
+                        record.set(DSL.field(DSL.name("uvh_value")), entry.getValue());
+
+                        return record;
+                    })
+                    .toList();
+            dslContext.batchInsert(records).execute();
         }
     }
 }

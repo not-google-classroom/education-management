@@ -51,7 +51,7 @@ public class MessageSender {
             MimeMessage message = new MimeMessage(session);
 
             message.setFrom(new InternetAddress(sender));
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+            message.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(recipient));
             message.setSubject(subject);
 
             // Create a multipart message
