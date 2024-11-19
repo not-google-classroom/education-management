@@ -3,7 +3,6 @@ package com.org.education_management.util;
 import com.org.education_management.database.DataBaseUtil;
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.impl.QOM;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,7 +22,7 @@ public class UserMgmtUtil {
         return userMgmtUtil;
     }
 
-    public boolean addAdminToOrg(String schemaName, String orgName, String userEmail, String password, String userName, String firstName, String lastName) {
+    public boolean addAdminToOrg(String schemaName, String orgName, String userEmail, String password, String userName, String firstName, String lastName) throws Exception {
         boolean isAdminCreated = false;
         SchemaUtil.getInstance().setSearchPathForSchema(schemaName);
         Long adminRoleID = getAdminRoleID();
@@ -33,23 +32,48 @@ public class UserMgmtUtil {
         return isAdminCreated;
     }
 
-    public boolean addUser(String userEmail, String userName, String password, String firstName, String lastName, Long roleID) {
+    public boolean addUser(String userEmail, String userName, String password, String firstName, String lastName, Long roleID) throws Exception {
         boolean isUserAdded = false;
-        DSLContext dslContext = DataBaseUtil.getDSLContext();
-        Record record = dslContext.insertInto(table("users")).columns(field("username"), field("email"), field("first_name"), field("last_name"), field("created_at"), field("updated_at")).values(userName, userEmail, firstName, lastName, System.currentTimeMillis(), System.currentTimeMillis()).returning(field("user_id")).fetchSingle();
-        if(record != null && record.size() > 0) {
-            logger.log(Level.INFO, "User details added to database, proceeding with password and role mappings");
-            Long userID = (Long) record.get(field("user_id"));
-            addUsersRoleMapping(userID, roleID);
-            isUserAdded = true;
+        try {
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            Record record = dslContext.insertInto(table("users")).columns(field("username"), field("email"), field("first_name"), field("last_name"), field("created_at"), field("updated_at"))
+                    .values(userName, userEmail, firstName, lastName, System.currentTimeMillis(), System.currentTimeMillis()).returning(field("user_id")).fetchSingle();
+            if (record != null && record.size() > 0) {
+                logger.log(Level.INFO, "User details added to database, proceeding with password and role mappings");
+                Long userID = (Long) record.get(field("user_id"));
+                if (password != null && !password.isEmpty()) {
+                    addPasswordMappingForUser(userID, password);
+                }
+                addUsersRoleMapping(userID, roleID);
+                isUserAdded = true;
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception occurred when processing user addition : {0}", e);
+            throw new Exception("Exception when creating user!");
         }
         return isUserAdded;
     }
 
-    private void addUsersRoleMapping(Long userID, Long roleID) {
+    private void addPasswordMappingForUser(Long userID, String password) throws Exception{
+        if(userID != null) {
+            String hashedPassword = PasswordUtil.hashPassword(password);
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            dslContext.insertInto(table("passwords")).columns(field("user_id"), field("hashed_password"), field("created_at"), field("updated_at"))
+                    .values(userID, hashedPassword, System.currentTimeMillis(), System.currentTimeMillis()).execute();
+            logger.log(Level.INFO, "password mapping and hashing completed.");
+        }
+    }
+
+    private void addUsersRoleMapping(Long userID, Long roleID) throws Exception{
         DSLContext dslContext = DataBaseUtil.getDSLContext();
         if(userID != null && roleID != null) {
-
+            try {
+                dslContext.insertInto(table("userroles")).columns(field("user_id"), field("role_id"))
+                        .values(userID, roleID).execute();
+                logger.log(Level.INFO, "UserRole mapping added to database");
+            } catch (Exception e) {
+                throw new RuntimeException("Exception when mapping user role ! {0}", e);
+            }
         }
     }
 

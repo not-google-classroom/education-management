@@ -2,20 +2,20 @@ package com.org.education_management.util;
 
 import com.org.education_management.database.DataBaseUtil;
 import org.jooq.DSLContext;
+import org.jooq.InsertValuesStep2;
 import org.jooq.Record;
 import org.jooq.Result;
-import org.jooq.Row;
-import org.jooq.Rows;
 import org.jooq.Table;
-import org.jooq.TableRecord;
-import org.jooq.impl.DSL;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.insertInto;
 import static org.jooq.impl.DSL.table;
 
 public class UniqueValueGenerator {
@@ -72,25 +72,23 @@ public class UniqueValueGenerator {
 
     public void updateUniqueValueToMap(String columnValue, Long uniqueGenValue) {
         if(columnValue.contains("uvg") && uniqueGenValue != null) {
-            allUVGValues.put(columnValue, uniqueGenValue);
-            updateRequiredValues.put(columnValue, uniqueGenValue);
+            allUVGValues.putIfAbsent(columnValue, uniqueGenValue);
+            updateRequiredValues.putIfAbsent(columnValue, uniqueGenValue);
         }
     }
 
     public void updateValuesToDB() {
         if (!updateRequiredValues.isEmpty()) {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
-            List<? extends TableRecord<?>> records = updateRequiredValues.entrySet().stream()
+            Table<?> table = table("uvhdetails");
+            List<InsertValuesStep2<?, ?, ?>> valuesSteps = updateRequiredValues.entrySet().stream()
                     .map(entry -> {
-                        Table<?> uvhDetailsTable = table(DSL.name("uvhdetails"));
-                        TableRecord<?> record = (TableRecord<?>) dslContext.newRecord(uvhDetailsTable);
-                        record.set(DSL.field(DSL.name("uvh_name")), entry.getKey());
-                        record.set(DSL.field(DSL.name("uvh_value")), entry.getValue());
-
-                        return record;
+                        InsertValuesStep2<?, ?, ?> insertStep = insertInto(table, field("uvh_name"), field("uvh_value"))
+                                .values(entry.getKey(), entry.getValue());
+                        return insertStep;
                     })
-                    .toList();
-            dslContext.batchInsert(records).execute();
+                    .collect(Collectors.toList());
+            dslContext.batch(valuesSteps).execute();
         }
     }
 }

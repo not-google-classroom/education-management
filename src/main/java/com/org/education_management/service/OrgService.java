@@ -42,7 +42,7 @@ public class OrgService {
             String schemaName = SchemaUtil.getInstance().createSchemaAndPopulateData(userEmail);
             if(schemaName != null && !schemaName.isEmpty()) {
                 UserMgmtUtil.getInstance().addAdminToOrg(schemaName, orgName, userEmail, password, userName, firstName, lastName);
-                //UniqueValueGenerator.getInstance().updateValuesToDB(); getting error
+                UniqueValueGenerator.getInstance().updateValuesToDB();
             }
 
         } catch (Exception e) {
