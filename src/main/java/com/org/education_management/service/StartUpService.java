@@ -69,8 +69,7 @@ public class StartUpService {
                 bulkQueryString.append(sql).append(";");
                 logger.log(Level.INFO, "SQL Constructed for Table : {0}, SQL : {1}", new Object[]{table.getTableName(), sql});
             }
-            DSLContext dslContext = DataBaseUtil.getDSLContext();
-            dslContext.execute(bulkQueryString.toString());
+            DataBaseUtil.batchUpdateQueries(bulkQueryString.toString());
             updateTableDetailsDataToDB(tableMetaData);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception when populating tables to DB", e);
@@ -211,7 +210,7 @@ public class StartUpService {
                 }
                 sqlList.append(insertStep.getSQL(ParamType.INLINED)).append(";");
             }
-            dslContext.execute(sqlList.toString());
+            DataBaseUtil.batchUpdateQueries(sqlList.toString());
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception when populating meta files : {0}", e);
         }

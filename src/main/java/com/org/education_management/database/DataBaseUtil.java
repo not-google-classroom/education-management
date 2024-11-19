@@ -8,10 +8,13 @@ import org.jooq.impl.DSL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DataBaseUtil {
 
     private static DSLContext dslContext;
+    private static final Logger logger = Logger.getLogger(DataBaseUtil.class.getName());
 
     private DataBaseUtil() {}
 
@@ -30,5 +33,14 @@ public class DataBaseUtil {
             }
         }
         return dslContext;
+    }
+
+    public static void batchUpdateQueries(String sqlList) throws Exception {
+        if(sqlList != null && !sqlList.isEmpty()) {
+            getDSLContext().execute(sqlList);
+            logger.log(Level.INFO, "Updated list of queries to the database");
+            return;
+        }
+        throw new Exception("Exception when inserting or updating queries to database!");
     }
 }
