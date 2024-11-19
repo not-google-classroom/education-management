@@ -3,9 +3,9 @@ package com.org.education_management.model;
 public class Column {
     private String name;
     private String type;
-    private Boolean primaryKey;
-    private Boolean unique;
-    private Boolean notNull;
+    private Boolean primaryKey = false;
+    private Boolean unique = false;
+    private Boolean notNull = false;
     private Boolean autoIncrement;
     private ForeignKey foreignKey;
     private String defaultValue;

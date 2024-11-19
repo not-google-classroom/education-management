@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 public class CacheService {
 
     private static final Logger logger = Logger.getLogger(CacheService.class.getName());
-    CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager("SimpleCache");
+    CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager("TableCache");
     static CacheService cacheService = null;
 
     public static CacheService getInstance() {

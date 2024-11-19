@@ -125,8 +125,7 @@ public class StartUpService {
 
     private void storeTableDataToCache(Table table) {
         String cacheKey = "TableCache_" + table.getTableName();
-        CacheService.getInstance().putInCache("SimpleCache", cacheKey, table.getColumns());
-        CacheService.getInstance().getFromCache("SimpleCache", cacheKey);
+        CacheService.getInstance().putInCache("TableCache", cacheKey, table);
         logger.log(Level.INFO, "Table data added to cache");
     }
 
@@ -157,7 +156,7 @@ public class StartUpService {
             String tableName = tableEntry.getKey();
             JsonNode tableData = tableEntry.getValue();
 
-            processMetaData(tableName, tableData);
+            processMetaData(tableName.toLowerCase(), tableData);
         }
     }
 
@@ -172,7 +171,7 @@ public class StartUpService {
             for (Column column : columns) {
                 if(column.getPrimaryKey()) {
                     primaryKeyCol = column;
-                    break;
+                    continue;
                 }
                 if(column.getForeignKey() != null) {
                     foreignKeyColMap.put(column.getName(), column);
@@ -239,11 +238,12 @@ public class StartUpService {
 
     private Table getTableData(String tableName) {
         if(tableName != null && !tableName.isEmpty()) {
-            Table table = (Table) CacheService.getInstance().getFromCache("TableCache", tableName);
+            String cacheKey = "TableCache_" + tableName;
+            Table table = (Table) CacheService.getInstance().getFromCache("TableCache", cacheKey);
             if(table == null) {
                 table = TableUtil.getInstance().getTableDetailsByName(tableName);
                 if(table != null) {
-                    CacheService.getInstance().putInCache("TableCache", tableName, table);
+                    CacheService.getInstance().putInCache("TableCache", cacheKey, table);
                 } else {
                     logger.log(Level.INFO, "unable to fetch table data for meta population! tableName : {0}", tableName);
                 }
