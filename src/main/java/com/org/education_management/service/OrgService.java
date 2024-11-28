@@ -14,9 +14,9 @@ public class OrgService {
 
     private static final Logger logger = Logger.getLogger(OrgService.class.getName());
 
-    public Map<String, Object> getDetailsByOrgID(long orgID) throws Exception {
+    public Map<Long, Object> getDetailsByOrgID(Long orgID) throws Exception {
         logger.log(Level.INFO, "OrgService : getting org details by ID called with id : {0}", orgID);
-        Map<String, Object> resultMap = new HashMap<>();
+        Map<Long, Object> resultMap = new HashMap<>();
         try {
             resultMap = OrgUtil.getInstance().getOrgDetailsByID(orgID);
         } catch (Exception e) {
@@ -48,6 +48,8 @@ public class OrgService {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception when creating organization : {0}", e);
             throw new Exception(e);
+        } finally {
+            SchemaUtil.getInstance().setSearchPathToPublic();
         }
     }
 

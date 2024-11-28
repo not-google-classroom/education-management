@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/api/roles/getAllRoles",
+    "method": "GET",
+    "roles": ["all"],
+    "params": [
+      {
+        "name": "roleID",
+        "type": "long",
+        "required": false
+      }
+    ]
+  }
+]

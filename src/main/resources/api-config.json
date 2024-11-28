@@ -1,6 +1,14 @@
 {
+  "AuthSecurity": {
+    "file_name": "security-auth-api.json",
+    "file_path": "\\resources\\SecurityManagement\\security-auth-api.json"
+  },
   "OrgSecurity": {
     "file_name": "security-org-api.json",
     "file_path": "\\resources\\SecurityManagement\\security-org-api.json"
+  },
+  "RoleSecurity": {
+    "file_name": "security-roles-api.json",
+    "file_path": "\\resources\\SecurityManagement\\security-roles-api.json"
   }
 }

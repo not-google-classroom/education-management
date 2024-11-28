@@ -48,10 +48,11 @@ public class ApiSecurityFilter implements Filter {
         boolean isRuleMatched = false;
         // Find matching rule
         for(ApiRule rule : apiRules) {
+
             if(rule.getPath().equalsIgnoreCase(path) && rule.getMethod().equalsIgnoreCase(method)) {
                 isRuleMatched = true;
                 // Check roles only if roles are defined and not empty
-                if (rule.getRoles() != null && !rule.getRoles().isEmpty()) {
+                if (rule.getRoles() != null && !rule.getRoles().isEmpty() && !rule.getRoles().contains("all")) {
                     String userRole = getUserRoleFromContext(); // Assume this method fetches the user role
                     if (!rule.getRoles().contains(userRole)) {
                         logger.log(Level.SEVERE, "you're not authorized to do this operation");
@@ -61,7 +62,7 @@ public class ApiSecurityFilter implements Filter {
                 }
 
                 MultipartHttpServletRequest multipartHttpServletRequest = null;
-                if(isMultipartRequest(httpRequest)) {
+                if (isMultipartRequest(httpRequest)) {
                     multipartHttpServletRequest = new StandardMultipartHttpServletRequest(httpRequest);
                 }
 
@@ -74,20 +75,22 @@ public class ApiSecurityFilter implements Filter {
                 }
 
                 // Validate request parameters
-                for (ParamRule paramRule : rule.getParams()) {
-                    Object paramValue = httpRequest.getParameter(paramRule.getName());
-                    if(paramValue == null) {
-                        if(requestBody != null) {
-                            paramValue = requestBody.opt(paramRule.getName());
+                if (rule.getParams() != null) {
+                    for (ParamRule paramRule : rule.getParams()) {
+                        Object paramValue = httpRequest.getParameter(paramRule.getName());
+                        if (paramValue == null) {
+                            if (requestBody != null) {
+                                paramValue = requestBody.opt(paramRule.getName());
+                            }
+                            if (requestBody == null && multipartHttpServletRequest != null) {
+                                paramValue = multipartHttpServletRequest.getParameter(paramRule.getName());
+                            }
                         }
-                        if(requestBody == null && multipartHttpServletRequest != null) {
-                            paramValue = multipartHttpServletRequest.getParameter(paramRule.getName());
+                        if (!validateParam(paramValue, paramRule)) {
+                            logger.log(Level.WARNING, "Invalid parameter: {0}", paramRule.getName());
+                            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request parameter format found!");
+                            return;
                         }
-                    }
-                    if (!validateParam(paramValue, paramRule)) {
-                        logger.log(Level.WARNING, "Invalid parameter: {0}", paramRule.getName());
-                        httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request parameter format found!");
-                        return;
                     }
                 }
                 break;
