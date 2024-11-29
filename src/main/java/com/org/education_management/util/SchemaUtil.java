@@ -30,12 +30,13 @@ public class SchemaUtil {
     public String createSchemaAndPopulateData(String userEmail) throws Exception {
         Long userID = OrgUtil.getInstance().getUserIDByEmail(userEmail);
         if(userID != null) {
-            Map<String, Object> orgDetails = new HashMap<>();
+            Map<Long, Object> orgDetails = new HashMap<>();
             Long orgID = OrgUtil.getInstance().getOrgIDByUserID(userID);
             if(orgID != null) {
                 orgDetails = OrgUtil.getInstance().getOrgDetailsByID(orgID);
                 if(!orgDetails.isEmpty()) {
-                    String orgName = (String) orgDetails.get("org_name");
+                    Map<Long, Object> orgDetailsMap = (Map<Long, Object>) orgDetails.get(orgID);
+                    String orgName = (String) orgDetailsMap.get("org_name");
                     orgName = orgName.replaceAll(" ", "");
                     String schemaName = createSchemaName();
                     try {

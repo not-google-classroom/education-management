@@ -3,6 +3,8 @@ package com.org.education_management.util;
 import com.org.education_management.database.DataBaseUtil;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Result;
+import org.jooq.impl.DSL;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.name;
 import static org.jooq.impl.DSL.table;
 
 public class OrgUtil {
@@ -109,19 +112,19 @@ public class OrgUtil {
         return orgID;
     }
 
-    public Map<String, Object> getOrgDetailsByID(long orgID) {
+    public Map<Long, Object> getOrgDetailsByID(Long orgID) {
         DSLContext dsl = DataBaseUtil.getDSLContext();
 
         // Execute query
-        Record record = dsl.select()
+        Result<Record> result = dsl.select()
                 .from("OrgDetails")
-                .where(field("ORG_ID").eq(orgID))
-                .fetchOne();
+                .where(orgID != null ? field("ORG_ID").eq(orgID) : DSL.noCondition())
+                .fetch();
 
-        Map<String, Object> resultMap = new HashMap<>();
+        Map<Long, Object> resultMap = new HashMap<>();
 
-        if (record != null) {
-            resultMap = record.intoMap();
+        for (Record record : result) {
+            resultMap.put((Long) record.get("org_id"), record.intoMap());
         }
 
         logger.log(Level.INFO, "Result record : {0}", resultMap);
@@ -158,5 +161,18 @@ public class OrgUtil {
 
         logger.log(Level.INFO, "Result record : {0}", resultMap);
         return resultMap;
+    }
+
+    public String getSchemaName(Long userID) {
+        if(userID != null) {
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            Record record = dslContext.select().from(table("orgusersmapping")).innerJoin(table("sasschemadetails")).on(field(name("orgusersmapping", "org_id")).eq(field(name("sasschemadetails", "org_id")))).where(field("user_id").eq(userID)).fetchOne();
+            if(record != null && record.size() > 0) {
+                return (String) record.get("schema_name");
+            }
+            logger.log(Level.WARNING, "user details not found! to find schema details");
+        }
+        logger.log(Level.WARNING, "unable to fetch schema Name for userID : {0}", userID);
+        return null;
     }
 }

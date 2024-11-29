@@ -53,5 +53,10 @@
         "required": true
       }
     ]
+  },
+  {
+    "path": "/api/org/csrf-token",
+    "method": "GET",
+    "roles": ["all"]
   }
 ]

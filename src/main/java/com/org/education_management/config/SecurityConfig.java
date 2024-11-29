@@ -11,11 +11,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeRequests()
-                .requestMatchers("/api/org/createOrg", "/api/fees/createFeesStructure", "/api/fees/payFees").permitAll()  // Allow registration and public paths
-                .anyRequest().authenticated();  // Secure all other endpoints
-
+        http.csrf().disable();
         return http.build();
     }
 

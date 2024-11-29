@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.name;
 import static org.jooq.impl.DSL.table;
 
 public class UserMgmtUtil {
@@ -83,4 +84,22 @@ public class UserMgmtUtil {
         return (record != null && record.get(field("role_id")) != null) ? (Long) record.get(field("role_id")) : null;
     }
 
+    public boolean validateUser(String userEmail, String password) {
+        if(userEmail != null && password != null) {
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            Record record = dslContext.select().from(table("users")).innerJoin(table("passwords")).on(field(name("passwords", "user_id")).eq(field(name("users", "user_id")))).where(field(name("users", "email")).eq(userEmail)).fetchOne();
+            if(record != null) {
+                String hashedPwd = (String) record.get(name("passwords", "hashed_password"));
+                if(PasswordUtil.checkPassword(password, hashedPwd)) {
+                    logger.log(Level.INFO, "validation successfully done for login.");
+                    return true;
+                }
+                logger.log(Level.WARNING, "passwords doesn't match, unable to proceed further! Try again");
+            } else {
+                logger.log(Level.WARNING, "userdetails not found to initiate login !");
+                return false;
+            }
+        }
+        return false;
+    }
 }
