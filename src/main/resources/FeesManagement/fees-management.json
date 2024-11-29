@@ -1,0 +1,92 @@
+{
+  "tables": [
+    {
+      "tableName": "Fees",
+      "columns": [
+        {
+          "name": "FEES_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "autoIncrement": true
+        },
+        {
+          "name": "FEES_NAME",
+          "type": "VARCHAR(255)",
+          "notNull": true
+        },
+        {
+          "name": "TOTAL_FEES",
+          "type": "BIGINT"
+        },
+        {
+          "name": "REMAINING_FEES",
+          "type": "BIGINT"
+        },
+        {
+          "name": "INSTALLMENTS",
+          "type": "INTEGER"
+        }
+      ]
+    },
+    {
+      "tableName": "Installments",
+      "columns": [
+        {
+          "name": "INSTALLMENT_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "autoIncrement": true
+        },
+        {
+          "name": "FEES_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Fees",
+            "referencedColumn": "FEES_ID",
+            "onDelete": "CASCADE"
+          }
+        },
+        {
+          "name": "INSTALLMENT_NAME",
+          "type": "VARCHAR(255)",
+          "notNull": true
+        },
+        {
+          "name": "INSTALLMENT_AMOUNT",
+          "type": "BIGINT"
+        },
+        {
+          "name": "DUE_DATE",
+          "type": "BIGINT"
+        }
+      ]
+    },{
+      "tableName": "Transactions",
+      "columns": [
+        {
+          "name": "TRANSACTION_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "autoIncrement": true
+        },
+        {
+          "name": "INSTALLMENT_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Installments",
+            "referencedColumn": "INSTALLMENT_ID",
+            "onDelete": "CASCADE"
+          }
+        },
+        {
+          "name": "TRANSACTION_AMOUNT",
+          "type": "BIGINT"
+        },
+        {
+          "name": "TRANSACTION_DATE",
+          "type": "BIGINT"
+        }
+      ]
+    }
+  ]
+}

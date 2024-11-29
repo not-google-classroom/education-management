@@ -13,7 +13,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .requestMatchers("/api/org/createOrg").permitAll()  // Allow registration and public paths
+                .requestMatchers("/api/org/createOrg", "/api/fees/createFeesStructure", "/api/fees/payFees").permitAll()  // Allow registration and public paths
                 .anyRequest().authenticated();  // Secure all other endpoints
 
         return http.build();

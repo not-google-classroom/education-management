@@ -10,5 +10,9 @@
   "RoleManagement": {
     "file_name": "role-management.json",
     "file_path": "\\resources\\RoleManagement\\role-management.json"
+  },
+  "FeesManagement": {
+    "file_name": "fees-management.json",
+    "file_path": "\\resources\\FeesManagement\\fees-management.json"
   }
 }

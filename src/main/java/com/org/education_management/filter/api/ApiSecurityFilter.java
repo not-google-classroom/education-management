@@ -47,8 +47,8 @@ public class ApiSecurityFilter implements Filter {
 
         boolean isRuleMatched = false;
         // Find matching rule
-        for(ApiRule rule : apiRules) {
-            if(rule.getPath().equalsIgnoreCase(path) && rule.getMethod().equalsIgnoreCase(method)) {
+        for (ApiRule rule : apiRules) {
+            if (rule.getPath().equalsIgnoreCase(path) && rule.getMethod().equalsIgnoreCase(method)) {
                 isRuleMatched = true;
                 // Check roles only if roles are defined and not empty
                 if (rule.getRoles() != null && !rule.getRoles().isEmpty()) {
@@ -61,7 +61,7 @@ public class ApiSecurityFilter implements Filter {
                 }
 
                 MultipartHttpServletRequest multipartHttpServletRequest = null;
-                if(isMultipartRequest(httpRequest)) {
+                if (isMultipartRequest(httpRequest)) {
                     multipartHttpServletRequest = new StandardMultipartHttpServletRequest(httpRequest);
                 }
 
@@ -76,11 +76,11 @@ public class ApiSecurityFilter implements Filter {
                 // Validate request parameters
                 for (ParamRule paramRule : rule.getParams()) {
                     Object paramValue = httpRequest.getParameter(paramRule.getName());
-                    if(paramValue == null) {
-                        if(requestBody != null) {
+                    if (paramValue == null) {
+                        if (requestBody != null) {
                             paramValue = requestBody.opt(paramRule.getName());
                         }
-                        if(requestBody == null && multipartHttpServletRequest != null) {
+                        if (requestBody == null && multipartHttpServletRequest != null) {
                             paramValue = multipartHttpServletRequest.getParameter(paramRule.getName());
                         }
                     }
@@ -93,10 +93,10 @@ public class ApiSecurityFilter implements Filter {
                 break;
             }
         }
-        if(isRuleMatched) {
+        if (isRuleMatched) {
             chain.doFilter(request, response);  // Proceed if validation passes
         } else {
-            logger.log(Level.SEVERE,  "Invalid api details or api is not configured");
+            logger.log(Level.SEVERE, "Invalid api details or api is not configured");
             httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid api url");
         }
     }
