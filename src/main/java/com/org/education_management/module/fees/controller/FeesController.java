@@ -21,12 +21,18 @@ public class FeesController {
     FeesService feesService = new FeesService();
 
     @PostMapping(value = "/createFeesStructure", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> createFeesStructure(@RequestBody String requestBody) throws JSONException {
-        JSONObject request = new JSONObject(requestBody);
+    public Map<String, Object> createFeesStructure(Map<String, Object> ruleParamsMa) {
         Map<String, Object> resultMap = new HashMap<>();
         try {
+            // Pass the request map directly to the service, or convert it to JSONObject if needed
+            JSONObject request = new JSONObject(ruleParamsMa);
             feesService.createFeesStructure(request);
+
+            // Success response
+            resultMap.put(StatusConstants.STATUS_CODE, 200);
+            resultMap.put(StatusConstants.MESSAGE, "Fees structure created successfully");
         } catch (Exception e) {
+            // Error response
             resultMap.put(StatusConstants.STATUS_CODE, 400);
             resultMap.put(StatusConstants.MESSAGE, "Unable to create fees structure contact support");
         }
@@ -37,22 +43,45 @@ public class FeesController {
     public Map<String, Object> payFees(@RequestParam Map<String, Object> requestMap) throws JSONException {
         Map<String, Object> resultMap = new HashMap<>();
         System.out.println(requestMap);
-        if ((requestMap.containsKey("userId") && requestMap.get("userId") != null) && requestMap.containsKey("installmentId") && requestMap.get("installmentId") != null) {
-            try {
-                if (feesService.payFees((Long) requestMap.get("userId"), (Long) requestMap.get("installmentId"))) {
-                    resultMap.put(StatusConstants.MESSAGE, "Organization details fetched successfully");
-                    resultMap.put(StatusConstants.STATUS_CODE, 200);
-                } else {
-                    resultMap.put(StatusConstants.STATUS_CODE, 204);
-                    resultMap.put(StatusConstants.MESSAGE, "Unable to process the request!");
-                }
-                return resultMap;
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Exception when getting orgDetails : {0}", e);
-                resultMap.put(StatusConstants.STATUS_CODE, 500);
-                resultMap.put(StatusConstants.MESSAGE, "Internal server error!");
+        try {
+            if (feesService.payFees(requestMap)) {
+                resultMap.put(StatusConstants.MESSAGE, "Organization details fetched successfully");
+                resultMap.put(StatusConstants.STATUS_CODE, 200);
+            } else {
+                resultMap.put(StatusConstants.STATUS_CODE, 204);
+                resultMap.put(StatusConstants.MESSAGE, "Unable to process the request!");
             }
+            return resultMap;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception when getting orgDetails : {0}", e);
+            resultMap.put(StatusConstants.STATUS_CODE, 500);
+            resultMap.put(StatusConstants.MESSAGE, "Internal server error!");
         }
+
+        resultMap.put(StatusConstants.STATUS_CODE, 204);
+        resultMap.put(StatusConstants.MESSAGE, "Unable to process the request!");
+        return resultMap;
+    }
+
+    @PostMapping("/mapFees")
+    public Map<String, Object> mapFees(@RequestParam Map<String, Object> requestMap) throws JSONException {
+        Map<String, Object> resultMap = new HashMap<>();
+        System.out.println(requestMap);
+        try {
+            if (feesService.payFees(requestMap)) {
+                resultMap.put(StatusConstants.MESSAGE, "Organization details fetched successfully");
+                resultMap.put(StatusConstants.STATUS_CODE, 200);
+            } else {
+                resultMap.put(StatusConstants.STATUS_CODE, 204);
+                resultMap.put(StatusConstants.MESSAGE, "Unable to process the request!");
+            }
+            return resultMap;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception when getting orgDetails : {0}", e);
+            resultMap.put(StatusConstants.STATUS_CODE, 500);
+            resultMap.put(StatusConstants.MESSAGE, "Internal server error!");
+        }
+
         resultMap.put(StatusConstants.STATUS_CODE, 204);
         resultMap.put(StatusConstants.MESSAGE, "Unable to process the request!");
         return resultMap;

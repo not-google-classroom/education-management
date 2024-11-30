@@ -29,13 +29,13 @@ public class OrgUtil {
 
     public boolean isEmailExists(String userEmail) {
         boolean isExists = false;
-        if(userEmail != null && !userEmail.isEmpty()) {
+        if (userEmail != null && !userEmail.isEmpty()) {
             DSLContext dsl = DataBaseUtil.getDSLContext();
             Record record = dsl.select()
                     .from("UserDetails")
                     .where(field("USER_EMAIL").eq(userEmail))
                     .fetchOne();
-            if(record != null && record.size() > 0) {
+            if (record != null && record.size() > 0) {
                 isExists = true;
             }
         }
@@ -45,7 +45,7 @@ public class OrgUtil {
     private void addEntryToUserDetails(String userEmail) throws Exception {
         DSLContext dslContext = DataBaseUtil.getDSLContext();
         int record = dslContext.insertInto(table("UserDetails")).columns(field("USER_EMAIL"), field("CREATED_TIME")).values(userEmail, System.currentTimeMillis()).execute();
-        if(record > 0) {
+        if (record > 0) {
             logger.log(Level.INFO, "user added successfully...");
         } else {
             logger.log(Level.SEVERE, "user addition failed");
@@ -55,10 +55,10 @@ public class OrgUtil {
 
     public Long getUserIDByEmail(String userEmail) {
         Long userID = null;
-        if(userEmail != null && !userEmail.isEmpty()) {
+        if (userEmail != null && !userEmail.isEmpty()) {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
             Record record = dslContext.select().from("UserDetails").where(field("USER_EMAIL").eq(userEmail)).fetchOne();
-            if(record != null) {
+            if (record != null) {
                 userID = (Long) record.get(0);
             }
         }
@@ -66,7 +66,7 @@ public class OrgUtil {
     }
 
     public void createOrgAndSchema(String orgName, String userEmail) throws Exception {
-        try{
+        try {
             addEntryToUserDetails(userEmail);
             addEntryToOrgDetailsAndMapping(orgName, userEmail);
         } catch (Exception e) {
@@ -77,10 +77,10 @@ public class OrgUtil {
 
     private void addEntryToOrgDetailsAndMapping(String orgName, String userEmail) throws Exception {
         Long userID = getUserIDByEmail(userEmail);
-        if(userID != null) {
+        if (userID != null) {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
             int addOrgRecord = dslContext.insertInto(table("OrgDetails")).columns(field("ORG_NAME"), field("USER_ID"), field("CREATED_TIME")).values(orgName, userID, System.currentTimeMillis()).execute();
-            if(addOrgRecord > 0) {
+            if (addOrgRecord > 0) {
                 logger.log(Level.INFO, "organization : {0}, added successfully, mapping and schema creation starts.");
                 addMappingsForOrgAndUser(orgName, userID);
             }
@@ -91,10 +91,10 @@ public class OrgUtil {
 
     private void addMappingsForOrgAndUser(String orgName, Long userID) {
         Long orgID = getOrgIDByUserID(userID);
-        if(orgID != null && userID != null) {
+        if (orgID != null && userID != null) {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
             int addMapping = dslContext.insertInto(table("OrgUsersMapping")).columns(field("ORG_ID"), field("USER_ID")).values(orgID, userID).execute();
-            if(addMapping > 0) {
+            if (addMapping > 0) {
                 logger.log(Level.INFO, "Org users mapping added successfully for org : {0}", orgName);
             }
         }
@@ -102,10 +102,10 @@ public class OrgUtil {
 
     public Long getOrgIDByUserID(Long userID) {
         Long orgID = null;
-        if(userID != null) {
+        if (userID != null) {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
             Record orgRecord = dslContext.select().from("OrgDetails").where(field("USER_ID").eq(userID)).fetchOne();
-            if(orgRecord != null) {
+            if (orgRecord != null) {
                 orgID = (Long) orgRecord.get(0);
             }
         }
@@ -135,9 +135,9 @@ public class OrgUtil {
     public void deletePrepopulatedDataForSchemaFailure(Long orgID, Long userID) {
         DSLContext dslContext = DataBaseUtil.getDSLContext();
         SchemaUtil.getInstance().setSearchPathToPublic();
-        if(orgID != null) {
+        if (orgID != null) {
             dslContext.deleteFrom(table("OrgDetails")).where(field("ORG_ID").eq(orgID)).execute();
-            if(userID != null) {
+            if (userID != null) {
                 dslContext.deleteFrom(table("UserDetails")).where(field("USER_ID").eq(userID)).execute();
             }
             logger.log(Level.INFO, "org and user details deleted successfully, try creating new organization");
@@ -164,15 +164,24 @@ public class OrgUtil {
     }
 
     public String getSchemaName(Long userID) {
-        if(userID != null) {
+        if (userID != null) {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
             Record record = dslContext.select().from(table("orgusersmapping")).innerJoin(table("sasschemadetails")).on(field(name("orgusersmapping", "org_id")).eq(field(name("sasschemadetails", "org_id")))).where(field("user_id").eq(userID)).fetchOne();
-            if(record != null && record.size() > 0) {
+            if (record != null && record.size() > 0) {
                 return (String) record.get("schema_name");
             }
             logger.log(Level.WARNING, "user details not found! to find schema details");
         }
         logger.log(Level.WARNING, "unable to fetch schema Name for userID : {0}", userID);
         return null;
+    }
+
+    public boolean checkIfUserExists(long userId) {
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        Record record = dslContext.select().from("UserDetails").where(field("USER_ID").eq(userId)).fetchOne();
+        if (record != null) {
+            return true;
+        }
+        return false;
     }
 }

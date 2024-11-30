@@ -60,7 +60,8 @@
           "type": "BIGINT"
         }
       ]
-    },{
+    },
+    {
       "tableName": "Transactions",
       "columns": [
         {
@@ -85,6 +86,31 @@
         {
           "name": "TRANSACTION_DATE",
           "type": "BIGINT"
+        }
+      ]
+    },
+    {
+      "tableName": "FeesMapping",
+      "columns": [
+        {
+          "name": "FEES_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "foreignKey": {
+            "referencedTable": "Fees",
+            "referencedColumn": "FEES_ID",
+            "onDelete": "CASCADE"
+          }
+        },
+        {
+          "name": "USER_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "foreignKey": {
+            "referencedTable": "Users",
+            "referencedColumn": "USER_ID",
+            "onDelete": "CASCADE"
+          }
         }
       ]
     }
