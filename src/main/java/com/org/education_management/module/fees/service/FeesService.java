@@ -2,12 +2,15 @@ package com.org.education_management.module.fees.service;
 
 import com.org.education_management.database.DataBaseUtil;
 import com.org.education_management.util.OrgUtil;
+import org.checkerframework.checker.units.qual.A;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Result;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -86,7 +89,7 @@ public class FeesService {
     }
 
     public boolean mapFees(JSONObject feesStructure) throws Exception {
-
+        feesStructure = getMappingData();
         if (!feesStructure.has("feesId")) {
             return false;
         }
@@ -97,7 +100,44 @@ public class FeesService {
         Long feesId = feesStructure.getLong("feesId");
         JSONArray usersArray = feesStructure.getJSONArray("userIds");
 
+        for (int i = 0; i < usersArray.length(); i++) {
+            Long userId = ((Integer) usersArray.get(i)).longValue();
+            Map<String, Object> insertData = new HashMap<>();
+            insertData.put("USER_ID", userId);
+            insertData.put("FEES_ID", feesId);
+            DataBaseUtil.insertData("feesmapping", insertData);
+        }
+
         return false;
+    }
+
+    public boolean getFeesForUser(Map<String, Object> requestMap) throws Exception {
+        if (!requestMap.containsKey("userId") || requestMap.get("userId") == null) {
+            return false;
+        }
+
+        Long userId = Long.parseLong(requestMap.get("userId").toString());
+        ArrayList<Long> feesIdList = getFeesForUser(userId);
+
+        return false;
+    }
+
+    private ArrayList<Long> getFeesForUser(Long userId) {
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        ArrayList<Long> feesIdList = new ArrayList<>();
+        Result<Record> result = dslContext.select().from("feesmapping").where(field("USER_ID").eq(userId)).fetch();
+        for (Record record : result) {
+            feesIdList.add((Long) record.get("fees_id"));
+        }
+        return feesIdList;
+    }
+
+
+    private JSONObject getMappingData() throws JSONException {
+        return new JSONObject("{\n" +
+                "    \"feesId\" : 1,\n" +
+                "    \"userIds\" : [1]\n" +
+                "}");
     }
 
     private boolean addEntryInTransaction(Long installmentId, Long transactionAmount) throws Exception {

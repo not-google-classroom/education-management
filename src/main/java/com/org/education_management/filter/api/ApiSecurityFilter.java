@@ -65,13 +65,15 @@ public class ApiSecurityFilter implements Filter {
                 if (isMultipartRequest(httpRequest)) {
                     multipartHttpServletRequest = new StandardMultipartHttpServletRequest(httpRequest);
                 }
-
                 JSONObject requestBody = null;
-                try {
-                    requestBody = new JSONObject(wrapper.getBody());
-                } catch (JSONException e) {
-                    logger.log(Level.SEVERE, "Request body is not in expected format");
+                if(rule.getBodyValidation() != null){
+                    try {
+                        requestBody = new JSONObject(wrapper.getBody());
+                    } catch (JSONException e) {
+                        logger.log(Level.SEVERE, "Request body is not in expected format");
+                    }
                 }
+
 
                 // Validate request parameters
                 if (rule.getParams() != null) {

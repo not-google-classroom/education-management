@@ -25,12 +25,13 @@ public class AuthController {
     @PostMapping("login")
     private Map<String, Object> loginToService(@RequestParam Map<String, Object> requestMap, HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
-        if(requestMap.containsKey("userEmail") && requestMap.containsKey("password")) {
+        if (requestMap.containsKey("userEmail") && requestMap.containsKey("password")) {
             logger.log(Level.INFO, "login for user initiated...");
             String token = authService.validateLogin(requestMap);
-            if(token != null) {
+            if (token != null) {
                 result.put(StatusConstants.STATUS_CODE, 200);
                 result.put(StatusConstants.MESSAGE, "user logged in successfully");
+                result.put("token", token);
                 response.addCookie(new Cookie("token", token));
                 return result;
             }

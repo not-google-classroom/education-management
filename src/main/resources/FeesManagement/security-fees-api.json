@@ -2,7 +2,10 @@
   {
     "path": "/api/fees/createFeesStructure",
     "method": "POST",
-    "roles": ["admin", "user"],
+    "roles": [
+      "admin",
+      "user"
+    ],
     "params": [],
     "bodyValidation": {
       "feesName": "^[a-zA-Z0-9 ]{3,30}$"
@@ -11,7 +14,10 @@
   {
     "path": "/api/fees/payFees",
     "method": "GET",
-    "roles": ["admin", "user"],
+    "roles": [
+      "admin",
+      "user"
+    ],
     "params": [
       {
         "name": "userId",
@@ -20,6 +26,33 @@
       },
       {
         "name": "installmentId",
+        "type": "long",
+        "required": true
+      }
+    ]
+  },
+  {
+    "path": "/api/fees/mapFees",
+    "method": "POST",
+    "roles": [
+      "admin",
+      "user"
+    ],
+    "params": [],
+    "bodyValidation": {
+      "feesId": "^[a-zA-Z0-9 ]{3,30}$"
+    }
+  },
+  {
+    "path": "/api/fees/getFeesForUser",
+    "method": "GET",
+    "roles": [
+      "admin",
+      "user"
+    ],
+    "params": [
+      {
+        "name": "userId",
         "type": "long",
         "required": true
       }

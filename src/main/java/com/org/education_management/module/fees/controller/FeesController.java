@@ -20,12 +20,11 @@ public class FeesController {
 
     FeesService feesService = new FeesService();
 
-    @PostMapping(value = "/createFeesStructure", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> createFeesStructure(Map<String, Object> ruleParamsMa) {
+    @PostMapping("/createFeesStructure")
+    public Map<String, Object> createFeesStructure(@RequestParam Map<String, Object> feesDetails) {
         Map<String, Object> resultMap = new HashMap<>();
         try {
-            // Pass the request map directly to the service, or convert it to JSONObject if needed
-            JSONObject request = new JSONObject(ruleParamsMa);
+            JSONObject request = new JSONObject(feesDetails);
             feesService.createFeesStructure(request);
 
             // Success response
@@ -64,11 +63,35 @@ public class FeesController {
     }
 
     @PostMapping("/mapFees")
-    public Map<String, Object> mapFees(@RequestParam Map<String, Object> requestMap) throws JSONException {
+    public Map<String, Object> mapFees(@RequestParam Map<String, Object> feesDetails) throws JSONException {
         Map<String, Object> resultMap = new HashMap<>();
-        System.out.println(requestMap);
+        System.out.println(feesDetails);
         try {
-            if (feesService.payFees(requestMap)) {
+            if (feesService.mapFees(new JSONObject(feesDetails))) {
+                resultMap.put(StatusConstants.MESSAGE, "Organization details fetched successfully");
+                resultMap.put(StatusConstants.STATUS_CODE, 200);
+            } else {
+                resultMap.put(StatusConstants.STATUS_CODE, 204);
+                resultMap.put(StatusConstants.MESSAGE, "Unable to process the request!");
+            }
+            return resultMap;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception when getting orgDetails : {0}", e);
+            resultMap.put(StatusConstants.STATUS_CODE, 500);
+            resultMap.put(StatusConstants.MESSAGE, "Internal server error!");
+        }
+
+        resultMap.put(StatusConstants.STATUS_CODE, 204);
+        resultMap.put(StatusConstants.MESSAGE, "Unable to process the request!");
+        return resultMap;
+    }
+
+    @GetMapping("/getFeesForUser")
+    public Map<String, Object> getFeesForUser(@RequestParam Map<String, Object> feesDetails) throws JSONException {
+        Map<String, Object> resultMap = new HashMap<>();
+        System.out.println(feesDetails);
+        try {
+            if (feesService.getFeesForUser(feesDetails)) {
                 resultMap.put(StatusConstants.MESSAGE, "Organization details fetched successfully");
                 resultMap.put(StatusConstants.STATUS_CODE, 200);
             } else {
