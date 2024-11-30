@@ -46,6 +46,7 @@ public class ApiSecurityFilter implements Filter {
         List<ApiRule> apiRules = ApiSecurityUtil.getInstance().getApiRules();
 
         boolean isRuleMatched = false;
+        RequestBodyWrapper wrapper = new RequestBodyWrapper(httpRequest);
         // Find matching rule
         for(ApiRule rule : apiRules) {
             if(rule.getPath().equalsIgnoreCase(path) && rule.getMethod().equalsIgnoreCase(method)) {
@@ -65,7 +66,6 @@ public class ApiSecurityFilter implements Filter {
                     multipartHttpServletRequest = new StandardMultipartHttpServletRequest(httpRequest);
                 }
 
-                RequestBodyWrapper wrapper = new RequestBodyWrapper(httpRequest);
                 JSONObject requestBody = null;
                 try {
                     requestBody = new JSONObject(wrapper.getBody());
@@ -96,7 +96,7 @@ public class ApiSecurityFilter implements Filter {
             }
         }
         if(isRuleMatched) {
-            chain.doFilter(request, response);  // Proceed if validation passes
+            chain.doFilter(wrapper, response);  // Proceed if validation passes
         } else {
             logger.log(Level.SEVERE,  "Invalid api details or api is not configured");
             httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid api url");

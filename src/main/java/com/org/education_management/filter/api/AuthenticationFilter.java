@@ -3,6 +3,8 @@ package com.org.education_management.filter.api;
 import com.org.education_management.util.JWTUtil;
 import com.org.education_management.util.SchemaUtil;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.SignatureException;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -70,6 +72,15 @@ public class AuthenticationFilter implements Filter {
                 return;
             }
             chain.doFilter(request, response);
+        } catch (SignatureException sigExp) {
+            httpServletResponse.sendRedirect("/api/auth/login");
+            httpServletResponse.setStatus(HttpServletResponse.SC_FOUND);
+            logger.log(Level.SEVERE, "Exception when validating cookie, signature mismatch!", sigExp);
+        }
+        catch (ExpiredJwtException extoken) {
+            httpServletResponse.sendRedirect("/login");
+            httpServletResponse.setStatus(HttpServletResponse.SC_FOUND);
+            logger.log(Level.SEVERE, "Token validity expired! try login ", extoken);
         }
         catch (Exception e) {
             httpServletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -77,6 +88,7 @@ public class AuthenticationFilter implements Filter {
             logger.log(Level.SEVERE, "Exception when validating user credentials!", e);
             return;
         } finally {
+            httpServletResponse.getOutputStream().close();
             SchemaUtil.getInstance().setSearchPathToPublic();
         }
     }
