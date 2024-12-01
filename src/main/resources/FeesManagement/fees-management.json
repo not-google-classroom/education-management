@@ -19,10 +19,6 @@
           "type": "BIGINT"
         },
         {
-          "name": "REMAINING_FEES",
-          "type": "BIGINT"
-        },
-        {
           "name": "INSTALLMENTS",
           "type": "INTEGER"
         }
@@ -71,11 +67,29 @@
           "autoIncrement": true
         },
         {
+          "name": "FEES_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Fees",
+            "referencedColumn": "FEES_ID",
+            "onDelete": "CASCADE"
+          }
+        },
+        {
           "name": "INSTALLMENT_ID",
           "type": "BIGINT",
           "foreignKey": {
             "referencedTable": "Installments",
             "referencedColumn": "INSTALLMENT_ID",
+            "onDelete": "CASCADE"
+          }
+        },
+        {
+          "name": "USER_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Users",
+            "referencedColumn": "USER_ID",
             "onDelete": "CASCADE"
           }
         },
@@ -92,6 +106,88 @@
     {
       "tableName": "FeesMapping",
       "columns": [
+        {
+          "name": "FEES_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Fees",
+            "referencedColumn": "FEES_ID",
+            "onDelete": "CASCADE"
+          }
+        },
+        {
+          "name": "USER_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Users",
+            "referencedColumn": "USER_ID",
+            "onDelete": "CASCADE"
+          }
+        },
+        {
+          "name": "TOTAL_FEES",
+          "type": "BIGINT"
+        },
+        {
+          "name": "BALANCE_FEES",
+          "type": "BIGINT"
+        }
+      ]
+    },
+    {
+      "tableName": "Fine",
+      "columns": [
+        {
+          "name": "FINE_ID",
+          "type": "BIGINT",
+          "primaryKey": true,
+          "autoIncrement": true
+        },
+        {
+          "name": "FINE_NAME",
+          "type": "VARCHAR(255)",
+          "notNull": true
+        },
+        {
+          "name": "FINE_AMOUNT",
+          "type": "BIGINT",
+          "notNull": true
+        },
+        {
+          "name": "ONE_TIME_FINE",
+          "type": "BOOLEAN",
+          "defaultValue": true,
+          "notNull": true
+        },
+        {
+          "name": "FINE_EVERY_DURATION",
+          "type": "VARCHAR(255)",
+          "notNull": false
+        },
+        {
+          "name": "FINE_FROM",
+          "type": "BIGINT",
+          "notNull": false
+        },
+        {
+          "name": "FINE_TILL",
+          "type": "BIGINT",
+          "notNull": false
+        }
+      ]
+    },
+    {
+      "tableName": "FineMapping",
+      "columns": [
+        {
+          "name": "FINE_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "Fine",
+            "referencedColumn": "FINE_ID",
+            "onDelete": "CASCADE"
+          }
+        },
         {
           "name": "FEES_ID",
           "type": "BIGINT",

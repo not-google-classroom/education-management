@@ -49,7 +49,7 @@ public class DataBaseUtil {
      * @param tableName The name of the table.
      * @param dataMap   A map of column names and their corresponding values.
      */
-    public static void insertData(String tableName, Map<String, Object> dataMap) {
+    public static boolean insertData(String tableName, Map<String, Object> dataMap) {
         try {
             DSLContext context = getDSLContext();
             // Build the INSERT statement dynamically
@@ -65,7 +65,9 @@ public class DataBaseUtil {
             logger.log(Level.INFO, "Data inserted successfully into table: " + tableName);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error inserting data into table: " + tableName, e);
+            return false;
         }
+        return true;
     }
 
     /**

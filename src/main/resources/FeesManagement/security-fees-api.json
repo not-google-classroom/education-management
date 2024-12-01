@@ -44,7 +44,7 @@
     }
   },
   {
-    "path": "/api/fees/getFeesForUser",
+    "path": "/api/fees/getFeesIdsForUser",
     "method": "GET",
     "roles": [
       "admin",
@@ -57,5 +57,74 @@
         "required": true
       }
     ]
+  },
+  {
+    "path": "/api/fees/getBalancFeesForUser",
+    "method": "GET",
+    "roles": [
+      "admin",
+      "user"
+    ],
+    "params": [
+      {
+        "name": "userId",
+        "type": "long",
+        "required": true
+      },
+      {
+        "name": "feesId",
+        "type": "long",
+        "required": true
+      }
+    ]
+  },
+  {
+    "path": "/api/fees/createFine",
+    "method": "GET",
+    "roles": [
+      "admin",
+      "user"
+    ],
+    "params": [
+      {
+        "name": "fineName",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "fineAmount",
+        "type": "long",
+        "required": true
+      },
+      {
+        "name": "oneTimeFine",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "fineEveryDuration",
+        "type": "string"
+      },
+      {
+        "name": "fineFrom",
+        "type": "long"
+      },
+      {
+        "name": "fineTill",
+        "type": "long"
+      }
+    ]
+  },
+  {
+    "path": "/api/fees/mapFineToUsers",
+    "method": "POST",
+    "roles": [
+      "admin",
+      "user"
+    ],
+    "params": [],
+    "bodyValidation": {
+      "feesName": "^[a-zA-Z0-9 ]{3,30}$"
+    }
   }
 ]

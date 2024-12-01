@@ -9,6 +9,7 @@ import org.jooq.Result;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import static org.jooq.impl.DSL.name;
 public class FeesService {
     private static final Logger logger = Logger.getLogger(FeesService.class.getName());
 
+    @Transactional
     public boolean createFeesStructure(JSONObject feesStructure) throws JSONException {
         feesStructure = getFeesData();
         if (!validateFeesKeys(feesStructure)) {
@@ -33,7 +35,9 @@ public class FeesService {
         insertData.put("TOTAL_FEES", feesStructure.getLong("totalFees"));
         insertData.put("REMAINING_FEES", feesStructure.getLong("totalFees"));
         insertData.put("FEES_NAME", feesStructure.getString("feesName"));
-        DataBaseUtil.insertData("fees", insertData);
+        if (DataBaseUtil.insertData("fees", insertData)) {
+            return false;
+        }
 
         JSONArray installmentsArray = feesStructure.getJSONArray("installments");
         for (int i = 0; i < feesStructure.getInt("noOfInstallments"); i++) {
@@ -46,7 +50,9 @@ public class FeesService {
             insertData.put("INSTALLMENT_AMOUNT", installmentJson.getLong("amount"));
             insertData.put("DUE_DATE", installmentJson.getLong("date"));
             insertData.put("INSTALLMENT_NAME", installmentJson.getString("installmentName"));
-            DataBaseUtil.insertData("Installments", insertData);
+            if (DataBaseUtil.insertData("Installments", insertData)) {
+                return false;
+            }
         }
         return true;
     }
@@ -81,11 +87,27 @@ public class FeesService {
         }
 
         // Pay fees
-        if (!addEntryInTransaction(installmentId, transactionAmount)) {
+        if (!addEntryInTransaction(feesId, installmentId, userId, transactionAmount)) {
+            return false;
+        }
+
+        if (!updateBalanceAmount(userId, feesId, transactionAmount)) {
             return false;
         }
 
         return false;
+    }
+
+    private boolean updateBalanceAmount(Long userId, Long feesId, Long transactionAmount) throws Exception {
+        Map<String, Object> balanceFeesMap = getBalanceFeesForUser(userId, feesId);
+        Long balanceFees = (Long) balanceFeesMap.get("balanceFees");
+        if (balanceFees < transactionAmount) {
+            return false;
+        }
+
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        dslContext.update(table("feesmapping")).set(field("BALANCE_FEES"), balanceFees - transactionAmount).where(field("USER_ID").eq(userId)).and(field("FEES_ID").eq(feesId)).execute();
+        return true;
     }
 
     public boolean mapFees(JSONObject feesStructure) throws Exception {
@@ -103,53 +125,219 @@ public class FeesService {
         for (int i = 0; i < usersArray.length(); i++) {
             Long userId = ((Integer) usersArray.get(i)).longValue();
             Map<String, Object> insertData = new HashMap<>();
+            Long totalFees = getFeesAmount(feesId);
             insertData.put("USER_ID", userId);
             insertData.put("FEES_ID", feesId);
-            DataBaseUtil.insertData("feesmapping", insertData);
+            insertData.put("TOTAL_FEES", totalFees);
+            insertData.put("BALANCE_FEES", totalFees);
+            if (DataBaseUtil.insertData("feesmapping", insertData)) {
+                return false;
+            }
         }
-
-        return false;
+        return true;
     }
 
-    public boolean getFeesForUser(Map<String, Object> requestMap) throws Exception {
+    private Long getFeesAmount(Long feesId) {
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        Record record = dslContext.select().from(table("FEES")).where(field("FEES_ID").eq(feesId)).fetchOne();
+        if (record != null && record.size() > 0) {
+            return (Long) record.get("TOTAL_FEES");
+        }
+        return 0L;
+    }
+
+    public JSONArray getFeesIdsForUser(Map<String, Object> requestMap) throws Exception {
+        JSONArray feesIdList = new JSONArray();
         if (!requestMap.containsKey("userId") || requestMap.get("userId") == null) {
-            return false;
+            return feesIdList;
         }
 
         Long userId = Long.parseLong(requestMap.get("userId").toString());
-        ArrayList<Long> feesIdList = getFeesForUser(userId);
-
-        return false;
+        if (!OrgUtil.getInstance().checkIfUserExists(userId)) {
+            return feesIdList;
+        }
+        return getFeesForUser(userId);
     }
 
-    private ArrayList<Long> getFeesForUser(Long userId) {
+    public Map<String, Object> getBalanceFeesForUser(Map<String, Object> requestMap) throws Exception {
+        Map<String, Object> balanceFees = new HashMap<>();
+        if (!requestMap.containsKey("userId") || requestMap.get("userId") == null) {
+            return balanceFees;
+        }
+
+        if (!requestMap.containsKey("feesId") || requestMap.get("feesId") == null) {
+            return balanceFees;
+        }
+
+        Long userId = Long.parseLong(requestMap.get("userId").toString());
+        Long feesId = Long.parseLong(requestMap.get("feesId").toString());
+        if (!OrgUtil.getInstance().checkIfUserExists(userId)) {
+            return balanceFees;
+        }
+        return getBalanceFeesForUser(userId, feesId);
+    }
+
+    private Long getFineAmount(Long userId, Long feesId) {
+        Long fineAmount = 0L;
+        Long fineId = getFineId(userId, feesId);
+        if (fineId == 0L) {
+            return fineAmount;
+        }
+        Map<String, String> fineDetailsMap = getFineDetails(fineId);
+        Boolean oneTimeFine = Boolean.valueOf(fineDetailsMap.get("oneTimeFine"));
+        if (oneTimeFine) {
+            return Long.parseLong(fineDetailsMap.get("fineAmount"));
+        } else {
+            Long fineFrom = Long.parseLong(fineDetailsMap.get("fineFrom"));
+            Long fineTill = Long.parseLong(fineDetailsMap.get("fineTill"));
+            Long timeDiffInMs = fineTill - fineFrom;
+            Long fineMultiplier = 0L;
+            String fineEveryDuration = fineDetailsMap.get("fineEveryDuration");
+
+            switch (fineEveryDuration) {
+                case "DAYS":
+                    fineMultiplier = timeDiffInMs / 86400000L;
+                case "WEEKS":
+                    fineMultiplier = timeDiffInMs / 604800000L;
+                case "MONTHS":
+                    fineMultiplier = timeDiffInMs / 2592000000L;
+                default:
+                    fineMultiplier = 0L;
+            }
+            return fineMultiplier * Long.parseLong(fineDetailsMap.get("fineAmount"));
+        }
+    }
+
+    private Map<String, String> getFineDetails(Long fineId) {
         DSLContext dslContext = DataBaseUtil.getDSLContext();
-        ArrayList<Long> feesIdList = new ArrayList<>();
+        Map<String, String> fineDetailsMap = new HashMap<>();
+        Record record = dslContext.select().from(table("fine")).where(field("FINE_ID").eq(fineId)).fetchOne();
+        if (record != null && record.size() > 0) {
+            fineDetailsMap.put("fineName", (String) record.get("FINE_NAME"));
+            fineDetailsMap.put("fineAmount", (String) record.get("FINE_AMOUNT"));
+            fineDetailsMap.put("oneTimeFine", (String) record.get("ONE_TIME_FINE"));
+            fineDetailsMap.put("fineEveryDuration", (String) record.get("FINE_EVERY_DURATION"));
+            fineDetailsMap.put("fineFrom", (String) record.get("FINE_FROM"));
+            fineDetailsMap.put("fineTill", (String) record.get("FINE_TILL"));
+        }
+        return fineDetailsMap;
+    }
+
+    private Long getFineId(Long userId, Long feesId) {
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        Long fineId = 0L;
+        Record record = dslContext.select().from(table("finemapping")).where(field("FEES_ID").eq(feesId)).and(field("USER_ID").eq(userId)).fetchOne();
+        if (record != null && record.size() > 0) {
+            fineId = (Long) record.get("FINE_ID");
+        } else {
+            return fineId;
+        }
+        return fineId;
+    }
+
+    public Map<String, Object> getBalanceFeesForUser(Long userId, Long feesId) throws Exception {
+        Map<String, Object> balanceFees = new HashMap<>();
+
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        Record record = dslContext.select().from(table("feesmapping")).where(field("FEES_ID").eq(feesId)).and(field("USER_ID").eq(userId)).fetchOne();
+        if (record != null && record.size() > 0) {
+            balanceFees.put("balanceFees", (Long) record.get("BALANCE_FEES"));
+            balanceFees.put("totalFees", (Long) record.get("TOTAL_FEES"));
+            balanceFees.put("fineAmount", getFineAmount(userId, feesId));
+        }
+        return balanceFees;
+    }
+
+    public boolean createFine(Map<String, Object> requestMap) {
+        Map<String, Object> insertData = new HashMap<>();
+        // Mandatory keys
+        if (!requestMap.containsKey("fineName") || requestMap.get("fineName") == null) {
+            return false;
+        }
+        if (!requestMap.containsKey("fineAmount") || requestMap.get("fineAmount") == null) {
+            return false;
+        }
+        if (!requestMap.containsKey("oneTimeFine") || requestMap.get("oneTimeFine") == null) {
+            return false;
+        }
+
+        // Optional keys
+        if (requestMap.containsKey("fineEveryDuration") || requestMap.get("fineEveryDuration") != null) {
+            insertData.put("FINE_EVERY_DURATION", requestMap.get("fineEveryDuration"));
+        }
+        if (requestMap.containsKey("fineFrom") || requestMap.get("fineFrom") != null) {
+            insertData.put("FINE_FROM", Long.parseLong((String) requestMap.get("fineFrom")));
+        }
+        if (requestMap.containsKey("fineTill") || requestMap.get("fineTill") != null) {
+            insertData.put("FINE_TILL", Long.parseLong((String) requestMap.get("fineTill")));
+        }
+
+        insertData.put("FINE_NAME", requestMap.get("fineName"));
+        insertData.put("FINE_AMOUNT", Long.parseLong((String) requestMap.get("fineAmount")));
+        insertData.put("ONE_TIME_FINE", Boolean.getBoolean(requestMap.get("oneTimeFine").toString()));
+        if (!DataBaseUtil.insertData("fine", insertData)) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean mapFineToUsers(Map<String, Object> requestMap) throws JSONException {
+        JSONObject fineDetails = new JSONObject(requestMap);
+        if (!fineDetails.has("fineId")) {
+            return false;
+        }
+        if (!fineDetails.has("feesId")) {
+            return false;
+        }
+        if (!fineDetails.has("userIds")) {
+            return false;
+        }
+
+        Long fineId = fineDetails.getLong("fineId");
+        Long feesId = fineDetails.getLong("feesId");
+        JSONArray usersArray = fineDetails.getJSONArray("userIds");
+
+        for (int i = 0; i < usersArray.length(); i++) {
+            Long userId = ((Integer) usersArray.get(i)).longValue();
+            Map<String, Object> insertData = new HashMap<>();
+            Long totalFees = getFeesAmount(fineId);
+            insertData.put("USER_ID", userId);
+            insertData.put("FEES_ID", fineId);
+            insertData.put("FINE_ID", fineId);
+            if (DataBaseUtil.insertData("finemapping", insertData)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private JSONArray getFeesForUser(Long userId) {
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        JSONArray feesIdList = new JSONArray();
         Result<Record> result = dslContext.select().from("feesmapping").where(field("USER_ID").eq(userId)).fetch();
         for (Record record : result) {
-            feesIdList.add((Long) record.get("fees_id"));
+            feesIdList.put((Long) record.get("fees_id"));
         }
         return feesIdList;
     }
 
 
     private JSONObject getMappingData() throws JSONException {
-        return new JSONObject("{\n" +
-                "    \"feesId\" : 1,\n" +
-                "    \"userIds\" : [1]\n" +
-                "}");
+        return new JSONObject("{\n" + "    \"feesId\" : 1,\n" + "    \"userIds\" : [1]\n" + "}");
     }
 
-    private boolean addEntryInTransaction(Long installmentId, Long transactionAmount) throws Exception {
-        DSLContext dslContext = DataBaseUtil.getDSLContext();
-        int record = dslContext.insertInto(table("Transactions")).columns(field("INSTALLMENT_ID"), field("TRANSACTION_AMOUNT"), field("TRANSACTION_DATE")).values(transactionAmount, installmentId, System.currentTimeMillis()).execute();
-        if (record > 0) {
-            logger.log(Level.INFO, "Transaction added successfully...");
-        } else {
-            logger.log(Level.SEVERE, "Transaction addition failed");
-            throw new Exception("Exception when executing insert for Transactions");
+    private boolean addEntryInTransaction(Long feesId, Long installmentId, Long userId, Long transactionAmount) throws Exception {
+        Map<String, Object> insertData = new HashMap<>();
+        insertData.put("FEES_ID", feesId);
+        insertData.put("INSTALLMENT_ID", installmentId);
+        insertData.put("USER_ID", userId);
+        insertData.put("TRANSACTION_AMOUNT", transactionAmount);
+        insertData.put("TRANSACTION_DATE", System.currentTimeMillis());
+        if (DataBaseUtil.insertData("Transactions", insertData)) {
+            return false;
         }
-        return false;
+        logger.log(Level.INFO, "Transaction added successfully...");
+        return true;
     }
 
     private Long getFeesIdFromInstallmentId(Long installmentId) {
@@ -159,9 +347,7 @@ public class FeesService {
             if (record != null && record.size() > 0) {
                 return (Long) record.get("FEES_ID");
             }
-            //logger.log(Level.WARNING, "user details not found! to find schema details");
         }
-        //logger.log(Level.WARNING, "unable to fetch schema Name for userID : {0}", installmentId);
         return null;
     }
 
@@ -201,28 +387,7 @@ public class FeesService {
     }
 
     private JSONObject getFeesData() throws JSONException {
-        String sf = "{\n" +
-                "  \"feesName\": \"School Fees\",\n" +
-                "  \"noOfInstallments\": 3,\n" +
-                "  \"totalFees\": 60000,\n" +
-                "  \"installments\": [\n" +
-                "    {\n" +
-                "      \"installmentName\": \"Quarterly\",\n" +
-                "      \"amount\": \"20000\",\n" +
-                "      \"date\": 1353463434363\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"installmentName\": \"Halfearly\",\n" +
-                "      \"amount\": \"20000\",\n" +
-                "      \"date\": 1353463434363\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"installmentName\": \"Annual\",\n" +
-                "      \"amount\": \"20000\",\n" +
-                "      \"date\": 1353463434363\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}\n";
+        String sf = "{\n" + "  \"feesName\": \"School Fees\",\n" + "  \"noOfInstallments\": 3,\n" + "  \"totalFees\": 60000,\n" + "  \"installments\": [\n" + "    {\n" + "      \"installmentName\": \"Quarterly\",\n" + "      \"amount\": \"20000\",\n" + "      \"date\": 1353463434363\n" + "    },\n" + "    {\n" + "      \"installmentName\": \"Halfearly\",\n" + "      \"amount\": \"20000\",\n" + "      \"date\": 1353463434363\n" + "    },\n" + "    {\n" + "      \"installmentName\": \"Annual\",\n" + "      \"amount\": \"20000\",\n" + "      \"date\": 1353463434363\n" + "    }\n" + "  ]\n" + "}\n";
 
         return new JSONObject(sf);
     }

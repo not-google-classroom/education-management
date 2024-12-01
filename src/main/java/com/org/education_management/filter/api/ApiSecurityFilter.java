@@ -124,6 +124,8 @@ public class ApiSecurityFilter implements Filter {
                 } catch (NumberFormatException e) {
                     return false;
                 }
+            case "boolean":
+                return rule.getPattern() == null || Pattern.matches(rule.getPattern(), paramValue.toString());
             default:
                 return false;
         }
