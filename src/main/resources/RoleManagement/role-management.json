@@ -2,11 +2,18 @@
   "tables": [
     {
       "tableName": "Roles",
+      "primaryKeys" : [
+        {
+          "pkName" : "Roles_pk_1",
+          "pkColumns" : [
+            "ROLE_ID"
+          ]
+        }
+      ],
       "columns": [
         {
           "name": "ROLE_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
@@ -23,11 +30,18 @@
     },
     {
       "tableName": "Permissions",
+      "primaryKeys" : [
+        {
+          "pkName" : "Permissions",
+          "pkColumns" : [
+            "PERMISSION_ID"
+          ]
+        }
+      ],
       "columns": [
         {
           "name": "PERMISSION_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {

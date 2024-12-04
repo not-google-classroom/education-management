@@ -2,11 +2,18 @@
   "tables": [
     {
       "tableName": "Users",
+      "primaryKeys" : [
+        {
+          "pkName" : "Users_pk_1",
+          "pkColumns" : [
+            "USER_ID"
+          ]
+        }
+      ],
       "columns": [
         {
           "name": "USER_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
@@ -42,11 +49,18 @@
     },
     {
       "tableName": "Passwords",
+      "primaryKeys" : [
+        {
+          "pkName" : "Passwords_pk_1",
+          "pkColumns" : [
+            "PASSWORD_ID"
+          ]
+        }
+      ],
       "columns": [
         {
           "name": "PASSWORD_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {

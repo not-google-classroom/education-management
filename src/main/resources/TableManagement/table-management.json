@@ -2,11 +2,18 @@
   "tables": [
     {
       "tableName": "TableDetails",
+      "primaryKeys" : [
+        {
+          "pkName" : "TableDetails_pk_1",
+          "pkColumns" : [
+            "TABLE_ID"
+          ]
+        }
+      ],
       "columns": [
         {
           "name": "TABLE_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
@@ -23,11 +30,18 @@
     },
     {
       "tableName": "ColumnDetails",
+      "primaryKeys" : [
+        {
+          "pkName" : "ColumnDetails_pk_1",
+          "pkColumns" : [
+            "COLUMN_ID"
+          ]
+        }
+      ],
       "columns": [
         {
           "name": "COLUMN_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
@@ -82,11 +96,18 @@
     },
     {
       "tableName": "UVHDetails",
+      "primaryKeys" : [
+        {
+          "pkName" : "UVHDetails_pk_1",
+          "pkColumns" : [
+            "UVH_ID"
+          ]
+        }
+      ],
       "columns": [
         {
           "name": "UVH_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {

@@ -138,6 +138,52 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>generate-sources</phase> <!-- or any other phase you need -->
+                        <configuration>
+                            <executable>git</executable>
+                            <arguments>
+                                <argument>clone</argument>
+                                <argument>https://github.com/not-google-classroom/education-management.git</argument> <!-- Replace with the actual repo URL -->
+                                <argument>C:/Users/HP/OneDrive/Desktop/EBS_PROJECT/cloned-repo</argument> <!-- Specify the directory to clone into -->
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version> <!-- Use the latest version -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.org.education_management.upgrade.diff.generator.TableDiffGenerator</mainClass> <!-- Replace with your main class -->
+                    <arguments>
+                        <argument>true</argument>
+                        <argument>${user.dir}</argument>
+                    </arguments>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>propertyName</key>
+                            <value>propertyValue</value>
+                        </systemProperty>
+                    </systemProperties>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
