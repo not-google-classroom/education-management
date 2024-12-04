@@ -2,11 +2,18 @@
   "tables": [
     {
       "tableName": "UserDetails",
+      "primaryKeys" : [
+        {
+          "pkName" : "UserDetails_pk_1",
+          "pkColumns" : [
+            "USER_ID"
+          ]
+        }
+      ],
       "columns": [
         {
           "name": "USER_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
@@ -24,11 +31,18 @@
     },
     {
       "tableName": "OrgDetails",
+      "primaryKeys" : [
+        {
+          "pkName" : "OrgDetails_pk_1",
+          "pkColumns" : [
+            "ORG_ID"
+          ]
+        }
+      ],
       "columns": [
         {
           "name": "ORG_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
@@ -55,11 +69,18 @@
     },
     {
       "tableName": "SASSchemaDetails",
+      "primaryKeys" : [
+        {
+          "pkName" : "SASSchemaDetails_pk_1",
+          "pkColumns" : [
+            "SCHEMA_ID"
+          ]
+        }
+      ],
       "columns": [
         {
           "name": "SCHEMA_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
