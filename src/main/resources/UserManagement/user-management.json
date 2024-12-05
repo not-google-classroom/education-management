@@ -19,16 +19,6 @@
           "unique": true
         },
         {
-          "name": "FIRST_NAME",
-          "type": "VARCHAR(50)",
-          "defaultValue": "''"
-        },
-        {
-          "name": "LAST_NAME",
-          "type": "VARCHAR(50)",
-          "defaultValue": "''"
-        },
-        {
           "name": "CREATED_AT",
           "type": "BIGINT",
           "defaultValue": -1
