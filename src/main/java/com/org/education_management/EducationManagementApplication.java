@@ -1,15 +1,12 @@
 package com.org.education_management;
 
-import com.org.education_management.config.SchedulerConfig;
 import com.org.education_management.controller.StartUpController;
 import com.org.education_management.util.AppProperty;
 import com.org.education_management.util.DatabaseInitializer;
-import com.org.education_management.util.DynamicSchedulerUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,18 +37,9 @@ public class EducationManagementApplication {
             }
 
             SpringApplication.run(EducationManagementApplication.class, args);
-            testScheduler();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception when starting server !, {0}", e);
         }
-    }
-
-    public static void testScheduler(){
-        DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
-        HashMap<String, SchedulerConfig> map = new HashMap<>();
-        map.put("Infinite", new SchedulerConfig("0/10 * * * * *", -1L, "AsyncSampleTask"));
-        map.put("finite", new SchedulerConfig("0/10 * * * * *", 3L, "AsyncSampleFiniteTask"));
-        schedulerUtil.addOrUpdateSchedulers(map);
     }
 
 }

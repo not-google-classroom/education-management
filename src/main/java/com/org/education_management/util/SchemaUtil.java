@@ -45,6 +45,9 @@ public class SchemaUtil {
                         populateUserSpecificData();
                         setSearchPathToPublic();
                         updateSchemaDetails(orgID, schemaName);
+                        //Start default scheduler for the user
+                        DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
+                        schedulerUtil.loadDefaultSchedulersFromDatabase();
                         return schemaName;
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "Schema creation failed!, deleting prepopulated entry");
@@ -104,8 +107,6 @@ public class SchemaUtil {
             if(FileHandler.fileExists(jsonConfMetaPath)) {
                 StartUpService.getInstance().populateStaticMetaDataFiles(jsonConfMetaPath);
                 logger.log(Level.INFO, "Meta data for tables populated successfully");
-                DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
-                schedulerUtil.loadDefaultSchedulersFromDatabase();
             }
         } else {
             logger.log(Level.WARNING, "static-table-specific.json file doesn't exist ! , unable to populate static data");
