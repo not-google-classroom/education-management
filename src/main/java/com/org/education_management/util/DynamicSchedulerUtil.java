@@ -8,6 +8,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,6 +66,7 @@ public class DynamicSchedulerUtil {
             }
             catch (Exception e) {
                 logger.log(Level.SEVERE,"Error while executing task for " + name, e);
+                throw new RuntimeException(e);
             }
         }, new CronTrigger(config.getCronString()));
 
@@ -94,6 +96,7 @@ public class DynamicSchedulerUtil {
                 }
             } catch (Exception e) {
                 logger.log(Level.SEVERE,"Error while executing limited task for " + name , e);
+                throw new RuntimeException(e);
             }
         }, new CronTrigger(config.getCronString()));
 
@@ -166,7 +169,7 @@ public class DynamicSchedulerUtil {
         }
     }
 
-    private void executeTask(String className){
+    private void executeTask(String className) throws Exception {
         try {
             Object object = CommonUtil.getInstance().getObjForClassName(className);
             Method executeMethod = object.getClass().getMethod("execute");
@@ -174,6 +177,7 @@ public class DynamicSchedulerUtil {
         }
         catch (Exception e){
             logger.log(Level.SEVERE,"Exception while executing task name "+className, e);
+            throw e;
         }
     }
 }
