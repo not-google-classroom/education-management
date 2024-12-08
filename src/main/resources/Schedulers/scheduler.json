@@ -22,6 +22,11 @@
         {
           "name": "SCHEDULER_RUN_TIME",
           "type": "BIGINT"
+        },
+        {
+          "name": "TASK_NAME",
+          "type": "VARCHAR(255)",
+          "notNull": true
         }
       ]
     }

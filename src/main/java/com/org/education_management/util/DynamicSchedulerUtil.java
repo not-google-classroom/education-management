@@ -1,17 +1,24 @@
 package com.org.education_management.util;
 
 import com.org.education_management.config.SchedulerConfig;
+import com.org.education_management.database.DataBaseUtil;
+import org.jooq.Record;
+import org.jooq.Result;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component
 public class DynamicSchedulerUtil {
 
+    private static Logger logger = Logger.getLogger(DynamicSchedulerUtil.class.getName());
     private final ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
     private final Map<String, ScheduledFuture<?>> runningSchedulers = new HashMap<>();
     private final Map<String, Long> executionCounts = new HashMap<>();
@@ -38,25 +45,26 @@ public class DynamicSchedulerUtil {
                     createLimitedTimeScheduler(name, config);
                 }
             } catch (Exception e) {
-                System.err.println("Failed to add or update scheduler: " + name + ". Reason: " + e.getMessage());
+                logger.log(Level.SEVERE,"Failed to add or update scheduler: " + name + ".", e);
             }
         });
     }
 
     private void createInfiniteTimeScheduler(String name, SchedulerConfig config) {
-        System.out.println("Creating infinite scheduler: " + name);
+        logger.log(Level.INFO,"Creating infinite scheduler: " + name);
 
         executionCounts.put(name, 0L);
 
         // Schedule the task
         ScheduledFuture<?> future = taskScheduler.schedule(() -> {
             try {
-                System.out.println("Executing infinite task for " + name + " at: " + System.currentTimeMillis());
+                logger.log(Level.INFO,"Executing infinite task for " + name + " at: " + System.currentTimeMillis());
+                executeTask(config.getTaskClass());
                 long currentCount = executionCounts.get(name);
                 executionCounts.put(name, currentCount + 1L);
             }
             catch (Exception e) {
-                System.err.println("Error while executing task for " + name + ": " + e.getMessage());
+                logger.log(Level.SEVERE,"Error while executing task for " + name, e);
             }
         }, new CronTrigger(config.getCronString()));
 
@@ -65,7 +73,7 @@ public class DynamicSchedulerUtil {
     }
 
     private void createLimitedTimeScheduler(String name, SchedulerConfig config) throws IllegalArgumentException {
-        System.out.println("Creating limited scheduler: " + name);
+        logger.log(Level.INFO,"Creating limited scheduler: " + name);
 
         // Reset execution count for this scheduler
         executionCounts.put(name, 0L);
@@ -74,18 +82,18 @@ public class DynamicSchedulerUtil {
         ScheduledFuture<?> future = taskScheduler.schedule(() -> {
             try {
                 long currentCount = executionCounts.get(name);
-                System.out.println("Executing limited task for " + name + ": Run " + (currentCount + 1));
-
+                logger.log(Level.INFO,"Executing limited task for " + name + ": Run " + (currentCount + 1));
+                executeTask(config.getTaskClass());
                 // Increment execution count
                 executionCounts.put(name, currentCount + 1L);
 
                 // Stop scheduler if maxRuns is reached
                 if (currentCount + 1 >= config.getMaxRuns()) {
-                    System.out.println("Stopping scheduler: " + name);
+                    logger.log(Level.INFO,"Stopping scheduler: " + name);
                     stopScheduler(name);
                 }
             } catch (Exception e) {
-                System.err.println("Error while executing limited task for " + name + ": " + e.getMessage());
+                logger.log(Level.SEVERE,"Error while executing limited task for " + name , e);
             }
         }, new CronTrigger(config.getCronString()));
 
@@ -103,12 +111,12 @@ public class DynamicSchedulerUtil {
                 future.cancel(false); // Cancel the task
                 runningSchedulers.remove(name);
                 executionCounts.remove(name);
-                System.out.println("Scheduler " + name + " stopped.");
+                logger.log(Level.INFO,"Scheduler " + name + " stopped.");
             } else {
                 throw new IllegalArgumentException("Scheduler with name '" + name + "' does not exist.");
             }
         } catch (Exception e) {
-            System.err.println("Failed to stop scheduler: " + name + ". Reason: " + e.getMessage());
+            logger.log(Level.SEVERE,"Failed to stop scheduler: " + name + ".",e);
         }
     }
 
@@ -118,9 +126,9 @@ public class DynamicSchedulerUtil {
     public void stopAllSchedulers() {
         try {
             runningSchedulers.keySet().forEach(this::stopScheduler);
-            System.out.println("All schedulers have been stopped.");
+            logger.log(Level.INFO,"All schedulers have been stopped.");
         } catch (Exception e) {
-            System.err.println("Error occurred while stopping all schedulers: " + e.getMessage());
+            logger.log(Level.SEVERE,"Error occurred while stopping all schedulers: ", e);
         }
     }
 
@@ -140,21 +148,32 @@ public class DynamicSchedulerUtil {
 //        }
 //    }
 
-//    /**
-//     * Load scheduler configurations from a persistent store.
-//     */
-//    public void loadSchedulersFromDatabase(Map<String, SchedulerConfig> configs) {
-//        try {
-//            System.out.println("Loading scheduler configurations from database...");
-//            configs.forEach((name, config) -> {
-//                try {
-//                    createInfiniteScheduler(name, config);
-//                } catch (Exception e) {
-//                    System.err.println("Failed to load scheduler: " + config.getCronString() + ". Reason: " + e.getMessage());
-//                }
-//            });
-//        } catch (Exception e) {
-//            System.err.println("Error occurred while loading schedulers from database: " + e.getMessage());
-//        }
-//    }
+    /**
+     * Load scheduler configurations from a persistent store.
+     */
+    public void loadDefaultSchedulersFromDatabase() {
+        try {
+            Map<String, SchedulerConfig> schedulerList = new HashMap<>();
+            Result<Record> result = DataBaseUtil.getDSLContext().select().from("scheduler").fetch();
+            for (Record record : result){
+                SchedulerConfig config = new SchedulerConfig((String) record.get("scheduler_cron"),
+                        (long) record.get("scheduler_run_time"), (String) record.get("task_name"));
+                schedulerList.put((String) record.get("scheduler_name"), config);
+            }
+            addOrUpdateSchedulers(schedulerList);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE,"Error occurred while loading schedulers from database: ", e);
+        }
+    }
+
+    private void executeTask(String className){
+        try {
+            Object object = CommonUtil.getInstance().getObjForClassName(className);
+            Method executeMethod = object.getClass().getMethod("execute");
+            executeMethod.invoke(object);
+        }
+        catch (Exception e){
+            logger.log(Level.SEVERE,"Exception while executing task name "+className, e);
+        }
+    }
 }

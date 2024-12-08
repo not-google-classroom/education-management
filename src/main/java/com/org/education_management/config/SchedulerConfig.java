@@ -4,9 +4,11 @@ public class SchedulerConfig {
     private String cronString;
     private long maxRuns;
 
-    public SchedulerConfig(String cronString, long maxRuns) {
+    private String taskClass;
+    public SchedulerConfig(String cronString, long maxRuns, String taskClass) {
         this.cronString = cronString;
         this.maxRuns = maxRuns;
+        this.taskClass = taskClass;
     }
 
     public String getCronString() {
@@ -25,11 +27,20 @@ public class SchedulerConfig {
         this.maxRuns = maxRuns;
     }
 
+    public String getTaskClass() {
+        return taskClass;
+    }
+
+    public void setTaskClass(String taskClass) {
+        this.taskClass = taskClass;
+    }
+
     @Override
     public String toString() {
         return "SchedulerConfig{" +
                 "cronString='" + cronString + '\'' +
                 ", maxRuns=" + maxRuns +
+                ", taskClass='" + taskClass + '\'' +
                 '}';
     }
 }

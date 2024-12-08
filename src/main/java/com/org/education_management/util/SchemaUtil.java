@@ -104,6 +104,8 @@ public class SchemaUtil {
             if(FileHandler.fileExists(jsonConfMetaPath)) {
                 StartUpService.getInstance().populateStaticMetaDataFiles(jsonConfMetaPath);
                 logger.log(Level.INFO, "Meta data for tables populated successfully");
+                DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
+                schedulerUtil.loadDefaultSchedulersFromDatabase();
             }
         } else {
             logger.log(Level.WARNING, "static-table-specific.json file doesn't exist ! , unable to populate static data");

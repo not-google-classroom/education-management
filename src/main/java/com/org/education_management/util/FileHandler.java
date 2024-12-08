@@ -222,4 +222,21 @@ public class FileHandler {
             }
         }
     }
+
+    public static HashMap<String, String> readPropsFile(String filePath) throws IOException {
+        HashMap<String, String> propsMap = new HashMap<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                String[] keyValue = line.split("=", 2);
+                if (keyValue.length == 2) {
+                    String key = keyValue[0].trim();
+                    String value = keyValue[1].trim();
+                    propsMap.put(key, value);
+                }
+            }
+        }
+        return propsMap;
+    }
 }
