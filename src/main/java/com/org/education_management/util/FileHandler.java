@@ -2,7 +2,9 @@ package com.org.education_management.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.org.education_management.model.ApiRateLimit;
 import com.org.education_management.model.TableMetaData;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -16,6 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class FileHandler {
 
@@ -238,5 +241,23 @@ public class FileHandler {
             }
         }
         return propsMap;
+    }
+
+    public static Map<String, ApiRateLimit> readSecurityJsonFile(String securityJson) throws Exception{
+        String jsonContent = new String(Files.readAllBytes(Paths.get(securityJson)));
+        JSONObject jsonObject = new JSONObject(jsonContent);
+
+        // Convert JSON to Map using streams
+        return jsonObject.keySet().stream()
+                .collect(Collectors.toMap(
+                        key -> key, // Key is the API path
+                        key -> {
+                            JSONObject ruleObject = jsonObject.getJSONObject(key);
+                            int limit = ruleObject.getInt("limit");
+                            int window = ruleObject.getInt("window");
+                            int lock = ruleObject.getInt("lockPeriod");
+                            return new ApiRateLimit(limit, window, lock);
+                        }
+                ));
     }
 }

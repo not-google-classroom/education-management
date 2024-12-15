@@ -8,7 +8,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,11 +22,19 @@ public class DynamicSchedulerUtil {
     private final ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
     private final Map<String, ScheduledFuture<?>> runningSchedulers = new HashMap<>();
     private final Map<String, Long> executionCounts = new HashMap<>();
+    private static DynamicSchedulerUtil dynamicSchedulerUtil = null;
 
     public DynamicSchedulerUtil() {
         taskScheduler.setPoolSize(10);
         taskScheduler.setThreadNamePrefix("DynamicScheduler-");
         taskScheduler.initialize();
+    }
+
+    public static DynamicSchedulerUtil getInstance(){
+        if(dynamicSchedulerUtil == null){
+            dynamicSchedulerUtil = new DynamicSchedulerUtil();
+        }
+        return dynamicSchedulerUtil;
     }
 
     /**

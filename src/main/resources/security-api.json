@@ -1,0 +1,12 @@
+{
+  "/api/test/api1": {
+    "limit": 1,
+    "window": 60,
+    "lockPeriod":60
+  },
+  "/api/test/api2": {
+    "limit": 10,
+    "window": 60,
+    "lockPeriod":60
+  }
+}

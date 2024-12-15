@@ -1,5 +1,6 @@
 package com.org.education_management.config.filter;
 
+import com.org.education_management.filter.api.ApiRateLimitingFilter;
 import com.org.education_management.filter.api.ApiSecurityFilter;
 import com.org.education_management.filter.api.AuthenticationFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -13,6 +14,15 @@ public class FilterConfig {
     public FilterRegistrationBean<ApiSecurityFilter> apiSecurityFilter() {
         FilterRegistrationBean<ApiSecurityFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new ApiSecurityFilter());
+        registrationBean.addUrlPatterns("/api/*");
+        registrationBean.setOrder(3);
+        return registrationBean;
+    }
+
+    @Bean
+    public FilterRegistrationBean<ApiRateLimitingFilter> apiRateLimitingFilterRegistrationBean() {
+        FilterRegistrationBean<ApiRateLimitingFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new ApiRateLimitingFilter());
         registrationBean.addUrlPatterns("/api/*");
         registrationBean.setOrder(2);
         return registrationBean;
