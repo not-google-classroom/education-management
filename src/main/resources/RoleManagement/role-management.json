@@ -6,18 +6,28 @@
         {
           "name": "ROLE_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
           "name": "ROLE_NAME",
           "type": "VARCHAR(255)",
-          "unique": true,
           "notNull": true
         },
         {
           "name": "DESCRIPTION",
           "type": "TEXT"
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "Roles_PK",
+          "pkColumns": ["ROLE_ID"]
+        }
+      ],
+      "uniqueKeys": [
+        {
+          "ukName": "Roles_UK",
+          "ukColumns": ["ROLE_NAME"]
         }
       ]
     },
@@ -39,6 +49,18 @@
         {
           "name": "DESCRIPTION",
           "type": "TEXT"
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "Permissions_PK",
+          "pkColumns": ["PERMISSION_ID"]
+        }
+      ],
+      "uniqueKeys": [
+        {
+          "ukName": "Permissions_UK",
+          "ukColumns": ["PERMISSION_NAME"]
         }
       ]
     },

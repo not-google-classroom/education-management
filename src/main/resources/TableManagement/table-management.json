@@ -6,18 +6,34 @@
         {
           "name": "TABLE_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
           "name": "TABLE_NAME",
           "type": "VARCHAR(30)",
-          "unique": true,
           "notNull": true
         },
         {
           "name": "DESCRIPTION",
           "type": "TEXT"
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "TableDetails_PK",
+          "pkColumns": ["TABLE_ID"]
+        }
+      ],
+      "uniqueKeys": [
+        {
+          "ukName": "TableDetails_UK",
+          "ukColumns": ["TABLE_NAME"]
+        }
+      ],
+      "indexKeys": [
+        {
+          "ikName": "TableDetails_IK",
+          "ikColumns": ["TABLE_NAME"]
         }
       ]
     },
@@ -27,7 +43,6 @@
         {
           "name": "COLUMN_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
@@ -78,7 +93,104 @@
           "type": "BIGINT"
         }
       ],
+      "primaryKeys": [{
+        "pkName": "ColumnDetails_PK",
+        "pkColumns": ["COLUMN_ID"]
+      }],
       "description": "Table to hold all column details"
+    },
+    {
+      "tableName": "PKDetails",
+      "columns": [
+        {
+          "name": "PK_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "PK_COL_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "ColumnDetails",
+            "referencedColumn": "COLUMN_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "PK_GEN_NAME",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "PKDetails_PK",
+          "pkColumns": ["PK_ID"]
+        }
+      ]
+    },
+    {
+      "tableName": "UKDetails",
+      "columns": [
+        {
+          "name": "UK_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "UK_COL_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "ColumnDetails",
+            "referencedColumn": "COLUMN_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "UK_GEN_NAME",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        }
+      ],
+      "primaryKeys": [
+      {
+        "pkName": "UKDetails_PK",
+        "pkColumns": ["UK_ID"]
+      }
+    ]
+    },
+    {
+      "tableName": "IKDetails",
+      "columns": [
+        {
+          "name": "IK_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "IK_COL_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "referencedTable": "ColumnDetails",
+            "referencedColumn": "COLUMN_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "IK_GEN_NAME",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "IKDetails_PK",
+          "pkColumns": ["IK_ID"]
+        }
+      ]
     },
     {
       "tableName": "UVHDetails",
@@ -86,7 +198,6 @@
         {
           "name": "UVH_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
@@ -99,6 +210,12 @@
           "type": "BIGINT",
           "notNull": true,
           "defaultValue": 0
+        }
+      ],
+      "primaryKeys": [
+        {
+        "pkName": "UVHDetails_PK",
+        "pkColumns": ["UVH_ID"]
         }
       ]
     }

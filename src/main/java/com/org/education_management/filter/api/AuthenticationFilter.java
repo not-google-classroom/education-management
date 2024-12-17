@@ -42,6 +42,7 @@ public class AuthenticationFilter implements Filter {
         if(excludedUrls.contains(httpServletRequest.getRequestURI())) {
             logger.log(Level.INFO, "url : {0} skipped for authentication filter", httpServletRequest.getRequestURI());
             chain.doFilter(request, response);
+            return;
         }
         logger.log(Level.INFO, "Ensuring cookies values for requestURI : {0}", new Object[]{httpServletRequest.getRequestURI()});
         Cookie[] reqCookie = httpServletRequest.getCookies();

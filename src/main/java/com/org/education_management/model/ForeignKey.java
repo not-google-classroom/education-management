@@ -8,12 +8,12 @@ public class ForeignKey {
     public ForeignKey() {}
 
     public ForeignKey(String refTableName, String refColName) {
-        this.referencedTable = refTableName.toLowerCase();
-        this.referencedColumn = refColName.toLowerCase();
+        this.referencedTable = refTableName;
+        this.referencedColumn = refColName;
     }
 
     public String getReferencedTable() {
-        return referencedTable;
+        return referencedTable.toLowerCase();
     }
 
     public void setReferencedTable(String referencedTable) {
@@ -21,7 +21,7 @@ public class ForeignKey {
     }
 
     public String getReferencedColumn() {
-        return referencedColumn;
+        return referencedColumn.toLowerCase();
     }
 
     public void setReferencedColumn(String referencedColumn) {

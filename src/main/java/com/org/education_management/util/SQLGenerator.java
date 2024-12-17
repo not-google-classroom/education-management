@@ -3,13 +3,18 @@ package com.org.education_management.util;
 
 import com.org.education_management.model.Column;
 import com.org.education_management.model.ForeignKey;
+import com.org.education_management.model.IndexKey;
+import com.org.education_management.model.PrimaryKey;
 import com.org.education_management.model.Table;
+import com.org.education_management.model.UniqueKey;
 
 public class SQLGenerator {
+
     public String generateCreateTableSQL(Table table) {
         StringBuilder sql = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
         sql.append(table.getTableName()).append(" (");
 
+        // Process columns
         for (Column column : table.getColumns()) {
             sql.append(column.getName()).append(" ").append(column.getType());
 
@@ -20,27 +25,42 @@ public class SQLGenerator {
             if (Boolean.TRUE.equals(column.getNotNull())) {
                 sql.append(" NOT NULL");
             }
-            if (Boolean.TRUE.equals(column.getUnique())) {
-                sql.append(" UNIQUE");
-            }
-            if (Boolean.TRUE.equals(column.getPrimaryKey())) {
-                sql.append(" PRIMARY KEY");
-            }
+
             if (column.getDefaultValue() != null) {
-                if(column.getType().toLowerCase().contains("varchar") || column.getType().equalsIgnoreCase("text")) {
+                if (column.getType().toLowerCase().contains("varchar") || column.getType().equalsIgnoreCase("text")) {
                     sql.append(" DEFAULT '").append(column.getDefaultValue()).append("'");
                 } else {
                     sql.append(" DEFAULT ").append(column.getDefaultValue());
                 }
             }
+
             sql.append(", ");
+        }
+
+        // Process Primary Keys
+        PrimaryKey primaryKey = table.getPrimaryKey();
+        if (primaryKey != null) {
+            sql.append("CONSTRAINT ").append(primaryKey.getPkName())
+                    .append(" PRIMARY KEY (")
+                    .append(String.join(", ", primaryKey.getPkColumns()))
+                    .append("), ");
+        }
+
+        // Process Unique Keys
+        UniqueKey uniqueKey = table.getUniqueKey();
+        if (uniqueKey != null) {
+            sql.append("CONSTRAINT ").append(uniqueKey.getUkName())
+                    .append(" UNIQUE (")
+                    .append(String.join(", ", uniqueKey.getUkColumns()))
+                    .append("), ");
         }
 
         // Process Foreign Keys
         for (Column column : table.getColumns()) {
             if (column.getForeignKey() != null) {
                 ForeignKey fk = column.getForeignKey();
-                sql.append("FOREIGN KEY (").append(column.getName()).append(") REFERENCES ")
+                sql.append("CONSTRAINT fk_").append(table.getTableName()+"_").append(column.getName())
+                        .append(" FOREIGN KEY (").append(column.getName()).append(") REFERENCES ")
                         .append(fk.getReferencedTable()).append("(").append(fk.getReferencedColumn()).append(")");
 
                 if (fk.getOnDelete() != null) {
@@ -54,6 +74,16 @@ public class SQLGenerator {
         sql.setLength(sql.length() - 2);
         sql.append(");");
 
-        return sql.toString();
+        // Add Index Keys (non-constraint)
+        StringBuilder indexSQL = new StringBuilder();
+        IndexKey indexKey = table.getIndexKey();
+        if (indexKey != null) {
+            indexSQL.append("CREATE INDEX IF NOT EXISTS ").append(indexKey.getIkName())
+                    .append(" ON ").append(table.getTableName())
+                    .append(" (").append(String.join(", ", indexKey.getIkColumns())).append("); ");
+        }
+
+        // Combine Table SQL and Index SQL
+        return sql.append(" ").append(indexSQL).toString();
     }
 }
