@@ -17,7 +17,7 @@ public class PrimaryKey {
     }
 
     public void setPkName(String pkName) {
-        this.pkName = pkName;
+        this.pkName = pkName.toLowerCase();
     }
 
     public List<String> getPkColumns() {

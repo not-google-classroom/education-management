@@ -17,7 +17,7 @@ public class UniqueKey {
     }
 
     public void setUkName(String ukName) {
-        this.ukName = ukName;
+        this.ukName = ukName.toLowerCase();
     }
 
     public List<String> getUkColumns() {

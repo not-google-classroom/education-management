@@ -17,7 +17,7 @@ public class IndexKey {
     }
 
     public void setIkName(String ikName) {
-        this.ikName = ikName;
+        this.ikName = ikName.toLowerCase();
     }
 
     public List<String> getIkColumns() {
