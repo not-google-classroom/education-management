@@ -43,7 +43,7 @@ public class StartUpService {
         return startUpService;
     }
 
-    public void populateStaticTableDataFiles(String jsonConfFilesPath) throws IOException {
+    public void populateStaticTableDataFiles(String jsonConfFilesPath) throws Exception {
         JsonNode metaDataNode = FileHandler.readJsonFile(jsonConfFilesPath);
 
         // Iterate through the fields in the JSON
@@ -62,7 +62,7 @@ public class StartUpService {
         }
     }
 
-    private void populateTablesToDB(String fullFilePath) {
+    private void populateTablesToDB(String fullFilePath) throws Exception {
         try {
             TableMetaData tableMetaData = FileHandler.readSchemaFromFile(fullFilePath);
             StringBuilder bulkQueryString = new StringBuilder();
@@ -76,6 +76,7 @@ public class StartUpService {
             updateTableDetailsDataToDB(tableMetaData);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception when populating file : {0} tables to DB : {1}", new Object[]{fullFilePath, e});
+            throw new Exception("Exception ccurred! unable to proceed for startup!");
         }
     }
 
@@ -100,10 +101,13 @@ public class StartUpService {
                             DSL.field("TABLE_ID"),
                             DSL.field("IS_PRIMARY_KEY"),
                             DSL.field("IS_UNIQUE"),
-                            DSL.field("IS_FOREIGN_KEY"),
+                            DSL.field("FKEY_GEN_NAME"),
                             DSL.field("IS_NULLABLE"),
-                            DSL.field("FKEY_TABLE_ID"),
-                            DSL.field("FKEY_COLUMN_ID"));
+                            DSL.field("DEFAULT_VALUE"));
+            InsertValuesStepN<?> insertFKStep = (InsertValuesStepN<?>) dslContext
+                    .insertInto(DSL.table("FKDetails"),
+                        DSL.field("FK_GEN_NAME"), DSL.field("FKEY_TABLE_ID"), DSL.field("FKEY_COLUMN_ID"));
+
 
             for(Column column : table.getColumns()) {
                 String columnName = column.getName();
@@ -112,18 +116,18 @@ public class StartUpService {
                 boolean isPrimary = primaryKey != null && primaryKey.getPkColumns().contains(columnName);
                 boolean isUnique = uniqueKey != null && uniqueKey.getUkColumns().contains(columnName);
                 boolean notNull = column.getNotNull() != null && column.getNotNull();
-                boolean fkey = false;
-                Long fkeyTableID = null;
-                Long fkeyColID = null;
                 ForeignKey foreignKey = column.getForeignKey();
+                String fkey = "--";
                 if(foreignKey != null) {
-                    fkey = true;
-                    fkeyTableID = TableUtil.getInstance().findTableId(foreignKey.getReferencedTable());
-                    fkeyColID = TableUtil.getInstance().findColumnId(foreignKey.getReferencedColumn(), fkeyTableID);
+                    fkey = foreignKey.getFkName();
+                    Long fkeyTableID = TableUtil.getInstance().findTableId(foreignKey.getReferencedTable());
+                    Long fkeyColID = TableUtil.getInstance().findColumnId(foreignKey.getReferencedColumn(), fkeyTableID);
+                    insertFKStep.values(foreignKey.getFkName(), fkeyTableID, fkeyColID);
                 }
-                insertStep.values(columnName, columnType, tableID, isPrimary, isUnique, fkey, notNull, fkeyTableID, fkeyColID);
+                insertStep.values(columnName, columnType, tableID, isPrimary, isUnique, fkey, notNull, defValue);
             }
             insertStep.execute();
+            insertFKStep.execute();
             updateConstraintDetails(table, tableID);
             storeTableDataToCache(table);
         }

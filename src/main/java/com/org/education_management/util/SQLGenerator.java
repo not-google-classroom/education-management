@@ -10,7 +10,7 @@ import com.org.education_management.model.UniqueKey;
 
 public class SQLGenerator {
 
-    public String generateCreateTableSQL(Table table) {
+    public String generateCreateTableSQL(Table table) throws Exception {
         StringBuilder sql = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
         sql.append(table.getTableName()).append(" (");
 
@@ -59,14 +59,18 @@ public class SQLGenerator {
         for (Column column : table.getColumns()) {
             if (column.getForeignKey() != null) {
                 ForeignKey fk = column.getForeignKey();
-                sql.append("CONSTRAINT fk_").append(table.getTableName()+"_").append(column.getName())
-                        .append(" FOREIGN KEY (").append(column.getName()).append(") REFERENCES ")
-                        .append(fk.getReferencedTable()).append("(").append(fk.getReferencedColumn()).append(")");
+                if(fk.getFkName() != null && !fk.getFkName().isEmpty()) {
+                    sql.append("CONSTRAINT ").append(fk.getFkName())
+                            .append(" FOREIGN KEY (").append(column.getName()).append(") REFERENCES ")
+                            .append(fk.getReferencedTable()).append("(").append(fk.getReferencedColumn()).append(")");
 
-                if (fk.getOnDelete() != null) {
-                    sql.append(" ON DELETE ").append(fk.getOnDelete());
+                    if (fk.getOnDelete() != null) {
+                        sql.append(" ON DELETE ").append(fk.getOnDelete());
+                    }
+                    sql.append(", ");
+                } else {
+                    throw new Exception("fkName is empty for table : {0} and column : {1}");
                 }
-                sql.append(", ");
             }
         }
 

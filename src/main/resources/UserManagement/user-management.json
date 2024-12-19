@@ -52,6 +52,7 @@
           "name": "USER_ID",
           "type": "INTEGER",
           "foreignKey": {
+            "fkName": "Passwords_FK",
             "referencedTable": "Users",
             "referencedColumn": "USER_ID",
             "onDelete": "CASCADE"

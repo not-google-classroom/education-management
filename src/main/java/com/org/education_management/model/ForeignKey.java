@@ -5,9 +5,20 @@ public class ForeignKey {
     private String referencedColumn;
     private String onDelete;
 
+    public String getFkName() {
+        return fkName;
+    }
+
+    public void setFkName(String fkName) {
+        this.fkName = fkName;
+    }
+
+    private String fkName;
+
     public ForeignKey() {}
 
-    public ForeignKey(String refTableName, String refColName) {
+    public ForeignKey(String fkName, String refTableName, String refColName) {
+        this.fkName = fkName;
         this.referencedTable = refTableName;
         this.referencedColumn = refColName;
     }
