@@ -196,7 +196,7 @@ public class TableDiffGenerator {
                     Iterator<String> addedColumn = addedColumns.iterator();
                     while (addedColumn.hasNext()){
                         Column addedColumnObject = newColumnMap.get(addedColumn.next());
-                        resultQuerys.put("query_"+(index++),postgresQueryConstructor.contructNewColumnQuery(table,addedColumnObject));
+                        resultQuerys.put("query_"+(index++),postgresQueryConstructor.constructNewColumnQuery(table,addedColumnObject));
                     }
                 }
                 if(!removedColumns.isEmpty()){

@@ -12,7 +12,7 @@
     ]
   },
   {
-    "path": "/api/org/createOrg",
+    "path": "/api/org/createOrgOld",
     "method": "POST",
     "roles": ["admin"],
     "params": [
@@ -53,6 +53,17 @@
         "required": true
       }
     ]
+  },
+  {
+    "path": "/api/org/createOrg",
+    "method": "POST",
+    "roles": [
+      "admin"
+    ],
+    "params": [],
+    "bodyValidation": {
+      "feesName": "^[a-zA-Z0-9 ]{3,30}$"
+    }
   },
   {
     "path": "/api/org/csrf-token",

@@ -20,21 +20,21 @@ public class FeesController {
 
     FeesService feesService = new FeesService();
 
-    @PostMapping(value = "/createFeesStructure", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> createFeesStructure(Map<String, Object> ruleParamsMa) {
+    @PostMapping("/createFeesStructure")
+    public Map<String, Object> createFeesStructure(@RequestParam Map<String, Object> feesDetails) {
         Map<String, Object> resultMap = new HashMap<>();
         try {
-            // Pass the request map directly to the service, or convert it to JSONObject if needed
-            JSONObject request = new JSONObject(ruleParamsMa);
-            feesService.createFeesStructure(request);
-
-            // Success response
-            resultMap.put(StatusConstants.STATUS_CODE, 200);
-            resultMap.put(StatusConstants.MESSAGE, "Fees structure created successfully");
+            JSONObject request = new JSONObject(feesDetails);
+            if (feesService.createFeesStructure(request)) {
+                resultMap.put(StatusConstants.STATUS_CODE, 200);
+                resultMap.put(StatusConstants.MESSAGE, "Fees structure created successfully");
+            } else {
+                resultMap.put(StatusConstants.STATUS_CODE, 400);
+                resultMap.put(StatusConstants.MESSAGE, "Unable to create fees structure, contact support");
+            }
         } catch (Exception e) {
-            // Error response
-            resultMap.put(StatusConstants.STATUS_CODE, 400);
-            resultMap.put(StatusConstants.MESSAGE, "Unable to create fees structure contact support");
+            logger.log(Level.SEVERE, "Exception occurred while createFeesStructure : {0}", e);
+            resultMap.put(StatusConstants.STATUS_CODE, 500);
         }
         return resultMap;
     }
@@ -42,48 +42,101 @@ public class FeesController {
     @GetMapping("/payFees")
     public Map<String, Object> payFees(@RequestParam Map<String, Object> requestMap) throws JSONException {
         Map<String, Object> resultMap = new HashMap<>();
-        System.out.println(requestMap);
         try {
             if (feesService.payFees(requestMap)) {
-                resultMap.put(StatusConstants.MESSAGE, "Organization details fetched successfully");
+                resultMap.put(StatusConstants.MESSAGE, "Fees paid successfully");
                 resultMap.put(StatusConstants.STATUS_CODE, 200);
             } else {
-                resultMap.put(StatusConstants.STATUS_CODE, 204);
-                resultMap.put(StatusConstants.MESSAGE, "Unable to process the request!");
+                resultMap.put(StatusConstants.STATUS_CODE, 400);
+                resultMap.put(StatusConstants.MESSAGE, "Unable to pay fees, contact support");
             }
-            return resultMap;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Exception when getting orgDetails : {0}", e);
+            logger.log(Level.SEVERE, "Exception occurred while payFees : {0}", e);
             resultMap.put(StatusConstants.STATUS_CODE, 500);
-            resultMap.put(StatusConstants.MESSAGE, "Internal server error!");
         }
-
-        resultMap.put(StatusConstants.STATUS_CODE, 204);
-        resultMap.put(StatusConstants.MESSAGE, "Unable to process the request!");
         return resultMap;
     }
 
     @PostMapping("/mapFees")
-    public Map<String, Object> mapFees(@RequestParam Map<String, Object> requestMap) throws JSONException {
+    public Map<String, Object> mapFees(@RequestParam Map<String, Object> feesDetails) throws JSONException {
         Map<String, Object> resultMap = new HashMap<>();
-        System.out.println(requestMap);
         try {
-            if (feesService.payFees(requestMap)) {
-                resultMap.put(StatusConstants.MESSAGE, "Organization details fetched successfully");
+            if (feesService.mapFees(new JSONObject(feesDetails))) {
+                resultMap.put(StatusConstants.MESSAGE, "Fees mapped successfully");
                 resultMap.put(StatusConstants.STATUS_CODE, 200);
             } else {
-                resultMap.put(StatusConstants.STATUS_CODE, 204);
-                resultMap.put(StatusConstants.MESSAGE, "Unable to process the request!");
+                resultMap.put(StatusConstants.STATUS_CODE, 400);
+                resultMap.put(StatusConstants.MESSAGE, "Unable to map fees, contact support");
             }
-            return resultMap;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Exception when getting orgDetails : {0}", e);
+            logger.log(Level.SEVERE, "Exception occurred while mapFees : {0}", e);
             resultMap.put(StatusConstants.STATUS_CODE, 500);
-            resultMap.put(StatusConstants.MESSAGE, "Internal server error!");
         }
+        return resultMap;
+    }
 
-        resultMap.put(StatusConstants.STATUS_CODE, 204);
-        resultMap.put(StatusConstants.MESSAGE, "Unable to process the request!");
+    @GetMapping("/getFeesIdsForUser")
+    public Map<String, Object> getFeesIdsForUser(@RequestParam Map<String, Object> feesDetails) throws JSONException {
+        Map<String, Object> resultMap = new HashMap<>();
+        try {
+            resultMap.put(StatusConstants.DATA, feesService.getFeesIdsForUser(feesDetails));
+            resultMap.put(StatusConstants.MESSAGE, "Fees fetched for user");
+            resultMap.put(StatusConstants.STATUS_CODE, 200);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception occurred while getFeesForUser : {0}", e);
+            resultMap.put(StatusConstants.STATUS_CODE, 500);
+        }
+        return resultMap;
+    }
+
+    @GetMapping("/getBalancFeesForUser")
+    public Map<String, Object> getBalancFees(@RequestParam Map<String, Object> feesDetails) throws JSONException {
+        Map<String, Object> resultMap = new HashMap<>();
+        try {
+            resultMap.put(StatusConstants.DATA, feesService.getBalanceFeesForUser(feesDetails));
+            resultMap.put(StatusConstants.MESSAGE, "Balance fees fetched for user");
+            resultMap.put(StatusConstants.STATUS_CODE, 200);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception occurred while getBalancFees : {0}", e);
+            resultMap.put(StatusConstants.STATUS_CODE, 500);
+        }
+        return resultMap;
+    }
+
+    @GetMapping("/createFine")
+    public Map<String, Object> createFine(@RequestParam Map<String, Object> fineDetails) throws JSONException {
+        Map<String, Object> resultMap = new HashMap<>();
+        try {
+            if (feesService.createFine(fineDetails)) {
+                resultMap.put(StatusConstants.MESSAGE, "Fine created successsfully");
+                resultMap.put(StatusConstants.STATUS_CODE, 200);
+            } else {
+                resultMap.put(StatusConstants.STATUS_CODE, 400);
+                resultMap.put(StatusConstants.MESSAGE, "Unable to create fine, contact support");
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception occurred while createFine : {0}", e);
+            resultMap.put(StatusConstants.STATUS_CODE, 500);
+        }
+        return resultMap;
+    }
+
+    @PostMapping("/mapFineToUsers")
+    public Map<String, Object> mapFineToUsers(@RequestParam Map<String, Object> fineDetails) throws JSONException {
+        Map<String, Object> resultMap = new HashMap<>();
+        try {
+            if (feesService.mapFineToUsers(fineDetails)) {
+                resultMap.put(StatusConstants.MESSAGE, "Fine mapped to users");
+                resultMap.put(StatusConstants.STATUS_CODE, 200);
+            } else {
+                resultMap.put(StatusConstants.STATUS_CODE, 400);
+                resultMap.put(StatusConstants.MESSAGE, "Unable to map fine, contact support");
+            }
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception occurred while mapFineToUsers : {0}", e);
+            resultMap.put(StatusConstants.STATUS_CODE, 500);
+        }
         return resultMap;
     }
 }

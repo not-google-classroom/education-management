@@ -105,7 +105,7 @@ public class PostgresQueryConstructor implements QueryConstructor {
         return resultQueries;
     }
 
-    public String contructNewColumnQuery(Table table,Column column) throws Exception{
+    public String constructNewColumnQuery(Table table,Column column) throws Exception{
         String resultString = "ALTER TABLE ${table_name} ADD COLUMN ${column_name} ${data_type} ${contraint};";
         resultString = resultString.replaceAll("\\$\\{table_name\\}",table.getTableName());
         resultString = resultString.replaceAll("\\$\\{column_name\\}",column.getColumnName());
