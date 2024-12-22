@@ -5,11 +5,9 @@ import com.org.education_management.util.OrgUtil;
 import com.org.education_management.util.StatusConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,40 +48,34 @@ public class OrgController {
     }
 
     @PostMapping("/createOrg")
-    private Map<String, Object> createOrg(@RequestParam Map<String, Object> requestMap) {
+    public ResponseEntity<Map<String, Object>> createOrg(@RequestBody Map<String, Object> requestMap) {
         Map<String, Object> resultMap = new HashMap<>();
         String orgName = (String) requestMap.get("orgName");
         String userEmail = (String) requestMap.get("userEmail");
         String password = (String) requestMap.get("password");
-        String confirmPassword = (String) requestMap.get("confirmPassword");
-        String firstName = (String) requestMap.get("firstName");
-        String lastName = (String) requestMap.get("lastName");
+        String userName = (String) requestMap.get("userName");
 
         if(OrgUtil.getInstance().isEmailExists(userEmail)) {
             resultMap.put(StatusConstants.STATUS_CODE, 409);
             resultMap.put(StatusConstants.MESSAGE, "user email already exist! try login");
-            return resultMap;
-        }
-
-        if(!orgService.validatePasswords(password, confirmPassword)) {
-            resultMap.put(StatusConstants.STATUS_CODE, 400);
-            resultMap.put(StatusConstants.MESSAGE, "password and confirm password doesn't match!");
-            return resultMap;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultMap);
         }
 
         if(!orgService.validateOrgName(orgName)) {
             resultMap.put(StatusConstants.STATUS_CODE, 409);
             resultMap.put(StatusConstants.MESSAGE, "organization name already found!...");
-            return resultMap;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultMap);
         }
 
         try {
-            orgService.createOrg(orgName, userEmail, password, firstName, lastName);
+            orgService.createOrg(orgName, userEmail, password, userName);
+            resultMap.put(StatusConstants.STATUS_CODE, 200);
+            resultMap.put(StatusConstants.MESSAGE, "Organization created successfully");
+            return ResponseEntity.status(HttpStatus.OK).body(resultMap);
         } catch (Exception e) {
             resultMap.put(StatusConstants.STATUS_CODE, 400);
             resultMap.put(StatusConstants.MESSAGE, "unable to create organization! contact support");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultMap);
         }
-
-        return resultMap;
     }
 }

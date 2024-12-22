@@ -26,22 +26,18 @@ public class OrgService {
     }
 
     public boolean validatePasswords(String password, String confirmPassword) {
-        if(password != null && confirmPassword != null) {
+        if (password != null && confirmPassword != null) {
             return password.equalsIgnoreCase(confirmPassword);
         }
         return false;
     }
 
-    public void createOrg(String orgName, String userEmail, String password, String firstName, String lastName) throws Exception {
-        String userName = firstName;
-        if(!lastName.isEmpty()) {
-            userName = userName + " " + lastName;
-        }
+    public void createOrg(String orgName, String userEmail, String password, String userName) throws Exception {
         try {
             OrgUtil.getInstance().createOrgAndSchema(orgName, userEmail);
             String schemaName = SchemaUtil.getInstance().createSchemaAndPopulateData(userEmail);
-            if(schemaName != null && !schemaName.isEmpty()) {
-                UserMgmtUtil.getInstance().addAdminToOrg(schemaName, orgName, userEmail, password, userName, firstName, lastName);
+            if (schemaName != null && !schemaName.isEmpty()) {
+                UserMgmtUtil.getInstance().addAdminToOrg(schemaName, orgName, userEmail, password, userName);
                 UniqueValueGenerator.getInstance().updateValuesToDB();
             }
 
@@ -54,10 +50,10 @@ public class OrgService {
     }
 
     public boolean validateOrgName(String orgName) {
-        if(orgName != null && !orgName.isEmpty()) {
+        if (orgName != null && !orgName.isEmpty()) {
             Map<String, Object> orgDetails = OrgUtil.getInstance().getOrgDetailsByName(orgName);
-            if(!orgDetails.isEmpty()) {
-                logger.log(Level.WARNING,"Validation failed, organization already found!, contact org admin");
+            if (!orgDetails.isEmpty()) {
+                logger.log(Level.WARNING, "Validation failed, organization already found!, contact org admin");
                 return false;
             }
         }

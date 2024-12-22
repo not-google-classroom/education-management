@@ -2,14 +2,6 @@
   "tables": [
     {
       "tableName": "Users",
-      "primaryKeys" : [
-        {
-          "pkName" : "Users_pk_1",
-          "pkColumns" : [
-            "USER_ID"
-          ]
-        }
-      ],
       "columns": [
         {
           "name": "USER_ID",
@@ -22,18 +14,7 @@
         },
         {
           "name": "EMAIL",
-          "type": "VARCHAR(100)",
-          "unique": true
-        },
-        {
-          "name": "FIRST_NAME",
-          "type": "VARCHAR(50)",
-          "defaultValue": "''"
-        },
-        {
-          "name": "LAST_NAME",
-          "type": "VARCHAR(50)",
-          "defaultValue": "''"
+          "type": "VARCHAR(100)"
         },
         {
           "name": "CREATED_AT",
@@ -45,18 +26,22 @@
           "type": "BIGINT",
           "defaultValue": -1
         }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "Users_PK",
+          "pkColumns": ["USER_ID"]
+        }
+      ],
+      "uniqueKeys": [
+        {
+          "ukName": "Users_UK",
+          "ukColumns": ["EMAIL"]
+        }
       ]
     },
     {
       "tableName": "Passwords",
-      "primaryKeys" : [
-        {
-          "pkName" : "Passwords_pk_1",
-          "pkColumns" : [
-            "PASSWORD_ID"
-          ]
-        }
-      ],
       "columns": [
         {
           "name": "PASSWORD_ID",
@@ -67,6 +52,7 @@
           "name": "USER_ID",
           "type": "INTEGER",
           "foreignKey": {
+            "fkName": "Passwords_FK",
             "referencedTable": "Users",
             "referencedColumn": "USER_ID",
             "onDelete": "CASCADE"
@@ -85,6 +71,12 @@
           "name": "UPDATED_AT",
           "type": "BIGINT",
           "defaultValue": -1
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "Passwords_PK",
+          "pkColumns": ["PASSWORD_ID"]
         }
       ]
     }
