@@ -5,13 +5,19 @@
       "method": "POST",
       "roles": ["all"],
       "template": "loginTemplate"
+    },
+    {
+      "path": "/api/auth/loginWithOTP",
+      "method": "POST",
+      "roles": ["all"],
+      "template": "loginWithOTPTemplate"
     }
   ],
   "templates": [
     {
       "name": "loginTemplate",
       "minLength": 20,
-      "maxLength": 4000,
+      "maxLength": 1000,
       "type": "JSONObject",
       "params": [
         {
@@ -24,6 +30,25 @@
           "name": "password",
           "type": "string",
           "pattern": "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,15}$",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "loginWithOTPTemplate",
+      "minLength": 20,
+      "maxLength": 1000,
+      "type": "JSONObject",
+      "params": [
+        {
+          "name": "userEmail",
+          "type": "string",
+          "pattern": "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$",
+          "required": true
+        },
+        {
+          "name": "otp",
+          "type": "int",
           "required": true
         }
       ]

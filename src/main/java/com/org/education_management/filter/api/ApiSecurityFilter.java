@@ -97,6 +97,16 @@ public class ApiSecurityFilter implements Filter {
                             .orElse(null);
 
                     if (templateRule != null && templateRule.getParams() != null) {
+                        if(!validateLength(templateRule.getMinLength(), requestBody, true)) {
+                            logger.log(Level.WARNING, "RequestBody doesn't meet minimum requestBody value");
+                            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "RequestBody doesn't meet minimum requestBody value");
+                            return;
+                        }
+                        if(!validateLength(templateRule.getMaxLength(), requestBody, false)) {
+                            logger.log(Level.WARNING, "RequestBody has more requestBody value");
+                            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "RequestBody has more requestBody value");
+                            return;
+                        }
                         if (!validateParams(templateRule.getParams(), httpRequest, requestBody, multipartHttpRequest)) {
                             logger.log(Level.WARNING, "Invalid parameters in TemplateRule: {0}", templateRule.getName());
                             httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request parameter format found in template!");
@@ -119,6 +129,17 @@ public class ApiSecurityFilter implements Filter {
             logger.log(Level.SEVERE, "Invalid API details or API is not configured");
             httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid API URL");
         }
+    }
+
+    private boolean validateLength(int length, JSONObject requestBody, boolean isMinimum) {
+        int size = requestBody.toString().length();
+        if(isMinimum && size < length){
+            return false;
+        }
+        if(!isMinimum && size > length) {
+            return false;
+        }
+        return true;
     }
 
     private boolean validateParams(List<ParamRule> paramRules, HttpServletRequest httpRequest, JSONObject requestBody, MultipartHttpServletRequest multipartHttpRequest) {
@@ -149,7 +170,8 @@ public class ApiSecurityFilter implements Filter {
             return rule.getRequired() == null || !rule.getRequired();
         }
 
-        switch (rule.getType()) {
+        String type = rule.getType().toLowerCase();
+        switch (type) {
             case "string":
                 return rule.getPattern() == null || Pattern.matches(rule.getPattern(), paramValue.toString());
             case "long":
@@ -157,6 +179,15 @@ public class ApiSecurityFilter implements Filter {
                     Long.parseLong(paramValue.toString());
                     return true;
                 } catch (NumberFormatException e) {
+                    logger.log(Level.SEVERE, "Invalid parameter format found! for param : {0}, paramvalue : {1}", new Object[]{rule.getName(), paramValue});
+                    return false;
+                }
+            case "int":
+                try{
+                    Integer.parseInt(paramValue.toString());
+                    return true;
+                } catch (NumberFormatException e) {
+                    logger.log(Level.SEVERE, "Invalid parameter format found! for param : {0}, paramvalue : {1}", new Object[]{rule.getName(), paramValue});
                     return false;
                 }
             case "boolean":

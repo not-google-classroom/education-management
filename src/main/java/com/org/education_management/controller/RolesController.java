@@ -17,7 +17,10 @@ public class RolesController {
 
     @GetMapping(value = "/getAllRoles", produces = "application/json")
     private Map<String, Object> getRoles(@RequestParam Map<String, Object> requestMap) {
-        Long roleID = (requestMap != null && requestMap.containsKey("roleID")) ? (Long) requestMap.get("roleID") : null;
+        Long roleID = null;
+        if(requestMap != null && requestMap.containsKey("roleID")) {
+            roleID = Long.parseLong((String) requestMap.getOrDefault("roleID", null));
+        }
         return RolesService.getInstance().getAllRoles(roleID);
     }
 }
