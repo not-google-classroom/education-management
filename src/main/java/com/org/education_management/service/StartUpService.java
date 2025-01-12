@@ -304,7 +304,7 @@ public class StartUpService {
                     String colName = field.getKey().toLowerCase();
 
                     // Special handling for primary key
-                    if (!foreignKeyColMap.isEmpty() && foreignKeyColMap.containsKey(colName)) {
+                    if (!primaryKeyColMap.isEmpty() && primaryKeyColMap.containsKey(colName)) {
                         if (insertColValue == null || insertColValue.toString().isEmpty()) {
                             throw new IllegalArgumentException("Mandatory mapping details missing!");
                         }
