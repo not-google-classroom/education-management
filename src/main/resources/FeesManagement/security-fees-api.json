@@ -3,8 +3,7 @@
     "path": "/api/fees/createFeesStructure",
     "method": "POST",
     "roles": [
-      "admin",
-      "user"
+      "admin"
     ],
     "params": [],
     "bodyValidation": {

@@ -20,7 +20,7 @@ public class FeesController {
 
     FeesService feesService = new FeesService();
 
-    @PostMapping("/createFeesStructure")
+    @PostMapping(value = "/createFeesStructure", produces = "application/json")
     public Map<String, Object> createFeesStructure(@RequestParam Map<String, Object> feesDetails) {
         Map<String, Object> resultMap = new HashMap<>();
         try {

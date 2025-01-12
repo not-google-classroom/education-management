@@ -1,6 +1,6 @@
 [
   {
-    "path": "/api/auth/login",
+    "path": "/api/auth/loginold",
     "method": "POST",
     "roles": ["all"],
     "params": [
@@ -17,5 +17,16 @@
         "required": true
       }
     ]
+  },
+  {
+    "path": "/api/auth/login",
+    "method": "POST",
+    "roles": [
+      "admin"
+    ],
+    "params": [],
+    "bodyValidation": {
+      "feesName": "^[a-zA-Z0-9 ]{3,30}$"
+    }
   }
 ]

@@ -33,9 +33,8 @@ public class FeesService {
         Map<String, Object> insertData = new HashMap<>();
         insertData.put("INSTALLMENTS", feesStructure.getInt("noOfInstallments"));
         insertData.put("TOTAL_FEES", feesStructure.getLong("totalFees"));
-        insertData.put("REMAINING_FEES", feesStructure.getLong("totalFees"));
         insertData.put("FEES_NAME", feesStructure.getString("feesName"));
-        if (DataBaseUtil.insertData("fees", insertData)) {
+        if (!DataBaseUtil.insertData("fees", insertData)) {
             return false;
         }
 
@@ -50,7 +49,7 @@ public class FeesService {
             insertData.put("INSTALLMENT_AMOUNT", installmentJson.getLong("amount"));
             insertData.put("DUE_DATE", installmentJson.getLong("date"));
             insertData.put("INSTALLMENT_NAME", installmentJson.getString("installmentName"));
-            if (DataBaseUtil.insertData("Installments", insertData)) {
+            if (!DataBaseUtil.insertData("Installments", insertData)) {
                 return false;
             }
         }
@@ -130,7 +129,7 @@ public class FeesService {
             insertData.put("FEES_ID", feesId);
             insertData.put("TOTAL_FEES", totalFees);
             insertData.put("BALANCE_FEES", totalFees);
-            if (DataBaseUtil.insertData("feesmapping", insertData)) {
+            if (!DataBaseUtil.insertData("feesmapping", insertData)) {
                 return false;
             }
         }
@@ -304,7 +303,7 @@ public class FeesService {
             insertData.put("USER_ID", userId);
             insertData.put("FEES_ID", fineId);
             insertData.put("FINE_ID", fineId);
-            if (DataBaseUtil.insertData("finemapping", insertData)) {
+            if (!DataBaseUtil.insertData("finemapping", insertData)) {
                 return false;
             }
         }
@@ -333,7 +332,7 @@ public class FeesService {
         insertData.put("USER_ID", userId);
         insertData.put("TRANSACTION_AMOUNT", transactionAmount);
         insertData.put("TRANSACTION_DATE", System.currentTimeMillis());
-        if (DataBaseUtil.insertData("Transactions", insertData)) {
+        if (!DataBaseUtil.insertData("Transactions", insertData)) {
             return false;
         }
         logger.log(Level.INFO, "Transaction added successfully...");
