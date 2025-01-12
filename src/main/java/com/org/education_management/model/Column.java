@@ -3,26 +3,21 @@ package com.org.education_management.model;
 public class Column {
     private String name;
     private String type;
-    private Boolean primaryKey = false;
-    private Boolean unique = false;
+    private PrimaryKey primaryKey;
+    private UniqueKey unique;
     private Boolean notNull = false;
-    private Boolean autoIncrement;
+    private Boolean autoIncrement = false;
     private ForeignKey foreignKey;
     private String defaultValue;
 
     public Column() {}
 
     public Column(String colName, String colType, Boolean isPrimary, Boolean isUnique, Boolean isNull, ForeignKey foreignKey) {
-        this.name = colName.toLowerCase();
-        this.type = colType;
-        this.primaryKey = isPrimary;
-        this.unique = isUnique;
-        this.notNull = isNull;
-        this.foreignKey = foreignKey;
+
     }
 
     public String getName() {
-        return name;
+        return name.toLowerCase();
     }
 
     public void setName(String name) {
@@ -35,22 +30,6 @@ public class Column {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public Boolean getPrimaryKey() {
-        return primaryKey;
-    }
-
-    public void setPrimaryKey(Boolean primaryKey) {
-        this.primaryKey = primaryKey;
-    }
-
-    public Boolean getUnique() {
-        return unique;
-    }
-
-    public void setUnique(Boolean unique) {
-        this.unique = unique;
     }
 
     public Boolean getNotNull() {

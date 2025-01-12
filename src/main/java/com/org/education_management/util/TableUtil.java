@@ -40,13 +40,11 @@ public class TableUtil {
                 tableDesc = (String) record.get(field(name("tabledetails", "description")));
                 Boolean isPrimary = (Boolean) record.get(field(name("columndetails", "is_primary_key")));
                 Boolean isUnique = (Boolean) record.get(field(name("columndetails", "is_unique")));
-                Boolean isForeign = (Boolean) record.get(field(name("columndetails", "is_foreign_key")));
+                String fkeyName = (String) record.get(field(name("columndetails", "fkey_gen_name")));
                 Boolean isNull = (Boolean) record.get(field(name("columndetails", "is_nullable")));
-                Long fkeyTId = (Long) record.get(field(name("columndetails", "fkey_table_id")));
-                Long fkeyCId = (Long) record.get(field(name("columndetails", "fkey_column_id")));
                 ForeignKey foreignKey = null;
-                if(isForeign) {
-                    foreignKey = getForeignKeyDetails(fkeyTId, fkeyCId);
+                if(fkeyName != null && !fkeyName.equals("--")) {
+                    foreignKey = getFKDetailsByGenName(fkeyName);
                 }
                 Column column = new Column(colName, colType, isPrimary, isUnique, isNull, foreignKey);
                 columns.add(column);
@@ -56,15 +54,25 @@ public class TableUtil {
         return null;
     }
 
-    private ForeignKey getForeignKeyDetails(Long fkeyTId, Long fkeyCId) {
-        if(fkeyTId != null && fkeyCId != null) {
-            String refTableName = findTableName(fkeyTId);
-            String refColName = findColumnName(fkeyCId, fkeyTId);
-            if(refTableName != null && refColName != null) {
-                return new ForeignKey(refTableName, refColName);
+    private ForeignKey getFKDetailsByGenName(String fkeyName) {
+        ForeignKey foreignKey = null;
+        if(fkeyName != null && !fkeyName.isEmpty()) {
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            Record record = dslContext.select()
+                    .from(DSL.table("fkdetails"))
+                    .where(DSL.field("fkey_gen_name").eq(fkeyName))
+                    .fetchOne();
+            if (record != null) {
+                Long fkTId = (Long) record.get("fkey_table_id");
+                Long fkCId = (Long) record.get("fkey_column__id");
+                String refTableName = findTableName(fkTId);
+                String refColName = findColumnName(fkCId, fkTId);
+                if(refTableName != null && refColName != null) {
+                    return new ForeignKey(fkeyName, refTableName, refColName);
+                }
             }
         }
-        return null;
+        return foreignKey;
     }
 
     public Long findTableId(String tableName) {

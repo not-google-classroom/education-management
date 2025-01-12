@@ -6,19 +6,29 @@
         {
           "name": "USER_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
           "name": "USER_EMAIL",
           "type": "VARCHAR(255)",
-          "unique": true,
           "notNull": true
         },
         {
           "name": "CREATED_TIME",
           "type": "BIGINT",
           "defaultValue": -1
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "UserDetails_PK",
+          "pkColumns": ["USER_ID"]
+        }
+      ],
+      "uniqueKeys": [
+        {
+          "ukName": "UserDetails_UK",
+          "ukColumns": ["USER_EMAIL"]
         }
       ]
     },
@@ -28,18 +38,17 @@
         {
           "name": "ORG_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
           "name": "ORG_NAME",
-          "type": "VARCHAR(30)",
-          "unique":true
+          "type": "VARCHAR(30)"
         },
         {
           "name": "USER_ID",
           "type": "BIGINT",
           "foreignKey": {
+            "fkName": "OrgDetails_FK_1",
             "referencedTable": "UserDetails",
             "referencedColumn": "USER_ID",
             "onDelete": "CASCADE"
@@ -51,6 +60,12 @@
           "type": "BIGINT",
           "defaultValue": -1
         }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "OrgDetails_PK",
+          "pkColumns": ["ORG_ID"]
+        }
       ]
     },
     {
@@ -59,7 +74,6 @@
         {
           "name": "SCHEMA_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
@@ -71,11 +85,18 @@
           "name": "ORG_ID",
           "type": "BIGINT",
           "foreignKey": {
+            "fkName": "SASSchemaDetails_FK",
             "referencedTable": "OrgDetails",
             "referencedColumn": "ORG_ID",
             "onDelete": "CASCADE"
           },
           "notNull": true
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "SASSchemaDetails_PK",
+          "pkColumns": ["SCHEMA_ID"]
         }
       ]
     },
@@ -86,6 +107,7 @@
           "name": "ORG_ID",
           "type": "BIGINT",
           "foreignKey": {
+            "fkName": "OrgUsersMapping_FK_1",
             "referencedTable": "OrgDetails",
             "referencedColumn": "ORG_ID",
             "onDelete": "CASCADE"
@@ -96,6 +118,7 @@
           "name": "USER_ID",
           "type": "BIGINT",
           "foreignKey": {
+            "fkName": "OrgUsersMapping_FK_2",
             "referencedTable": "UserDetails",
             "referencedColumn": "USER_ID",
             "onDelete": "CASCADE"
