@@ -57,13 +57,13 @@ public class OrgController {
 
         if(OrgUtil.getInstance().isEmailExists(userEmail)) {
             resultMap.put(StatusConstants.STATUS_CODE, 409);
-            resultMap.put(StatusConstants.MESSAGE, "user email already exist! try login");
+            resultMap.put(StatusConstants.MESSAGE, "User email already exist! try login");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultMap);
         }
 
         if(!orgService.validateOrgName(orgName)) {
             resultMap.put(StatusConstants.STATUS_CODE, 409);
-            resultMap.put(StatusConstants.MESSAGE, "organization name already found!...");
+            resultMap.put(StatusConstants.MESSAGE, "Organization name already found!...");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultMap);
         }
 
@@ -74,7 +74,7 @@ public class OrgController {
             return ResponseEntity.status(HttpStatus.OK).body(resultMap);
         } catch (Exception e) {
             resultMap.put(StatusConstants.STATUS_CODE, 400);
-            resultMap.put(StatusConstants.MESSAGE, "unable to create organization! contact support");
+            resultMap.put(StatusConstants.MESSAGE, "Unable to create organization! contact support");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultMap);
         }
     }

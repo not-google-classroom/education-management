@@ -32,7 +32,7 @@ public class FilterConfig {
     public FilterRegistrationBean<AuthenticationFilter> authenticationFilterFilterRegistrationBean() {
         FilterRegistrationBean<AuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new AuthenticationFilter());
-        registrationBean.addInitParameter("skip-url", "/api/org/createOrg,/api/org/getOrgDetails,/api/auth/login");
+        registrationBean.addInitParameter("skip-url", "/api/org/createOrg,/api/org/getOrgDetails,/api/auth/login,/api/org/createOrgOld");
         registrationBean.addUrlPatterns("/*");
         registrationBean.setOrder(1);
         return registrationBean;

@@ -6,18 +6,28 @@
         {
           "name": "ROLE_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
           "name": "ROLE_NAME",
           "type": "VARCHAR(255)",
-          "unique": true,
           "notNull": true
         },
         {
           "name": "DESCRIPTION",
           "type": "TEXT"
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "Roles_PK",
+          "pkColumns": ["ROLE_ID"]
+        }
+      ],
+      "uniqueKeys": [
+        {
+          "ukName": "Roles_UK",
+          "ukColumns": ["ROLE_NAME"]
         }
       ]
     },
@@ -27,18 +37,28 @@
         {
           "name": "PERMISSION_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
           "name": "PERMISSION_NAME",
           "type": "VARCHAR(255)",
-          "unique": true,
           "notNull": true
         },
         {
           "name": "DESCRIPTION",
           "type": "TEXT"
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "Permissions_PK",
+          "pkColumns": ["PERMISSION_ID"]
+        }
+      ],
+      "uniqueKeys": [
+        {
+          "ukName": "Permissions_UK",
+          "ukColumns": ["PERMISSION_NAME"]
         }
       ]
     },
@@ -49,6 +69,7 @@
           "name": "USER_ID",
           "type": "BIGINT",
           "foreignKey": {
+            "fkName": "UserRoles_FK_1",
             "referencedTable": "Users",
             "referencedColumn": "USER_ID",
             "onDelete": "CASCADE"
@@ -59,6 +80,7 @@
           "name": "ROLE_ID",
           "type": "BIGINT",
           "foreignKey": {
+            "fkName": "UserRoles_FK_2",
             "referencedTable": "Roles",
             "referencedColumn": "ROLE_ID",
             "onDelete": "CASCADE"
@@ -74,6 +96,7 @@
           "name": "ROLE_ID",
           "type": "BIGINT",
           "foreignKey": {
+            "fkName": "RolePermissions_FK_1",
             "referencedTable": "Roles",
             "referencedColumn": "ROLE_ID",
             "onDelete": "CASCADE"
@@ -84,6 +107,7 @@
           "name": "PERMISSION_ID",
           "type": "BIGINT",
           "foreignKey": {
+            "fkName": "RolePermissions_FK_2",
             "referencedTable": "Permissions",
             "referencedColumn": "PERMISSION_ID",
             "onDelete": "CASCADE"
@@ -99,6 +123,7 @@
           "name": "USER_ID",
           "type": "BIGINT",
           "foreignKey": {
+            "fkName": "UsersRolePermissions_FK_1",
             "referencedTable": "Users",
             "referencedColumn": "USER_ID",
             "onDelete": "CASCADE"
@@ -109,6 +134,7 @@
           "name": "ROLE_ID",
           "type": "BIGINT",
           "foreignKey": {
+            "fkName": "UsersRolePermissions_FK_2",
             "referencedTable": "Roles",
             "referencedColumn": "ROLE_ID",
             "onDelete": "CASCADE"
@@ -119,6 +145,7 @@
           "name": "PERMISSION_ID",
           "type": "BIGINT",
           "foreignKey": {
+            "fkName": "UsersRolePermissions_FK_3",
             "referencedTable": "Permissions",
             "referencedColumn": "PERMISSION_ID",
             "onDelete": "CASCADE"

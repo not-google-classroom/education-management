@@ -98,7 +98,7 @@ public class SchemaUtil {
         }
     }
 
-    private void populateUserSpecificData() throws IOException {
+    private void populateUserSpecificData() throws Exception {
         String jsonConfTablePath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "static-table-specific.json";
         String jsonConfMetaPath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "resources" + FileHandler.getFileSeparator() + "static-meta-specific.json";
         if(FileHandler.fileExists(jsonConfTablePath)) {

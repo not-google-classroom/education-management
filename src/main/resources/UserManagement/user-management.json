@@ -6,7 +6,6 @@
         {
           "name": "USER_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
@@ -15,8 +14,7 @@
         },
         {
           "name": "EMAIL",
-          "type": "VARCHAR(100)",
-          "unique": true
+          "type": "VARCHAR(100)"
         },
         {
           "name": "CREATED_AT",
@@ -28,6 +26,18 @@
           "type": "BIGINT",
           "defaultValue": -1
         }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "Users_PK",
+          "pkColumns": ["USER_ID"]
+        }
+      ],
+      "uniqueKeys": [
+        {
+          "ukName": "Users_UK",
+          "ukColumns": ["EMAIL"]
+        }
       ]
     },
     {
@@ -36,13 +46,13 @@
         {
           "name": "PASSWORD_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
           "name": "USER_ID",
           "type": "INTEGER",
           "foreignKey": {
+            "fkName": "Passwords_FK",
             "referencedTable": "Users",
             "referencedColumn": "USER_ID",
             "onDelete": "CASCADE"
@@ -61,6 +71,12 @@
           "name": "UPDATED_AT",
           "type": "BIGINT",
           "defaultValue": -1
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "Passwords_PK",
+          "pkColumns": ["PASSWORD_ID"]
         }
       ]
     }

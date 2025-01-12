@@ -39,57 +39,58 @@ public class AuthenticationFilter implements Filter {
         logger.log(Level.INFO, "Authentication Filter check for API Authentication");
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        if(excludedUrls.contains(httpServletRequest.getRequestURI())) {
+        if (excludedUrls.contains(httpServletRequest.getRequestURI())) {
             logger.log(Level.INFO, "url : {0} skipped for authentication filter", httpServletRequest.getRequestURI());
             chain.doFilter(request, response);
-        }
-        logger.log(Level.INFO, "Ensuring cookies values for requestURI : {0}", new Object[]{httpServletRequest.getRequestURI()});
-        Cookie[] reqCookie = httpServletRequest.getCookies();
-        String token = null;
-        try {
-            if (reqCookie != null) {
-                for (Cookie cookie : reqCookie) {
-                    if (cookie.getName().equalsIgnoreCase("token")) {
-                        token = cookie.getValue();
+        } else {
+            logger.log(Level.INFO, "Ensuring cookies values for requestURI : {0}", new Object[]{httpServletRequest.getRequestURI()});
+            Cookie[] reqCookie = httpServletRequest.getCookies();
+            String token = null;
+            try {
+                if (reqCookie != null) {
+                    for (Cookie cookie : reqCookie) {
+                        if (cookie.getName().equalsIgnoreCase("token")) {
+                            token = cookie.getValue();
+                        }
                     }
-                }
-                if (token != null && !token.isEmpty()) {
-                    Claims claims = JWTUtil.validateToken(token);
-                    String tokenSub = (String) claims.get("sub");
-                    byte[] decodedVal = Base64.getUrlDecoder().decode(tokenSub.getBytes(StandardCharsets.UTF_8));
-                    String decodedContent = new String(decodedVal);
-                    String[] splitContent = decodedContent.split(",");
-                    SchemaUtil.getInstance().setSearchPathForSchema(splitContent[1]);
+                    if (token != null && !token.isEmpty()) {
+                        Claims claims = JWTUtil.validateToken(token);
+                        String tokenSub = (String) claims.get("sub");
+                        byte[] decodedVal = Base64.getUrlDecoder().decode(tokenSub.getBytes(StandardCharsets.UTF_8));
+                        String decodedContent = new String(decodedVal);
+                        String[] splitContent = decodedContent.split(",");
+                        SchemaUtil.getInstance().setSearchPathForSchema(splitContent[1]);
+                    } else {
+                        httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        httpServletResponse.getOutputStream().println("Cookie value is not valid! kindly try login to access resource");
+                        return;
+                    }
                 } else {
-                    httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    httpServletResponse.getOutputStream().println("Cookie value is not valid! kindly try login to access resource");
+                    logger.log(Level.SEVERE, "cookie not found to authenticate user!, kindly pass cookies to proceed");
+                    httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    //httpServletResponse.getOutputStream().println("Insufficient user permission!");
                     return;
                 }
-            } else {
-                logger.log(Level.SEVERE, "cookie not found to authenticate user!, kindly pass cookies to proceed");
-                httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                httpServletResponse.getOutputStream().println("Insufficient user permission!");
+                chain.doFilter(request, response);
+            } catch (SignatureException sigExp) {
+                httpServletResponse.sendRedirect("/api/auth/login");
+                httpServletResponse.setStatus(HttpServletResponse.SC_FOUND);
+                logger.log(Level.SEVERE, "Exception when validating cookie, signature mismatch!", sigExp);
                 return;
+            } catch (ExpiredJwtException extoken) {
+                httpServletResponse.sendRedirect("/login");
+                httpServletResponse.setStatus(HttpServletResponse.SC_FOUND);
+                logger.log(Level.SEVERE, "Token validity expired! try login ", extoken);
+                return;
+            } catch (Exception e) {
+                httpServletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                httpServletResponse.getOutputStream().print("Severe error, when processing request! check logs");
+                logger.log(Level.SEVERE, "Exception when validating user credentials!", e);
+                return;
+            } finally {
+                httpServletResponse.getOutputStream().close();
+                SchemaUtil.getInstance().setSearchPathToPublic();
             }
-            chain.doFilter(request, response);
-        } catch (SignatureException sigExp) {
-            httpServletResponse.sendRedirect("/api/auth/login");
-            httpServletResponse.setStatus(HttpServletResponse.SC_FOUND);
-            logger.log(Level.SEVERE, "Exception when validating cookie, signature mismatch!", sigExp);
-        }
-        catch (ExpiredJwtException extoken) {
-            httpServletResponse.sendRedirect("/login");
-            httpServletResponse.setStatus(HttpServletResponse.SC_FOUND);
-            logger.log(Level.SEVERE, "Token validity expired! try login ", extoken);
-        }
-        catch (Exception e) {
-            httpServletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            httpServletResponse.getOutputStream().print("Severe error, when processing request! check logs");
-            logger.log(Level.SEVERE, "Exception when validating user credentials!", e);
-            return;
-        } finally {
-            httpServletResponse.getOutputStream().close();
-            SchemaUtil.getInstance().setSearchPathToPublic();
         }
     }
 }

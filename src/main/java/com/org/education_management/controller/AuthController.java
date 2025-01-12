@@ -27,7 +27,7 @@ public class AuthController {
             String token = authService.validateLogin(requestMap);
             if (token != null) {
                 result.put(StatusConstants.STATUS_CODE, 200);
-                result.put(StatusConstants.MESSAGE, "user logged in successfully");
+                result.put(StatusConstants.MESSAGE, "User logged in successfully");
                 result.put("token", token);
                 response.addCookie(new Cookie("token", token));
                 return result;
