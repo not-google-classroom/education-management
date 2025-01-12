@@ -1,20 +1,24 @@
-[
-  {
-    "path": "/api/test/api1",
-    "rateLimit": {
-      "limit": 10,
-      "window": 60,
-      "lockPeriod": 60
+{
+  "urls": [
+    {
+      "path": "/api/test/api1",
+      "method": "GET",
+      "roles": ["all"],
+      "rateLimit": {
+        "limit": 2,
+        "window": 60,
+        "lockPeriod": 60
+      }
     },
-    "roles": ["all"]
-  },
-  {
-    "path":"/api/test/api2",
-    "rateLimit": {
-      "limit": 10,
-      "window": 60,
-      "lockPeriod": 60
-    },
-    "roles": ["all"]
-  }
-]
+    {
+      "path":"/api/test/api2",
+      "method": "GET",
+      "roles": ["all"],
+      "rateLimit": {
+        "limit": 5,
+        "window": 60,
+        "lockPeriod": 60
+      }
+    }
+  ]
+}

@@ -54,29 +54,33 @@ public class ApiSecurityUtil {
                 String fullFilePath = Paths.get(FileHandler.getHomeDir(), filePath).toString();
                 File file = new File(fullFilePath);
 
-                // Read an array of ApiRule
-                List<ApiRule> apiRuleList = FileHandler.readJsonFile(fullFilePath, ApiRulesWrapper.class).getUrls();
-                List<TemplateRule> templateRulesList = new LinkedList<>();
-                try {
-                    templateRulesList = FileHandler.readJsonFile(fullFilePath, ApiRulesWrapper.class).getTemplates();
-                } catch (Exception e) {
-                    logger.log(Level.FINE, "No template Rule found!");
-                }
-                if (apiRuleList != null && !apiRuleList.isEmpty()) {
-                    for (ApiRule apiRule : apiRuleList) {
-                        apiRules.add(apiRule);
-                        logger.log(Level.INFO, "Loaded API Rule: {0}", apiRule);
+                if(!lastModifiedFilesTime.containsKey(filePath) || (file.exists() &&
+                        (lastModifiedFilesTime.get(filePath) != file.lastModified()))) {
+                    // Read an array of ApiRule
+                    List<ApiRule> apiRuleList = FileHandler.readJsonFile(fullFilePath, ApiRulesWrapper.class).getUrls();
+                    List<TemplateRule> templateRulesList = new LinkedList<>();
+                    try {
+                        templateRulesList = FileHandler.readJsonFile(fullFilePath, ApiRulesWrapper.class).getTemplates();
+                    } catch (Exception e) {
+                        logger.log(Level.FINE, "No template Rule found!");
                     }
-                } else {
-                    logger.log(Level.WARNING, "No API Rules found in file: {0}", fullFilePath);
-                }
-                if (templateRulesList != null && !templateRulesList.isEmpty()) {
-                    for (TemplateRule templateRule : templateRulesList) {
-                        templateRules.add(templateRule);
-                        logger.log(Level.INFO, "Loaded Template Rule: {0}", templateRule);
+                    if (apiRuleList != null && !apiRuleList.isEmpty()) {
+                        for (ApiRule apiRule : apiRuleList) {
+                            apiRules.add(apiRule);
+                            logger.log(Level.INFO, "Loaded API Rule: {0}", apiRule);
+                        }
+                    } else {
+                        logger.log(Level.WARNING, "No API Rules found in file: {0}", fullFilePath);
                     }
-                } else {
-                    logger.log(Level.WARNING, "No Template Rules found in file: {0}", fullFilePath);
+                    if (templateRulesList != null && !templateRulesList.isEmpty()) {
+                        for (TemplateRule templateRule : templateRulesList) {
+                            templateRules.add(templateRule);
+                            logger.log(Level.INFO, "Loaded Template Rule: {0}", templateRule);
+                        }
+                    } else {
+                        logger.log(Level.WARNING, "No Template Rules found in file: {0}", fullFilePath);
+                    }
+                    lastModifiedFilesTime.put(filePath, file.lastModified());
                 }
 
             }

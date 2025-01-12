@@ -1,12 +1,16 @@
 package com.org.education_management.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ApiRateLimit {
 
     private int limit; // Maximum number of requests allowed
     private int window; // Time window in seconds
     private int lockPeriod; // Lock period in seconds after exceeding the limit
 
-    public ApiRateLimit(int limit, int window, int lockPeriod) {
+    @JsonCreator
+    public ApiRateLimit(@JsonProperty("limit")int limit, @JsonProperty("window")int window, @JsonProperty("lockPeriod")int lockPeriod) {
         this.limit = limit;
         this.window = window;
         this.lockPeriod = lockPeriod;
