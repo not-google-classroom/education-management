@@ -52,7 +52,12 @@ public class ApiSecurityUtil {
 
                 // Read an array of ApiRule
                 List<ApiRule> apiRuleList = FileHandler.readJsonFile(fullFilePath, ApiRulesWrapper.class).getUrls();
-                List<TemplateRule> templateRulesList = FileHandler.readJsonFile(fullFilePath, ApiRulesWrapper.class).getTemplates();
+                List<TemplateRule> templateRulesList = new LinkedList<>();
+                try {
+                    templateRulesList = FileHandler.readJsonFile(fullFilePath, ApiRulesWrapper.class).getTemplates();
+                } catch (Exception e) {
+                    logger.log(Level.FINE, "No template Rule found!");
+                }
                 if (apiRuleList != null && !apiRuleList.isEmpty()) {
                     for (ApiRule apiRule : apiRuleList) {
                         apiRules.add(apiRule);
@@ -67,7 +72,7 @@ public class ApiSecurityUtil {
                         logger.log(Level.INFO, "Loaded Template Rule: {0}", templateRule);
                     }
                 } else {
-                    logger.log(Level.WARNING, "No API Rules found in file: {0}", fullFilePath);
+                    logger.log(Level.WARNING, "No Template Rules found in file: {0}", fullFilePath);
                 }
             }
 
