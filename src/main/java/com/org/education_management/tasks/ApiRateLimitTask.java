@@ -1,14 +1,18 @@
 package com.org.education_management.tasks;
 
 import com.org.education_management.model.ApiRateLimit;
+import com.org.education_management.model.ApiRule;
 import com.org.education_management.util.FileHandler;
+import com.org.education_management.util.api.ApiSecurityUtil;
 import org.springframework.stereotype.Component;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component
 public class ApiRateLimitTask {
@@ -27,14 +31,9 @@ public class ApiRateLimitTask {
     }
 
     private void loadRateLimitConfig() throws Exception{
-        String securityApiJson = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "resources"
-                + FileHandler.getFileSeparator() + "security-api.json";
-        if(FileHandler.fileExists(securityApiJson)){
-            rateLimitRules = FileHandler.readSecurityJsonFile(securityApiJson);
-        }
-        else {
-            throw new FileNotFoundException("security-api.json not found");
-        }
+        List<ApiRule> apiRules = ApiSecurityUtil.getInstance().getApiRules();
+        rateLimitRules = apiRules.stream()
+                .collect(Collectors.toMap(ApiRule::getPath, ApiRule::getRateLimit));
     }
 
     public static ApiRateLimit getRateLimitRule(String path) {
