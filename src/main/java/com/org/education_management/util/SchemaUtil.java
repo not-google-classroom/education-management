@@ -45,6 +45,9 @@ public class SchemaUtil {
                         populateUserSpecificData();
                         setSearchPathToPublic();
                         updateSchemaDetails(orgID, schemaName);
+                        //Start default scheduler for the user
+                        DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
+                        schedulerUtil.loadDefaultSchedulersFromDatabase();
                         return schemaName;
                     } catch (Exception e) {
                         logger.log(Level.SEVERE, "Schema creation failed!, deleting prepopulated entry");

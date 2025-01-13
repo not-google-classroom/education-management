@@ -3,13 +3,16 @@ package com.org.education_management;
 import com.org.education_management.controller.StartUpController;
 import com.org.education_management.util.AppProperty;
 import com.org.education_management.util.DatabaseInitializer;
+import com.org.education_management.util.api.AppInitializer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @SpringBootApplication
+@EnableScheduling
 public class EducationManagementApplication {
 
     private static final Logger logger = Logger.getLogger(String.valueOf(EducationManagementApplication.class));
@@ -30,6 +33,7 @@ public class EducationManagementApplication {
             }
             try {
                 controller.populateIfNeeded();
+                AppInitializer.startRateLimitScheduler();
             } catch (Exception e1) {
                 logger.log(Level.SEVERE, "Exception when starting server ! , {0}", e1);
             }

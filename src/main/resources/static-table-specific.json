@@ -14,5 +14,9 @@
   "FeesManagement": {
     "file_name": "fees-management.json",
     "file_path": "\\resources\\FeesManagement\\fees-management.json"
+  },
+  "Scheduler": {
+    "file_name": "scheduler.json",
+    "file_path": "\\resources\\Schedulers\\scheduler.json"
   }
 }

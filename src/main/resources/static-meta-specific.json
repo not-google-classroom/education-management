@@ -2,5 +2,9 @@
   "RoleManagement": {
     "file_name": "static-roles.json",
     "file_path": "\\resources\\RoleManagement\\static-roles.json"
+  },
+  "DefaultSchedulerData": {
+    "file_name": "scheduler-data.json",
+    "file_path": "\\resources\\RoleManagement\\scheduler-data.json"
   }
 }

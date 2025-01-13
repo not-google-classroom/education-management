@@ -15,6 +15,10 @@
     "file_name": "security-fees-api.json",
     "file_path": "\\resources\\FeesManagement\\security-fees-api.json"
   },
+  "SampleRateLimit": {
+    "file_name": "security-api.json",
+    "file_path": "\\resources\\SecurityManagement\\security-api.json"
+  },
   "UserManagement": {
     "file_name": "security-user-api.json",
     "file_path": "\\resources\\UserManagement\\security-user-api.json"
