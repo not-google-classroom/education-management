@@ -1,0 +1,49 @@
+{
+  "urls": [
+    {
+      "path": "/api/users/addUser",
+      "method": "POST",
+      "roles": [
+        "admin"
+      ],
+      "template": "createUserTemplate"
+    },
+    {
+      "path": "/api/users/getUsers",
+      "method": "GET",
+      "roles": ["admin", "user"],
+      "params": [
+        {
+          "name": "userID",
+          "type": "long",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "name": "createUserTemplate",
+      "minLength": 20,
+      "maxLength": 2000,
+      "type": "JSONObject",
+      "params": [
+        {
+          "name": "userName",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "userEmail",
+          "type": "String",
+          "required": true
+        },
+        {
+          "name": "userRole",
+          "type": "long",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -78,6 +78,12 @@ public class SchemaUtil {
         setSearchPathForSchema(publicSchema);
     }
 
+    public String getSearchPatch() {
+        return DataBaseUtil.getDSLContext()
+                .select(field("current_setting('search_path')", String.class))
+                .fetchOneInto(String.class);
+    }
+
     public void setSearchPathForSchema(String schemaName) {
         if(schemaName != null && !schemaName.isEmpty()) {
             String sqlForSearchPath = "SET search_path TO " + schemaName;

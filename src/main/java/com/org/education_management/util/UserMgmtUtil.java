@@ -1,9 +1,12 @@
 package com.org.education_management.util;
 
 import com.org.education_management.database.DataBaseUtil;
-import org.jooq.DSLContext;
+import org.jooq.*;
 import org.jooq.Record;
+import org.jooq.impl.DSL;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,12 +31,12 @@ public class UserMgmtUtil {
         SchemaUtil.getInstance().setSearchPathForSchema(schemaName);
         Long adminRoleID = getAdminRoleID();
         if (adminRoleID != null) {
-            isAdminCreated = addUser(userEmail, userName, password, adminRoleID);
+            isAdminCreated = addUser(userEmail, userName, password, adminRoleID, false);
         }
         return isAdminCreated;
     }
 
-    public boolean addUser(String userEmail, String userName, String password, Long roleID) throws Exception {
+    public boolean addUser(String userEmail, String userName, String password, Long roleID, boolean isPublicPopulate) throws Exception {
         boolean isUserAdded = false;
         try {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
@@ -47,12 +50,34 @@ public class UserMgmtUtil {
                 }
                 addUsersRoleMapping(userID, roleID);
                 isUserAdded = true;
+                if(isPublicPopulate) {
+                    addUserDetailsInPublic(userEmail, userName);
+                }
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception occurred when processing user addition : {0}", e);
             throw new Exception("Exception when creating user!");
         }
         return isUserAdded;
+    }
+
+    private void addUserDetailsInPublic(String userEmail, String userName) throws Exception {
+        String searchPath = SchemaUtil.getInstance().getSearchPatch();
+        try {
+            if (searchPath != null) {
+                SchemaUtil.getInstance().setSearchPathToPublic();
+                OrgUtil.getInstance().addEntryToUserDetails(userEmail);
+                Long orgID = OrgUtil.getInstance().getOrgIDByUserID(getLoggedInAdminUserID());
+                OrgUtil.getInstance().addEntryToOrgUsers(orgID, OrgUtil.getInstance().getUserIDByEmail(userEmail));
+
+            }
+        } finally {
+            SchemaUtil.getInstance().setSearchPathForSchema(searchPath);
+        }
+    }
+
+    private Long getLoggedInAdminUserID() {
+        return 1L;
     }
 
     private void addPasswordMappingForUser(Long userID, String password) throws Exception {
@@ -101,5 +126,30 @@ public class UserMgmtUtil {
             }
         }
         return false;
+    }
+
+    public Map<String, Object> getUsers(Long userID) {
+        Map<String, Object> usersMap = new HashMap<>();
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        Result<? extends Record> result = dslContext.select(field(name("users","username")), field(name("users","email")), field(name("users","created_at")), field(name("users","updated_at")), field(name("roles","role_name")), field(name("roles","description"))).from(table("users")).innerJoin(table("userroles")).on(field(name("users","user_id")).eq(field(name("userroles","user_id")))).innerJoin(table("roles")).on(field(name("roles", "role_id")).eq(field(name("userroles","role_id")))).where(userID != null ? field(name("users", "user_id")).eq(userID) : DSL.noCondition()).fetch();
+        for (Record record : result) {
+            usersMap.put((String) record.get("username"), record.intoMap());
+        }
+        return usersMap;
+    }
+
+    public boolean isEmailExists(String userEmail) {
+        boolean isExists = false;
+        if (userEmail != null && !userEmail.isEmpty()) {
+            DSLContext dsl = DataBaseUtil.getDSLContext();
+            Record record = dsl.select()
+                    .from("users")
+                    .where(field("email").eq(userEmail))
+                    .fetchOne();
+            if (record != null && record.size() > 0) {
+                isExists = true;
+            }
+        }
+        return isExists;
     }
 }

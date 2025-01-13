@@ -9,7 +9,7 @@
   },
   "RoleSecurity": {
     "file_name": "security-roles-api.json",
-    "file_path": "\\resources\\SecurityManagement\\security-roles-api.json"
+    "file_path": "\\resources\\RoleManagement\\security-roles-api.json"
   },
   "FeesManagement": {
     "file_name": "security-fees-api.json",
@@ -18,5 +18,9 @@
   "SampleRateLimit": {
     "file_name": "security-api.json",
     "file_path": "\\resources\\SecurityManagement\\security-api.json"
+  },
+  "UserManagement": {
+    "file_name": "security-user-api.json",
+    "file_path": "\\resources\\UserManagement\\security-user-api.json"
   }
 }

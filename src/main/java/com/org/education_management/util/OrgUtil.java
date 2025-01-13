@@ -42,7 +42,7 @@ public class OrgUtil {
         return isExists;
     }
 
-    private void addEntryToUserDetails(String userEmail) throws Exception {
+    public void addEntryToUserDetails(String userEmail) throws Exception {
         DSLContext dslContext = DataBaseUtil.getDSLContext();
         int record = dslContext.insertInto(table("UserDetails")).columns(field("USER_EMAIL"), field("CREATED_TIME")).values(userEmail, System.currentTimeMillis()).execute();
         if (record > 0) {
@@ -75,7 +75,7 @@ public class OrgUtil {
         }
     }
 
-    private void addEntryToOrgDetailsAndMapping(String orgName, String userEmail) throws Exception {
+    public void addEntryToOrgDetailsAndMapping(String orgName, String userEmail) throws Exception {
         Long userID = getUserIDByEmail(userEmail);
         if (userID != null) {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
@@ -183,5 +183,15 @@ public class OrgUtil {
             return true;
         }
         return false;
+    }
+
+    public void addEntryToOrgUsers(Long orgID, Long userID) {
+        if (orgID != null && userID != null) {
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            int addMapping = dslContext.insertInto(table("OrgUsersMapping")).columns(field("ORG_ID"), field("USER_ID")).values(orgID, userID).execute();
+            if (addMapping > 0) {
+                logger.log(Level.INFO, "Org users mapping added successfully");
+            }
+        }
     }
 }
