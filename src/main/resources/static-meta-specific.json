@@ -5,6 +5,10 @@
   },
   "DefaultSchedulerData": {
     "file_name": "scheduler-data.json",
-    "file_path": "\\resources\\RoleManagement\\scheduler-data.json"
+    "file_path": "\\resources\\Schedulers\\scheduler-data.json"
+  },
+  "UserManagement": {
+    "file_name": "static-cg.json",
+    "file_path": "\\resources\\UserManagement\\static-cg.json"
   }
 }

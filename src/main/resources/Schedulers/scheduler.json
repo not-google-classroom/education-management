@@ -6,7 +6,6 @@
         {
           "name": "SCHEDULER_ID",
           "type": "BIGINT",
-          "primaryKey": true,
           "autoIncrement": true
         },
         {
@@ -27,6 +26,12 @@
           "name": "TASK_NAME",
           "type": "VARCHAR(255)",
           "notNull": true
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "Scheduler_PK",
+          "pkColumns": ["SCHEDULER_ID"]
         }
       ]
     }

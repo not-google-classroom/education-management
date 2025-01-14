@@ -50,7 +50,7 @@ public class SchemaUtil {
                         schedulerUtil.loadDefaultSchedulersFromDatabase();
                         return schemaName;
                     } catch (Exception e) {
-                        logger.log(Level.SEVERE, "Schema creation failed!, deleting prepopulated entry");
+                        logger.log(Level.SEVERE, "Schema creation failed!, deleting prepopulated entry : {0}", e);
                         OrgUtil.getInstance().deletePrepopulatedDataForSchemaFailure(orgID, userID);
                         throw new Exception("schema creation failed");
                     }
