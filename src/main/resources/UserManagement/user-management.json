@@ -79,6 +79,68 @@
           "pkColumns": ["PASSWORD_ID"]
         }
       ]
+    },
+    {
+      "tableName": "CustomGroup",
+      "columns": [
+        {
+          "name": "CG_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "CG_NAME",
+          "type": "VARCHAR(50)",
+          "notNull": true
+        },
+        {
+          "name": "CG_DESC",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "CREATED_AT",
+          "type": "BIGINT",
+          "defaultValue": -1
+        },
+        {
+          "name": "UPDATED_AT",
+          "type": "BIGINT",
+          "defaultValue": -1
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "CustomGroup_PK",
+          "pkColumns": ["CG_ID"]
+        }
+      ]
+    },
+    {
+      "tableName": "UsersCGMapping",
+      "columns": [
+        {
+          "name": "USER_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "fkName": "UsersCGMapping_FK_1",
+            "referencedTable": "Users",
+            "referencedColumn": "USER_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "CG_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "fkName": "UsersCGMapping_FK_2",
+            "referencedTable": "CustomGroup",
+            "referencedColumn": "CG_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        }
+      ]
     }
   ]
 }

@@ -6,6 +6,7 @@ import com.org.education_management.util.StatusConstants;
 import com.org.education_management.util.UserMgmtUtil;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,6 +42,17 @@ public class UserService {
             String userName = (String) requestMap.get("userName");
             String userEmail = (String) requestMap.get("userEmail");
             Long userRole = Long.parseLong(requestMap.get("userRole").toString());
+            String cgIDs = (String) requestMap.get("cgIDs");
+            LinkedList<Long> cgList = new LinkedList<>();
+            if (cgIDs != null && !cgIDs.isEmpty()) {
+                try {
+                    for (String id : cgIDs.split(",")) {
+                        cgList.add(Long.parseLong(id.trim()));
+                    }
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid cgID value provided. Expected numeric values separated by commas.", e);
+                }
+            }
             boolean emailExists = UserMgmtUtil.getInstance().isEmailExists(userEmail);
             if(emailExists) {
                 resultMap.put(StatusConstants.STATUS_CODE, 409);
@@ -49,7 +61,7 @@ public class UserService {
             }
             Map roleDetails = RolesUtil.getInstance().getRolesList(userRole);
             if (roleDetails != null && !roleDetails.isEmpty()) {
-                boolean isUserAdded = UserMgmtUtil.getInstance().addUser(userEmail, userName, "", userRole, true);
+                boolean isUserAdded = UserMgmtUtil.getInstance().addUser(userEmail, userName, "", userRole, cgList, true);
                 if(isUserAdded) {
                     resultMap.put(StatusConstants.STATUS_CODE, 200);
                     resultMap.put(StatusConstants.MESSAGE, "User created successfully");
@@ -69,6 +81,6 @@ public class UserService {
             resultMap.put(StatusConstants.STATUS_CODE, 500);
             resultMap.put(StatusConstants.MESSAGE, "Internal server error unable to process request");
         }
-        return requestMap;
+        return resultMap;
     }
 }

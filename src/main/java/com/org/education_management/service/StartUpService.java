@@ -318,7 +318,7 @@ public class StartUpService {
                         insertColValue = getDataForColType(foreignKeyColMap.get(colName), tableName, insertColValue);
                     }
 
-                    insertStep = insertStep.set(DSL.field(DSL.name(field.getKey())), insertColValue);
+                    insertStep = insertStep.set(DSL.field(DSL.name(field.getKey().toLowerCase())), insertColValue);
                 }
                 sqlList.append(insertStep.getSQL(ParamType.INLINED)).append(";");
             }

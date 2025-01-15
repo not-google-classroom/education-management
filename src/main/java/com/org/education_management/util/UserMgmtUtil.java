@@ -6,13 +6,12 @@ import org.jooq.Record;
 import org.jooq.impl.DSL;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.name;
-import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.*;
 
 public class UserMgmtUtil {
 
@@ -30,13 +29,22 @@ public class UserMgmtUtil {
         boolean isAdminCreated = false;
         SchemaUtil.getInstance().setSearchPathForSchema(schemaName);
         Long adminRoleID = getAdminRoleID();
-        if (adminRoleID != null) {
-            isAdminCreated = addUser(userEmail, userName, password, adminRoleID, false);
+        Long allCGID = getAllUsersCGID();
+        if (adminRoleID != null && allCGID != null) {
+            LinkedList<Long> allCGIDs = new LinkedList<>();
+            allCGIDs.add(allCGID);
+            isAdminCreated = addUser(userEmail, userName, password, adminRoleID, allCGIDs, false);
         }
         return isAdminCreated;
     }
 
-    public boolean addUser(String userEmail, String userName, String password, Long roleID, boolean isPublicPopulate) throws Exception {
+    private Long getAllUsersCGID() {
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        org.jooq.Record record = dslContext.select(field(name("customgroup", "cg_id"))).from(table("customgroup")).where(field(name("customgroup", "cg_name")).eq("All Users Group")).fetchOne();
+        return (record != null && record.get(field(name("customgroup", "cg_id"))) != null) ? (Long) record.get(field(name("customgroup", "cg_id"))) : null;
+    }
+
+    public boolean addUser(String userEmail, String userName, String password, Long roleID, LinkedList<Long> cgIDs, boolean isPublicPopulate) throws Exception {
         boolean isUserAdded = false;
         try {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
@@ -49,6 +57,7 @@ public class UserMgmtUtil {
                     addPasswordMappingForUser(userID, password);
                 }
                 addUsersRoleMapping(userID, roleID);
+                addUsersCGMapping(userID, cgIDs);
                 isUserAdded = true;
                 if(isPublicPopulate) {
                     addUserDetailsInPublic(userEmail, userName);
@@ -59,6 +68,16 @@ public class UserMgmtUtil {
             throw new Exception("Exception when creating user!");
         }
         return isUserAdded;
+    }
+
+    private void addUsersCGMapping(Long userID, LinkedList<Long> cgIDs) {
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext.insertInto(table("userscgmapping", field("user_id", field("cg_id"))));
+        for(Long cgID : cgIDs) {
+            insertStep.values(userID, cgID);
+        }
+        insertStep.execute();
+        logger.log(Level.INFO, "Users CG Mapping added successfully");
     }
 
     private void addUserDetailsInPublic(String userEmail, String userName) throws Exception {

@@ -42,6 +42,11 @@
           "name": "userRole",
           "type": "long",
           "required": true
+        },
+        {
+          "name": "cgIDs",
+          "type": "String",
+          "required": true
         }
       ]
     }
