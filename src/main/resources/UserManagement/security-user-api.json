@@ -6,12 +6,22 @@
       "roles": [
         "admin"
       ],
+      "rateLimit": {
+        "limit": 2,
+        "window": 60,
+        "lockPeriod": 60
+      },
       "template": "createUserTemplate"
     },
     {
       "path": "/api/users/getUsers",
       "method": "GET",
       "roles": ["admin", "user"],
+      "rateLimit": {
+        "limit": 2,
+        "window": 60,
+        "lockPeriod": 60
+      },
       "params": [
         {
           "name": "userID",

@@ -4,12 +4,22 @@
       "path": "/api/auth/login",
       "method": "POST",
       "roles": ["all"],
+      "rateLimit": {
+        "limit": 2,
+        "window": 60,
+        "lockPeriod": 60
+      },
       "template": "loginTemplate"
     },
     {
       "path": "/api/auth/loginWithOTP",
       "method": "POST",
       "roles": ["all"],
+      "rateLimit": {
+        "limit": 2,
+        "window": 60,
+        "lockPeriod": 60
+      },
       "template": "loginWithOTPTemplate"
     }
   ],

@@ -2,13 +2,6 @@
   "Scheduler": [
     {
       "SCHEDULER_ID": "uvg:SCHEDULER_ID:1",
-      "SCHEDULER_NAME": "Infinite",
-      "SCHEDULER_CRON": "0/10 * * * * *",
-      "SCHEDULER_RUN_TIME": "-1",
-      "TASK_NAME": "AsyncSampleTask"
-    },
-    {
-      "SCHEDULER_ID": "uvg:SCHEDULER_ID:2",
       "SCHEDULER_NAME": "finite",
       "SCHEDULER_CRON": "0/10 * * * * *",
       "SCHEDULER_RUN_TIME": "3",

@@ -7,6 +7,11 @@
         "admin",
         "user"
       ],
+      "rateLimit": {
+        "limit": 2,
+        "window": 60,
+        "lockPeriod": 60
+      },
       "params": [
         {
           "name": "orgID",
@@ -21,6 +26,11 @@
       "roles": [
         "admin"
       ],
+      "rateLimit": {
+        "limit": 2,
+        "window": 60,
+        "lockPeriod": 60
+      },
       "template": "orgCreateTemplate"
     },
     {
@@ -29,6 +39,11 @@
       "roles": [
         "admin"
       ],
+      "rateLimit": {
+        "limit": 2,
+        "window": 60,
+        "lockPeriod": 60
+      },
       "template": "orgCreateTemplate"
     },
     {
