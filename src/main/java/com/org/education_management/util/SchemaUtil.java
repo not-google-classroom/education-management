@@ -3,17 +3,16 @@ package com.org.education_management.util;
 import com.org.education_management.database.DataBaseUtil;
 import com.org.education_management.service.StartUpService;
 import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Result;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.*;
 
 public class SchemaUtil {
     private static final Logger logger = Logger.getLogger(SchemaUtil.class.getName());
@@ -134,5 +133,45 @@ public class SchemaUtil {
         int number4 = random.nextInt(10);
 
         return "db" + number1 + number2 + number3 + number4 + letter1 + letter2 ;
+    }
+
+    public TreeMap<String, Object> getAllSchemas() {
+        TreeMap<String, Object> allSchemas = new TreeMap<>();
+        try {
+            setSearchPathToPublic();
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            Result<Record> result = dslContext.selectFrom("sasschemadetails").fetch();
+            if(!result.isEmpty()) {
+                for(Record record : result) {
+                    allSchemas.put(record.get(field(name("sasschemadetails", "schema_name"))).toString(),record.intoMap());
+                }
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception when fetching all schema details");
+        }
+        return allSchemas;
+    }
+
+    public void startUserSpecificSchedulers() {
+        try {
+            setSearchPathToPublic();
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            Result<Record> result = dslContext.selectFrom("sasschemadetails").fetch();
+            if(!result.isEmpty()) {
+                for(Record record : result) {
+                    String schemaName = record.get(field(name("sasschemadetails", "schema_name"))).toString();
+                    setSearchPathForSchema(schemaName);
+                    //Start default scheduler for the user
+                    DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
+                    schedulerUtil.loadDefaultSchedulersFromDatabase();
+                    logger.log(Level.INFO, "Schedulers started for user schema : {0}", schemaName);
+                    setSearchPathToPublic();
+                }
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception when fetching all schema details");
+        } finally {
+            setSearchPathToPublic();
+        }
     }
 }

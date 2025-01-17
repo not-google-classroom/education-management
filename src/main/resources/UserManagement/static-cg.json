@@ -1,9 +1,0 @@
-{
-  "CustomGroup": [
-    {
-      "cg_id": "uvg:CG_ID:1",
-      "cg_name": "All Users Group",
-      "cg_desc": "All created users will be automatically added to this group"
-    }
-  ]
-}

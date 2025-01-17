@@ -24,13 +24,21 @@ public class AuthController {
         Map<String, Object> result = new HashMap<>();
         if (requestMap.containsKey("userEmail") && requestMap.containsKey("password")) {
             logger.log(Level.INFO, "login for user initiated...");
-            String token = authService.validateLogin(requestMap);
-            if (token != null) {
-                result.put(StatusConstants.STATUS_CODE, 200);
-                result.put(StatusConstants.MESSAGE, "User logged in successfully");
-                result.put("token", token);
-                response.addCookie(new Cookie("token", token));
-                return result;
+            try {
+                String token = authService.validateLogin(requestMap);
+                if (token != null) {
+                    result.put(StatusConstants.STATUS_CODE, 200);
+                    result.put(StatusConstants.MESSAGE, "User logged in successfully");
+                    result.put("token", token);
+                    response.addCookie(new Cookie("token", token));
+                    return result;
+                } else {
+                    result.put(StatusConstants.STATUS_CODE, 204);
+                    result.put(StatusConstants.MESSAGE, "User details not found! try creating account to continue.");
+                    return result;
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Exception when logging in user ", e);
             }
         }
         result.put(StatusConstants.STATUS_CODE, 500);

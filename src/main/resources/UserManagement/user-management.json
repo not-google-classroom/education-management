@@ -81,21 +81,27 @@
       ]
     },
     {
-      "tableName": "CustomGroup",
+      "tableName": "UserGroup",
       "columns": [
         {
-          "name": "CG_ID",
+          "name": "UG_ID",
           "type": "BIGINT",
           "autoIncrement": true
         },
         {
-          "name": "CG_NAME",
+          "name": "UG_NAME",
           "type": "VARCHAR(50)",
           "notNull": true
         },
         {
-          "name": "CG_DESC",
+          "name": "UG_DESC",
           "type": "VARCHAR(255)"
+        },
+        {
+          "name": "UG_TYPE",
+          "type": "INT",
+          "notNull": true,
+          "defaultValue": 1
         },
         {
           "name": "CREATED_AT",
@@ -110,19 +116,19 @@
       ],
       "primaryKeys": [
         {
-          "pkName": "CustomGroup_PK",
-          "pkColumns": ["CG_ID"]
+          "pkName": "UserGroup_PK",
+          "pkColumns": ["UG_ID"]
         }
       ]
     },
     {
-      "tableName": "UsersCGMapping",
+      "tableName": "UsersUGMapping",
       "columns": [
         {
           "name": "USER_ID",
           "type": "BIGINT",
           "foreignKey": {
-            "fkName": "UsersCGMapping_FK_1",
+            "fkName": "UsersUGMapping_FK_1",
             "referencedTable": "Users",
             "referencedColumn": "USER_ID",
             "onDelete": "CASCADE"
@@ -130,12 +136,65 @@
           "notNull": true
         },
         {
-          "name": "CG_ID",
+          "name": "UG_ID",
           "type": "BIGINT",
           "foreignKey": {
-            "fkName": "UsersCGMapping_FK_2",
-            "referencedTable": "CustomGroup",
-            "referencedColumn": "CG_ID",
+            "fkName": "UsersUGMapping_FK_2",
+            "referencedTable": "UserGroup",
+            "referencedColumn": "UG_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        }
+      ]
+    },
+    {
+      "tableName": "DynamicUGFilter",
+      "columns": [
+        {
+          "name": "FILTER_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "FILTER_TABLE",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        },
+        {
+          "name": "FILTER_COLUMN",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "DynamicUGFilter_PK",
+          "pkColumns": ["FILTER_ID"]
+        }
+      ]
+    },
+    {
+      "tableName": "UGFilterMapping",
+      "columns": [
+        {
+          "name": "UG_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "fkName": "UGFilterMapping_FK_1",
+            "referencedTable": "UserGroup",
+            "referencedColumn": "UG_ID",
+            "onDelete": "CASCADE"
+          },
+          "notNull": true
+        },
+        {
+          "name": "FILTER_ID",
+          "type": "BIGINT",
+          "foreignKey": {
+            "fkName": "UGFilterMapping_FK_2",
+            "referencedTable": "DynamicUGFilter",
+            "referencedColumn": "FILTER_ID",
             "onDelete": "CASCADE"
           },
           "notNull": true

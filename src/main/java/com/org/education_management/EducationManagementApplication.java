@@ -8,8 +8,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.IOException;
+import java.util.logging.*;
 
 @SpringBootApplication
 @EnableScheduling
@@ -23,7 +23,7 @@ public class EducationManagementApplication {
             String user = AppProperty.getInstance().getProperty("spring.datasource.username");
             String pwd = AppProperty.getInstance().getProperty("spring.datasource.password");
             String dbName = AppProperty.getInstance().getProperty("spring.datasource.database");
-
+            setUPLogger();
             logger.log(Level.INFO, "Startup initiated...connecting to database");
             StartUpController controller = new StartUpController();
             boolean isFreshStart = controller.isFreshStart();
@@ -41,6 +41,42 @@ public class EducationManagementApplication {
             SpringApplication.run(EducationManagementApplication.class, args);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception when starting server !, {0}", e);
+        }
+    }
+
+    private static void setUPLogger() {
+        Logger rootLogger = Logger.getLogger("");
+
+        // Remove default console handler
+        Handler[] handlers = rootLogger.getHandlers();
+        for (Handler handler : handlers) {
+            rootLogger.removeHandler(handler);
+        }
+
+        try {
+            // File Handler with Rotation
+            String filePath = com.org.education_management.util.FileHandler.getHomeDir() + com.org.education_management.util.FileHandler.getFileSeparator() + "logs";
+            com.org.education_management.util.FileHandler.createDirectoryIfNotExists(filePath);
+            filePath += com.org.education_management.util.FileHandler.getFileSeparator() + "application-%g.log";
+            System.out.println("Logger File Location : " + filePath);
+            Handler fileHandler = new FileHandler(filePath, 5 * 1024 * 1024, 10, true); // 10 MB file size, 5 backups
+            fileHandler.setFormatter(new SimpleFormatter());
+            fileHandler.setLevel(Level.INFO);
+
+            // Console Handler
+            Handler consoleHandler = new ConsoleHandler();
+            consoleHandler.setFormatter(new SimpleFormatter());
+            consoleHandler.setLevel(Level.INFO);
+
+            // Add handlers to the root logger
+            rootLogger.addHandler(fileHandler);
+            rootLogger.addHandler(consoleHandler);
+
+            // Set logging level for the root logger
+            rootLogger.setLevel(Level.INFO);
+
+        } catch (IOException e) {
+            System.err.println("Failed to set up logger: " + e.getMessage());
         }
     }
 

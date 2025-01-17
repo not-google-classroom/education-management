@@ -1,7 +1,6 @@
 package com.org.education_management.service;
 
 import com.org.education_management.util.RolesUtil;
-import com.org.education_management.util.SchemaUtil;
 import com.org.education_management.util.StatusConstants;
 import com.org.education_management.util.UserMgmtUtil;
 
@@ -42,15 +41,16 @@ public class UserService {
             String userName = (String) requestMap.get("userName");
             String userEmail = (String) requestMap.get("userEmail");
             Long userRole = Long.parseLong(requestMap.get("userRole").toString());
-            String cgIDs = (String) requestMap.get("cgIDs");
-            LinkedList<Long> cgList = new LinkedList<>();
-            if (cgIDs != null && !cgIDs.isEmpty()) {
+            String ugIDs = (String) requestMap.get("ugIDs");
+            LinkedList<Long> ugList = new LinkedList<>();
+            ugList.add(UserMgmtUtil.getInstance().getAllUsersUGID()); // All users group
+            if (ugIDs != null && !ugIDs.isEmpty()) {
                 try {
-                    for (String id : cgIDs.split(",")) {
-                        cgList.add(Long.parseLong(id.trim()));
+                    for (String id : ugIDs.split(",")) {
+                        ugList.add(Long.parseLong(id.trim()));
                     }
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Invalid cgID value provided. Expected numeric values separated by commas.", e);
+                    throw new IllegalArgumentException("Invalid ugID value provided. Expected numeric values separated by commas.", e);
                 }
             }
             boolean emailExists = UserMgmtUtil.getInstance().isEmailExists(userEmail);
@@ -61,7 +61,7 @@ public class UserService {
             }
             Map roleDetails = RolesUtil.getInstance().getRolesList(userRole);
             if (roleDetails != null && !roleDetails.isEmpty()) {
-                boolean isUserAdded = UserMgmtUtil.getInstance().addUser(userEmail, userName, "", userRole, cgList, true);
+                boolean isUserAdded = UserMgmtUtil.getInstance().addUser(userEmail, userName, "", userRole, ugList, true);
                 if(isUserAdded) {
                     resultMap.put(StatusConstants.STATUS_CODE, 200);
                     resultMap.put(StatusConstants.MESSAGE, "User created successfully");

@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
@@ -41,6 +42,16 @@ public class FileHandler {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public static void createDirectoryIfNotExists(String filePath) {
+        try {
+            if(!fileExists(filePath)){
+                Files.createDirectory(Path.of(filePath));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

@@ -29,7 +29,7 @@ public class UserMgmtUtil {
         boolean isAdminCreated = false;
         SchemaUtil.getInstance().setSearchPathForSchema(schemaName);
         Long adminRoleID = getAdminRoleID();
-        Long allCGID = getAllUsersCGID();
+        Long allCGID = getAllUsersUGID();
         if (adminRoleID != null && allCGID != null) {
             LinkedList<Long> allCGIDs = new LinkedList<>();
             allCGIDs.add(allCGID);
@@ -38,13 +38,13 @@ public class UserMgmtUtil {
         return isAdminCreated;
     }
 
-    private Long getAllUsersCGID() {
+    public Long getAllUsersUGID() {
         DSLContext dslContext = DataBaseUtil.getDSLContext();
-        org.jooq.Record record = dslContext.select(field(name("customgroup", "cg_id"))).from(table("customgroup")).where(field(name("customgroup", "cg_name")).eq("All Users Group")).fetchOne();
-        return (record != null && record.get(field(name("customgroup", "cg_id"))) != null) ? (Long) record.get(field(name("customgroup", "cg_id"))) : null;
+        org.jooq.Record record = dslContext.select(field(name("usergroup", "ug_id"))).from(table("usergroup")).where(field(name("usergroup", "ug_name")).eq("All Users Group")).fetchOne();
+        return (record != null && record.get(field(name("usergroup", "ug_id"))) != null) ? (Long) record.get(field(name("usergroup", "ug_id"))) : null;
     }
 
-    public boolean addUser(String userEmail, String userName, String password, Long roleID, LinkedList<Long> cgIDs, boolean isPublicPopulate) throws Exception {
+    public boolean addUser(String userEmail, String userName, String password, Long roleID, LinkedList<Long> ugIDs, boolean isPublicPopulate) throws Exception {
         boolean isUserAdded = false;
         try {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
@@ -57,7 +57,7 @@ public class UserMgmtUtil {
                     addPasswordMappingForUser(userID, password);
                 }
                 addUsersRoleMapping(userID, roleID);
-                addUsersCGMapping(userID, cgIDs);
+                addUsersUGMapping(userID, ugIDs);
                 isUserAdded = true;
                 if(isPublicPopulate) {
                     addUserDetailsInPublic(userEmail, userName);
@@ -70,14 +70,14 @@ public class UserMgmtUtil {
         return isUserAdded;
     }
 
-    private void addUsersCGMapping(Long userID, LinkedList<Long> cgIDs) {
+    private void addUsersUGMapping(Long userID, LinkedList<Long> ugIDs) {
         DSLContext dslContext = DataBaseUtil.getDSLContext();
-        InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext.insertInto(table("userscgmapping", field("user_id", field("cg_id"))));
-        for(Long cgID : cgIDs) {
+        InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext.insertInto(table("usersugmapping", field("user_id", field("ug_id"))));
+        for(Long cgID : ugIDs) {
             insertStep.values(userID, cgID);
         }
         insertStep.execute();
-        logger.log(Level.INFO, "Users CG Mapping added successfully");
+        logger.log(Level.INFO, "Users UG Mapping added successfully");
     }
 
     private void addUserDetailsInPublic(String userEmail, String userName) throws Exception {

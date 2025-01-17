@@ -9,22 +9,16 @@ import com.org.education_management.model.PrimaryKey;
 import com.org.education_management.model.Table;
 import com.org.education_management.model.TableMetaData;
 import com.org.education_management.model.UniqueKey;
-import com.org.education_management.util.FileHandler;
-import com.org.education_management.util.SQLGenerator;
-import com.org.education_management.util.TableUtil;
-import com.org.education_management.util.UniqueValueGenerator;
+import com.org.education_management.util.*;
 import org.jooq.DSLContext;
 import org.jooq.InsertSetMoreStep;
 import org.jooq.InsertValuesStepN;
+import org.jooq.Schema;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -364,5 +358,9 @@ public class StartUpService {
             return table;
         }
         return null;
+    }
+
+    public void startSchedulers() {
+        SchemaUtil.getInstance().startUserSpecificSchedulers();
     }
 }

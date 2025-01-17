@@ -21,6 +21,7 @@ public class StartUpController {
             AppProperty.getInstance().setProperty("server", "startup_type", "warm");
         } else {
             logger.log(Level.INFO, "Server startup_type is warm, so skipping static data population");
+            startUpService.startSchedulers();
         }
     }
 

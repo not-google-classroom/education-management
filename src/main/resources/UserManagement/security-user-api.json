@@ -55,8 +55,7 @@
         },
         {
           "name": "cgIDs",
-          "type": "String",
-          "required": true
+          "type": "String"
         }
       ]
     }

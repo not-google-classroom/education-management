@@ -1,0 +1,10 @@
+{
+  "UserGroup": [
+    {
+      "ug_id": "uvg:UG_ID:1",
+      "ug_name": "All Users Group",
+      "ug_type": 1,
+      "ug_desc": "All created users will be automatically added to this group"
+    }
+  ]
+}

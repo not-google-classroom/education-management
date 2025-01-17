@@ -1,5 +1,6 @@
 package com.org.education_management.filter.api;
 
+import com.org.education_management.util.DynamicSchedulerUtil;
 import com.org.education_management.util.JWTUtil;
 import com.org.education_management.util.SchemaUtil;
 import io.jsonwebtoken.Claims;
@@ -60,6 +61,9 @@ public class AuthenticationFilter implements Filter {
                         String decodedContent = new String(decodedVal);
                         String[] splitContent = decodedContent.split(",");
                         SchemaUtil.getInstance().setSearchPathForSchema(splitContent[1]);
+                        //Start default scheduler for the user
+                        DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
+                        schedulerUtil.loadDefaultSchedulersFromDatabase();
                     } else {
                         httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
                         httpServletResponse.getOutputStream().println("Cookie value is not valid! kindly try login to access resource");

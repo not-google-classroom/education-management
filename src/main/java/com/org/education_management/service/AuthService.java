@@ -1,9 +1,6 @@
 package com.org.education_management.service;
 
-import com.org.education_management.util.JWTUtil;
-import com.org.education_management.util.OrgUtil;
-import com.org.education_management.util.SchemaUtil;
-import com.org.education_management.util.UserMgmtUtil;
+import com.org.education_management.util.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -14,7 +11,7 @@ import java.util.logging.Logger;
 public class AuthService {
     private static final Logger logger = Logger.getLogger(AuthService.class.getName());
 
-    public String validateLogin(Map<String, Object> requestMap) {
+    public String validateLogin(Map<String, Object> requestMap) throws Exception {
         try {
             String userEmail = (String) requestMap.get("userEmail");
             String password = (String) requestMap.get("password");
@@ -29,9 +26,9 @@ public class AuthService {
                         return JWTUtil.generateToken(subject);
                     }
                 }
+            } else {
+                logger.log(Level.WARNING, "user details not found for email : {0}", MaskUtil.getInstance().maskEmail(userEmail));
             }
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Exception when user authentication : {0}", e);
         } finally {
             SchemaUtil.getInstance().setSearchPathToPublic();
         }
