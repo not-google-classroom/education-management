@@ -2,7 +2,6 @@ package com.org.education_management.module.fees.service;
 
 import com.org.education_management.database.DataBaseUtil;
 import com.org.education_management.util.OrgUtil;
-import org.checkerframework.checker.units.qual.A;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -13,42 +12,41 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.jooq.impl.DSL.*;
-import static org.jooq.impl.DSL.name;
 
 public class FeesService {
     private static final Logger logger = Logger.getLogger(FeesService.class.getName());
 
     @Transactional
     public boolean createFeesStructure(JSONObject feesStructure) throws JSONException {
-        feesStructure = getFeesData();
         if (!validateFeesKeys(feesStructure)) {
             return false;
         }
 
         Map<String, Object> insertData = new HashMap<>();
         insertData.put("INSTALLMENTS", feesStructure.getInt("noOfInstallments"));
-        insertData.put("TOTAL_FEES", feesStructure.getLong("totalFees"));
-        insertData.put("FEES_NAME", feesStructure.getString("feesName"));
+        insertData.put("TOTAL_FEES", feesStructure.getLong("totalFee"));
+        insertData.put("FEES_NAME", feesStructure.getString("feeName"));
         if (!DataBaseUtil.insertData("fees", insertData)) {
             return false;
         }
 
-        JSONArray installmentsArray = feesStructure.getJSONArray("installments");
+        List installmentsArray = (ArrayList) feesStructure.get("installments");
         for (int i = 0; i < feesStructure.getInt("noOfInstallments"); i++) {
-            JSONObject installmentJson = installmentsArray.getJSONObject(i);
+            Map installmentJson = (Map) installmentsArray.get(i);
             if (!validateInstallmentKeys(installmentJson)) {
                 return false;
             }
 
             insertData = new HashMap<>();
-            insertData.put("INSTALLMENT_AMOUNT", installmentJson.getLong("amount"));
-            insertData.put("DUE_DATE", installmentJson.getLong("date"));
-            insertData.put("INSTALLMENT_NAME", installmentJson.getString("installmentName"));
+            insertData.put("INSTALLMENT_AMOUNT", Double.parseDouble((String) installmentJson.get("amount")));
+            insertData.put("DUE_DATE", Long.parseLong((String) installmentJson.get("dueDate")));
+            insertData.put("INSTALLMENT_NAME", installmentJson.get("name"));
             if (!DataBaseUtil.insertData("Installments", insertData)) {
                 return false;
             }
@@ -98,7 +96,7 @@ public class FeesService {
     }
 
     private boolean updateBalanceAmount(Long userId, Long feesId, Long transactionAmount) throws Exception {
-        Map<String, Object> balanceFeesMap = getBalanceFeesForUser(userId, feesId);
+        JSONObject balanceFeesMap = getBalanceFeesForUser(userId, feesId);
         Long balanceFees = (Long) balanceFeesMap.get("balanceFees");
         if (balanceFees < transactionAmount) {
             return false;
@@ -145,21 +143,39 @@ public class FeesService {
         return 0L;
     }
 
-    public JSONArray getFeesIdsForUser(Map<String, Object> requestMap) throws Exception {
-        JSONArray feesIdList = new JSONArray();
+    public JSONObject getAllFees() throws Exception {
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        List<Map<String, Object>> feesArray = new ArrayList<>();
+        Result<Record> result = dslContext.select().from("fees").fetch();
+
+        for (Record record : result) {
+            Map<String, Object> feesObject = new HashMap<>();
+            feesObject.put("fees_name", record.get("fees_name", String.class));
+            feesObject.put("total_fees", record.get("total_fees").toString());
+            feesObject.put("installments", record.get("installments").toString());
+            feesArray.add(feesObject);
+        }
+
+        JSONObject feesDetails = new JSONObject();
+        feesDetails.put("feesDetails", feesArray);
+        return feesDetails;
+    }
+
+    public JSONObject getFeesIdsForUser(Map<String, Object> requestMap) throws Exception {
+        JSONObject feesId = new JSONObject();
         if (!requestMap.containsKey("userId") || requestMap.get("userId") == null) {
-            return feesIdList;
+            return feesId;
         }
 
         Long userId = Long.parseLong(requestMap.get("userId").toString());
         if (!OrgUtil.getInstance().checkIfUserExists(userId)) {
-            return feesIdList;
+            return feesId;
         }
-        return getFeesForUser(userId);
+        return feesId.put("fees", getFeesForUser(userId));
     }
 
-    public Map<String, Object> getBalanceFeesForUser(Map<String, Object> requestMap) throws Exception {
-        Map<String, Object> balanceFees = new HashMap<>();
+    public JSONObject getBalanceFeesForUser(Map<String, Object> requestMap) throws Exception {
+        JSONObject balanceFees = new JSONObject();
         if (!requestMap.containsKey("userId") || requestMap.get("userId") == null) {
             return balanceFees;
         }
@@ -234,8 +250,8 @@ public class FeesService {
         return fineId;
     }
 
-    public Map<String, Object> getBalanceFeesForUser(Long userId, Long feesId) throws Exception {
-        Map<String, Object> balanceFees = new HashMap<>();
+    public JSONObject getBalanceFeesForUser(Long userId, Long feesId) throws Exception {
+        JSONObject balanceFees = new JSONObject();
 
         DSLContext dslContext = DataBaseUtil.getDSLContext();
         Record record = dslContext.select().from(table("feesmapping")).where(field("FEES_ID").eq(feesId)).and(field("USER_ID").eq(userId)).fetchOne();
@@ -363,23 +379,23 @@ public class FeesService {
         if (!feesStructure.has("noOfInstallments")) {
             return false;
         }
-        if (!feesStructure.has("totalFees")) {
+        if (!feesStructure.has("totalFee")) {
             return false;
         }
-        if (!feesStructure.has("feesName")) {
+        if (!feesStructure.has("feeName")) {
             return false;
         }
         return true;
     }
 
-    private boolean validateInstallmentKeys(JSONObject installmentJson) {
-        if (!installmentJson.has("amount")) {
+    private boolean validateInstallmentKeys(Map<String, Object> installmentJson) {
+        if (!installmentJson.containsKey("amount")) {
             return false;
         }
-        if (!installmentJson.has("date")) {
+        if (!installmentJson.containsKey("dueDate")) {
             return false;
         }
-        if (!installmentJson.has("installmentName")) {
+        if (!installmentJson.containsKey("name")) {
             return false;
         }
         return true;

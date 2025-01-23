@@ -58,6 +58,15 @@
     ]
   },
   {
+    "path": "/api/fees/getAllFees",
+    "method": "GET",
+    "roles": [
+      "admin",
+      "user"
+    ],
+    "params": []
+  },
+  {
     "path": "/api/fees/getBalancFeesForUser",
     "method": "GET",
     "roles": [
