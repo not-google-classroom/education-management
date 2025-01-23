@@ -7,7 +7,7 @@
         "admin"
       ],
       "rateLimit": {
-        "limit": 2,
+        "limit": 60,
         "window": 60,
         "lockPeriod": 60
       }
@@ -20,7 +20,7 @@
         "user"
       ],
       "rateLimit": {
-        "limit": 2,
+        "limit": 60,
         "window": 60,
         "lockPeriod": 60
       },
@@ -45,7 +45,7 @@
         "user"
       ],
       "rateLimit": {
-        "limit": 2,
+        "limit": 60,
         "window": 60,
         "lockPeriod": 60
       }
@@ -58,7 +58,7 @@
         "user"
       ],
       "rateLimit": {
-        "limit": 2,
+        "limit": 60,
         "window": 60,
         "lockPeriod": 60
       },
@@ -78,7 +78,7 @@
         "user"
       ],
       "rateLimit": {
-        "limit": 2,
+        "limit": 60,
         "window": 60,
         "lockPeriod": 60
       },
@@ -103,7 +103,7 @@
         "user"
       ],
       "rateLimit": {
-        "limit": 2,
+        "limit": 60,
         "window": 60,
         "lockPeriod": 60
       },
@@ -145,7 +145,20 @@
         "user"
       ],
       "rateLimit": {
-        "limit": 2,
+        "limit": 60,
+        "window": 60,
+        "lockPeriod": 60
+      }
+    },
+    {
+      "path": "/api/fees/getAllFees",
+      "method": "GET",
+      "roles": [
+        "admin",
+        "user"
+      ],
+      "rateLimit": {
+        "limit": 60,
         "window": 60,
         "lockPeriod": 60
       }
