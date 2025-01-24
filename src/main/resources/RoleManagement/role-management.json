@@ -42,7 +42,6 @@
         {
           "name": "PERMISSION_NAME",
           "type": "VARCHAR(255)",
-          "unique": true,
           "notNull": true
         },
         {

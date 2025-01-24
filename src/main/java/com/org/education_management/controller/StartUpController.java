@@ -1,5 +1,7 @@
 package com.org.education_management.controller;
 
+import com.org.education_management.registry.RegistryManager;
+import com.org.education_management.service.OrgService;
 import com.org.education_management.service.StartUpService;
 import com.org.education_management.util.AppProperty;
 import com.org.education_management.util.FileHandler;
@@ -15,10 +17,10 @@ public class StartUpController {
     public StartUpService startUpService = new StartUpService();
 
     public void populateIfNeeded() throws Exception {
-        boolean isFreshStart = isFreshStart();
-        if(isFreshStart) {
+        if(isFreshStart()) {
             populateStaticTableData();
-            AppProperty.getInstance().setProperty("server", "startup_type", "warm");
+            createDeveloperAccount();
+            RegistryManager.setRegistryString("Initiated", "true");
         } else {
             logger.log(Level.INFO, "Server startup_type is warm, so skipping static data population");
         }
@@ -35,11 +37,19 @@ public class StartUpController {
     }
 
     public boolean isFreshStart() throws IOException {
-        boolean isFreshStart = false;
-        String startUpType = AppProperty.getInstance().getProperty("server", "startup_type");
-        if(startUpType != null && startUpType.equalsIgnoreCase("cold")) {
-            isFreshStart = true;
+        return !RegistryManager.hasRegistryKey("Initiated");
+    }
+
+    public void createDeveloperAccount(){
+        OrgService service = new OrgService();
+        try {
+            service.createOrg("ERP", "admin@erp.com","admin","admin");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return isFreshStart;
+    }
+
+    public boolean isDeveloperMode() throws IOException {
+        return Boolean.parseBoolean(AppProperty.getInstance().getProperty("feature.developerMode"));
     }
 }

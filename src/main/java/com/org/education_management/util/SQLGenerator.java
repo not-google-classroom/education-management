@@ -69,7 +69,7 @@ public class SQLGenerator {
                     }
                     sql.append(", ");
                 } else {
-                    throw new Exception("fkName is empty for table : {0} and column : {1}");
+                    throw new Exception(String.format("fkName is empty for table: %s and column: %s", table.getTableName(), column.getName()));
                 }
             }
         }
