@@ -26,10 +26,14 @@ public class EducationManagementApplication {
             setUPLogger();
             logger.log(Level.INFO, "Startup initiated...connecting to database");
             StartUpController controller = new StartUpController();
-            boolean isFreshStart = controller.isFreshStart();
-            if (isFreshStart) {
-                DatabaseInitializer.dropDatabaseIfExists(dbUrl, user, pwd, dbName);
-                DatabaseInitializer.createDatabaseIfNotExists(dbUrl, user, pwd, dbName);
+            boolean isDeveloperMode = controller.isDeveloperMode();
+            if (isDeveloperMode) {
+                logger.log(Level.INFO, "Developer mode enabled");
+                boolean isFreshStart = controller.isFreshStart();
+                if (isFreshStart) {
+                    DatabaseInitializer.dropDatabaseIfExists(dbUrl, user, pwd, dbName);
+                    DatabaseInitializer.createDatabaseIfNotExists(dbUrl, user, pwd, dbName);
+                }
             }
             try {
                 controller.populateIfNeeded();

@@ -70,7 +70,7 @@ public class StartUpService {
             updateTableDetailsDataToDB(tableMetaData);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception when populating file : {0} tables to DB : {1}", new Object[]{fullFilePath, e});
-            throw new Exception("Exception ccurred! unable to proceed for startup!");
+            throw new Exception("Exception occurred! unable to proceed for startup!", e);
         }
     }
 
