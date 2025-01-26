@@ -1,10 +1,79 @@
 {
+  "DataTypes": [
+    {
+      "dt_id": "uvg:DT_ID:1",
+      "dt_name": "Integer / Long",
+      "dt_desc": "only number based values with limited length"
+    },
+    {
+      "dt_id": "uvg:DT_ID:2",
+      "dt_name": "String",
+      "dt_desc": "Alpha numeric characters combined variable"
+    }
+  ],
+  "FilterOperators": [
+    {
+      "filter_op_id": "uvg:FILTER_OP_ID:1",
+      "operator_name": "EQUAL",
+      "operator_for": "uvg:DT_ID:1"
+    },
+    {
+      "filter_op_id": "uvg:FILTER_OP_ID:2",
+      "operator_name": "NOT_EQUAL",
+      "operator_for": "uvg:DT_ID:1"
+    },
+    {
+      "filter_op_id": "uvg:FILTER_OP_ID:3",
+      "operator_name": "GREATER_THAN",
+      "operator_for": "uvg:DT_ID:1"
+    },
+    {
+      "filter_op_id": "uvg:FILTER_OP_ID:4",
+      "operator_name": "LESS_THAN",
+      "operator_for": "uvg:DT_ID:1"
+    },
+    {
+      "filter_op_id": "uvg:FILTER_OP_ID:5",
+      "operator_name": "EQUAL",
+      "operator_for": "uvg:DT_ID:2"
+    },
+    {
+      "filter_op_id": "uvg:FILTER_OP_ID:6",
+      "operator_name": "NOT_EQUAL",
+      "operator_for": "uvg:DT_ID:2"
+    },
+    {
+      "filter_op_id": "uvg:FILTER_OP_ID:7",
+      "operator_name": "STARTS_WITH",
+      "operator_for": "uvg:DT_ID:2"
+    },
+    {
+      "filter_op_id": "uvg:FILTER_OP_ID:8",
+      "operator_name": "ENDS_WITH",
+      "operator_for": "uvg:DT_ID:2"
+    },
+    {
+      "filter_op_id": "uvg:FILTER_OP_ID:9" ,
+      "operator_name": "CONTAINS",
+      "operator_for": "uvg:DT_ID:2"
+    }
+  ],
   "UserGroup": [
     {
       "ug_id": "uvg:UG_ID:1",
       "ug_name": "All Users Group",
-      "ug_type": 1,
+      "ug_type": 2,
       "ug_desc": "All created users will be automatically added to this group"
+    }
+  ],
+  "FilterDetails": [
+    {
+      "filter_id": "uvg:FILTER_ID:1",
+      "filter_name": "Filter by user created Time",
+      "filter_desc": "Filter the users by the created Time, applicable all int/long based validations",
+      "filter_table": "Users",
+      "filter_column": "created_at",
+      "operator_for": 2
     }
   ]
 }

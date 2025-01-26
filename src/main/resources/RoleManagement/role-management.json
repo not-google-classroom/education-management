@@ -68,24 +68,28 @@
         {
           "name": "USER_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "UserRoles_FK_1",
-            "referencedTable": "Users",
-            "referencedColumn": "USER_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
         },
         {
           "name": "ROLE_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "UserRoles_FK_2",
-            "referencedTable": "Roles",
-            "referencedColumn": "ROLE_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
+        }
+      ],
+      "foreignKeys": [
+        {
+        "fkName": "UserRoles_FK_1",
+        "fkColumns": ["USER_ID"],
+        "referencedTable": "Users",
+        "referencedColumns": ["USER_ID"],
+        "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "UserRoles_FK_2",
+          "fkColumns": ["ROLE_ID"],
+          "referencedTable": "Roles",
+          "referencedColumns": ["ROLE_ID"],
+          "onDelete": "CASCADE"
         }
       ]
     },
@@ -95,24 +99,28 @@
         {
           "name": "ROLE_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "RolePermissions_FK_1",
-            "referencedTable": "Roles",
-            "referencedColumn": "ROLE_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
         },
         {
           "name": "PERMISSION_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "RolePermissions_FK_2",
-            "referencedTable": "Permissions",
-            "referencedColumn": "PERMISSION_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
+        }
+      ],
+      "foreignKeys": [
+        {
+        "fkName": "RolePermissions_FK_1",
+        "fkColumns": ["ROLE_ID"],
+        "referencedTable": "Roles",
+        "referencedColumns": ["ROLE_ID"],
+        "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "RolePermissions_FK_2",
+          "fkColumns": ["PERMISSION_ID"],
+          "referencedTable": "Permissions",
+          "referencedColumns": ["PERMISSION_ID"],
+          "onDelete": "CASCADE"
         }
       ]
     },
@@ -122,40 +130,45 @@
         {
           "name": "USER_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "UsersRolePermissions_FK_1",
-            "referencedTable": "Users",
-            "referencedColumn": "USER_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
         },
         {
           "name": "ROLE_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "UsersRolePermissions_FK_2",
-            "referencedTable": "Roles",
-            "referencedColumn": "ROLE_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
         },
         {
           "name": "PERMISSION_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "UsersRolePermissions_FK_3",
-            "referencedTable": "Permissions",
-            "referencedColumn": "PERMISSION_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
         },
         {
           "name": "GRANTED_AT",
           "type": "BIGINT",
           "defaultValue": -1
+        }
+      ],
+      "foreignKeys": [
+        {
+        "fkName": "UsersRolePermissions_FK_1",
+        "fkColumns": ["USER_ID"],
+        "referencedTable": "Users",
+        "referencedColumns": ["USER_ID"],
+        "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "UsersRolePermissions_FK_2",
+          "fkColumns": ["ROLE_ID"],
+          "referencedTable": "Roles",
+          "referencedColumns": ["ROLE_ID"],
+          "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "UsersRolePermissions_FK_3",
+          "fkColumns": ["PERMISSION_ID"],
+          "referencedTable": "Permissions",
+          "referencedColumns": ["PERMISSION_ID"],
+          "onDelete": "CASCADE"
         }
       ]
     }
