@@ -83,4 +83,12 @@ public class UserService {
         }
         return resultMap;
     }
+
+    public Map<String, Object> getUserGroups(Long ugID) {
+        return null;
+    }
+
+    public Map<String, Object> addUsersGroup(Map<String, Object> requestMap) {
+        return null;
+    }
 }

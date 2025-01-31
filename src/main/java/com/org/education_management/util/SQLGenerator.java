@@ -56,21 +56,19 @@ public class SQLGenerator {
         }
 
         // Process Foreign Keys
-        for (Column column : table.getColumns()) {
-            if (column.getForeignKey() != null) {
-                ForeignKey fk = column.getForeignKey();
-                if(fk.getFkName() != null && !fk.getFkName().isEmpty()) {
-                    sql.append("CONSTRAINT ").append(fk.getFkName())
-                            .append(" FOREIGN KEY (").append(column.getName()).append(") REFERENCES ")
-                            .append(fk.getReferencedTable()).append("(").append(fk.getReferencedColumn()).append(")");
+        ForeignKey foreignKey = table.getForeignKey();
+        if(foreignKey != null) {
+            if(foreignKey.getFkName() != null && !foreignKey.getFkName().isEmpty()) {
+                sql.append("CONSTRAINT ").append(foreignKey.getFkName())
+                        .append(" FOREIGN KEY (").append(String.join(",",foreignKey.getFkColumns())).append(") REFERENCES ")
+                        .append(foreignKey.getReferencedTable()).append("(").append(String.join(",", foreignKey.getReferencedColumns())).append(")");
 
-                    if (fk.getOnDelete() != null) {
-                        sql.append(" ON DELETE ").append(fk.getOnDelete());
-                    }
-                    sql.append(", ");
-                } else {
-                    throw new Exception(String.format("fkName is empty for table: %s and column: %s", table.getTableName(), column.getName()));
+                if (foreignKey.getOnDelete() != null) {
+                    sql.append(" ON DELETE ").append(foreignKey.getOnDelete());
                 }
+                sql.append(", ");
+            } else {
+                throw new Exception(String.format("fkName is empty for table: %s and column: %s", table.getTableName(), foreignKey.getFkName()));
             }
         }
 

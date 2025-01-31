@@ -20,7 +20,7 @@ public class StartUpController {
         if(isFreshStart()) {
             populateStaticTableData();
             createDeveloperAccount();
-            RegistryManager.setRegistryString("Initiated", "true");
+            //RegistryManager.setRegistryString("Initiated", "true");
         } else {
             logger.log(Level.INFO, "Server startup_type is warm, so skipping static data population");
             startUpService.startSchedulers();

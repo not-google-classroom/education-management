@@ -70,6 +70,11 @@
           "defaultValue": false
         },
         {
+          "name": "IS_INDEX_KEY",
+          "type": "BOOLEAN",
+          "defaultValue": false
+        },
+        {
           "name": "IS_NULLABLE",
           "type": "BOOLEAN",
           "defaultValue": false

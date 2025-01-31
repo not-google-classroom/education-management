@@ -77,9 +77,42 @@ public class StartUpService {
         for(Table table : tableMetaData.getTables()) {
             String tableName = table.getTableName();
             String tableDesc = table.getDescription();
-            PrimaryKey primaryKey = table.getPrimaryKey();
-            UniqueKey uniqueKey = table.getUniqueKey();
-            ForeignKey foreignKey = table.getForeignKey();
+            List<PrimaryKey> primaryKeyList = table.getPrimaryKeys();
+            List<UniqueKey> uniqueKeyList = table.getUniqueKeys();
+            List<ForeignKey> foreignKeyList = table.getForeignKeys();
+            List<IndexKey> indexKeyList = table.getIndexKeys();
+            HashMap<String, PrimaryKey> primaryKeyHashMap = new HashMap<>();
+            if(primaryKeyList != null) {
+                for (PrimaryKey primaryKey : primaryKeyList) {
+                    for (String colName : primaryKey.getPkColumns()) {
+                        primaryKeyHashMap.put(colName, primaryKey);
+                    }
+                }
+            }
+            HashMap<String, ForeignKey> foreignKeyHashMap = new HashMap<>();
+            if(foreignKeyList != null) {
+                for (ForeignKey foreignKey : foreignKeyList) {
+                    for (String colName : foreignKey.getFkColumns()) {
+                        foreignKeyHashMap.put(colName, foreignKey);
+                    }
+                }
+            }
+            HashMap<String, UniqueKey> uniqueKeyHashMap = new HashMap<>();
+            if(uniqueKeyList != null) {
+                for (UniqueKey uniqueKey : uniqueKeyList) {
+                    for (String colName : uniqueKey.getUkColumns()) {
+                        uniqueKeyHashMap.put(colName, uniqueKey);
+                    }
+                }
+            }
+            HashMap<String, IndexKey> indexKeyHashMap = new HashMap<>();
+            if(indexKeyList != null) {
+                for (IndexKey indexKey : indexKeyList) {
+                    for (String colName : indexKey.getIkColumns()) {
+                        indexKeyHashMap.put(colName, indexKey);
+                    }
+                }
+            }
             org.jooq.Record record = dslContext.insertInto(table("TableDetails"),
                             field("TABLE_NAME"), field("DESCRIPTION"))
                     .values(tableName, tableDesc)
@@ -95,6 +128,7 @@ public class StartUpService {
                             DSL.field("IS_PRIMARY_KEY"),
                             DSL.field("IS_UNIQUE"),
                             DSL.field("IS_FOREIGN_KEY"),
+                            DSL.field("IS_INDEX_KEY"),
                             DSL.field("IS_NULLABLE"),
                             DSL.field("DEFAULT_VALUE"));
 
@@ -102,59 +136,59 @@ public class StartUpService {
                 String columnName = column.getName();
                 String columnType = column.getType();
                 Object defValue = column.getDefaultValue();
-                boolean isPrimary = primaryKey != null && primaryKey.getPkColumns().contains(columnName);
-                boolean isUnique = uniqueKey != null && uniqueKey.getUkColumns().contains(columnName);
+                boolean isPrimary = !primaryKeyHashMap.isEmpty() && primaryKeyHashMap.containsKey(columnName);
+                boolean isUnique = !uniqueKeyHashMap.isEmpty() && uniqueKeyHashMap.containsKey(columnName);
                 boolean notNull = column.getNotNull() != null && column.getNotNull();
-                boolean isForeignKey = foreignKey != null && foreignKey.getFkColumns().contains(columnName);
-                insertStep.values(columnName, columnType, tableID, isPrimary, isUnique, isForeignKey, notNull, defValue);
+                boolean isForeignKey = !foreignKeyHashMap.isEmpty() && foreignKeyHashMap.containsKey(columnName);
+                boolean isIndexKey = !indexKeyHashMap.isEmpty() && indexKeyHashMap.containsKey(columnName);
+                insertStep.values(columnName, columnType, tableID, isPrimary, isUnique, isForeignKey, isIndexKey, notNull, defValue);
             }
             insertStep.execute();
-            updateConstraintDetails(table, tableID);
+            updateConstraintDetails(primaryKeyHashMap, foreignKeyHashMap, uniqueKeyHashMap, indexKeyHashMap, tableID, table);
         }
     }
 
-    private void updateConstraintDetails(Table table, Long tableID) throws Exception {
+    private void updateConstraintDetails(HashMap<String, PrimaryKey> primaryKeyHashMap, HashMap<String, ForeignKey> foreignKeyHashMap, HashMap<String, UniqueKey> uniqueKeyHashMap, HashMap<String, IndexKey> indexKeyHashMap, Long tableID, Table table) throws Exception {
         if(table != null) {
-            boolean isPKCol = table.getPrimaryKeys() != null;
-            boolean isUKCol = table.getUniqueKeys() != null ;
-            boolean isIKCol = table.getIndexKeys() != null;
-            boolean isFkCol = table.getForeignKeys() != null;
+            boolean isPKCol = !primaryKeyHashMap.isEmpty();
+            boolean isUKCol = !uniqueKeyHashMap.isEmpty();
+            boolean isIKCol = !indexKeyHashMap.isEmpty();
+            boolean isFkCol = !foreignKeyHashMap.isEmpty();
             if(isPKCol) {
-                updatePKColDetails(tableID, table);
+                updatePKColDetails(tableID, table, primaryKeyHashMap);
             }
             if(isUKCol) {
-                updateUKColDetails(tableID, table);
+                updateUKColDetails(tableID, table, uniqueKeyHashMap);
             }
             if(isIKCol) {
-                updateIKColDetails(tableID, table);
+                updateIKColDetails(tableID, table, indexKeyHashMap);
             }
             if(isFkCol) {
-                updateFKColDetails(tableID, table);
+                updateFKColDetails(tableID, table, foreignKeyHashMap);
             }
         }
-
     }
 
-    private void updateFKColDetails(Long tableID, Table table) throws Exception {
+    private void updateFKColDetails(Long tableID, Table table, HashMap<String, ForeignKey> foreignKeyHashMap) throws Exception {
         try {
-            ForeignKey foreignKey = table.getForeignKey();
-            if(foreignKey != null) {
-                DSLContext dslContext = DataBaseUtil.getDSLContext();
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext
+                    .insertInto(DSL.table("FKDetails"),
+                            DSL.field("FK_COL_ID"),
+                            DSL.field("FK_REF_COL_ID"),
+                            DSL.field("FK_REF_TABLE_ID"),
+                            DSL.field("FK_TYPE"),
+                            DSL.field("FK_GEN_NAME"));
+            for(Map.Entry<String, ForeignKey> fKeySet : foreignKeyHashMap.entrySet()) {
+                ForeignKey foreignKey = fKeySet.getValue();
                 String genName = foreignKey.getFkName();
                 List<String> fkCols = foreignKey.getFkColumns();
                 List<String> referencedCols = foreignKey.getReferencedColumns();
                 String refTabName = foreignKey.getReferencedTable();
                 Long refTabID = TableUtil.getInstance().findTableId(refTabName);
                 String fkType = foreignKey.getOnDelete();
-                InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext
-                        .insertInto(DSL.table("FKDetails"),
-                                DSL.field("FK_COL_ID"),
-                                DSL.field("FK_REF_COL_ID"),
-                                DSL.field("FK_REF_TABLE_ID"),
-                                DSL.field("FK_TYPE"),
-                                DSL.field("FK_GEN_NAME"));
 
-                for(int index = 0; index < referencedCols.size(); index++) {
+                for (int index = 0; index < referencedCols.size(); index++) {
                     Long colID = TableUtil.getInstance().findColumnId(fkCols.get(index), tableID);
                     Long refColID = TableUtil.getInstance().findColumnId(referencedCols.get(index), refTabID);
                     if (colID != null && refColID != null) {
@@ -164,25 +198,26 @@ public class StartUpService {
                         throw new NullPointerException("ColumnDetails Empty! unable to add foreignKeys details");
                     }
                 }
-                insertStep.execute();
             }
+            insertStep.execute();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Exception when adding FK Details to tableName : {0}", table.getTableName());
+            logger.log(Level.SEVERE, "Exception when adding FK Details to tableName : {0}, Exception : {1}", new Object[]{table.getTableName(), e});
             throw new Exception("Exception when adding FK Column Details : {0}", e);
         }
     }
 
-    private void updateIKColDetails(Long tableID, Table table) throws Exception {
+    private void updateIKColDetails(Long tableID, Table table, HashMap<String, IndexKey> indexKeyHashMap) throws Exception {
         try {
-            IndexKey indexKey = table.getIndexKey();
-            if (indexKey != null) {
-                DSLContext dslContext = DataBaseUtil.getDSLContext();
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext
+                    .insertInto(DSL.table("IKDetails"),
+                            DSL.field("IK_COL_ID"),
+                            DSL.field("IK_GEN_NAME"));
+            for(Map.Entry<String, IndexKey> ikSet : indexKeyHashMap.entrySet()) {
+                IndexKey indexKey = ikSet.getValue();
                 String genName = indexKey.getIkName();
                 List<String> ikCols = indexKey.getIkColumns();
-                InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext
-                        .insertInto(DSL.table("IKDetails"),
-                                DSL.field("IK_COL_ID"),
-                                DSL.field("IK_GEN_NAME"));
+
                 for (String ikColName : ikCols) {
                     Long colID = TableUtil.getInstance().findColumnId(ikColName, tableID);
                     if (colID != null) {
@@ -192,53 +227,53 @@ public class StartUpService {
                         throw new NullPointerException("ColumnDetails Empty! unable to add indexkey details");
                     }
                 }
-                insertStep.execute();
             }
+            insertStep.execute();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception when adding IK Details to tableID : {0}", tableID);
             throw new Exception("Exception when adding IK Column Details : {0}", e);
         }
     }
 
-    private void updateUKColDetails(Long tableID, Table table) throws Exception {
+    private void updateUKColDetails(Long tableID, Table table, HashMap<String, UniqueKey> uniqueKeyHashMap) throws Exception {
         try {
-            UniqueKey uniqueKey = table.getUniqueKey();
-            if (uniqueKey != null) {
-                DSLContext dslContext = DataBaseUtil.getDSLContext();
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext
+                    .insertInto(DSL.table("UKDetails"),
+                            DSL.field("UK_COL_ID"),
+                            DSL.field("UK_GEN_NAME"));
+            for(Map.Entry<String, UniqueKey> ukSet : uniqueKeyHashMap.entrySet()) {
+                UniqueKey uniqueKey = ukSet.getValue();
                 String genName = uniqueKey.getUkName();
                 List<String> ukCols = uniqueKey.getUkColumns();
-                InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext
-                        .insertInto(DSL.table("UKDetails"),
-                                DSL.field("UK_COL_ID"),
-                                DSL.field("UK_GEN_NAME"));
                 for (String ukColName : ukCols) {
                     Long colID = TableUtil.getInstance().findColumnId(ukColName, tableID);
                     if (colID != null) {
                         insertStep.values(colID, genName);
                     } else {
-                        logger.log(Level.SEVERE, "ColumnDetails not found!, throw error for ID : {{0}", colID);
+                        logger.log(Level.SEVERE, "ColumnDetails not found!, throw error for ID : {0}", colID);
                         throw new NullPointerException("ColumnDetails Empty! unable to add uniqueKey details");
                     }
                 }
-                insertStep.execute();
             }
+            insertStep.execute();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception when adding UK Details to tableID : {0}", tableID);
             throw new Exception("Exception when adding UK Column Details : {0}", e);
         }
     }
 
-    private void updatePKColDetails(Long tableID, Table table) throws Exception {
+    private void updatePKColDetails(Long tableID, Table table, HashMap<String, PrimaryKey> primaryKeyHashMap) throws Exception {
         try {
-            PrimaryKey primaryKey = table.getPrimaryKey();
-            if (primaryKey != null) {
-                DSLContext dslContext = DataBaseUtil.getDSLContext();
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext
+                    .insertInto(DSL.table("PKDetails"),
+                            DSL.field("PK_COL_ID"),
+                            DSL.field("PK_GEN_NAME"));
+            for(Map.Entry<String, PrimaryKey> pkSet : primaryKeyHashMap.entrySet()) {
+                PrimaryKey primaryKey = pkSet.getValue();
                 String genName = primaryKey.getPkName();
                 List<String> pkCols = primaryKey.getPkColumns();
-                InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext
-                        .insertInto(DSL.table("PKDetails"),
-                                DSL.field("PK_COL_ID"),
-                                DSL.field("PK_GEN_NAME"));
                 for (String pkColName : pkCols) {
                     Long colID = TableUtil.getInstance().findColumnId(pkColName, tableID);
                     if (colID != null) {
@@ -246,10 +281,10 @@ public class StartUpService {
                     } else {
                     logger.log(Level.SEVERE, "ColumnDetails not found!, throw error for ID : {0}", colID);
                     throw new NullPointerException("ColumnDetails Empty! unable to add primaryKey details");
+                    }
                 }
-                }
-                insertStep.execute();
             }
+            insertStep.execute();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception when adding PK Details to tableID : {0}", tableID);
             throw new Exception("Exception when adding PK Column Details : {0}", e);
