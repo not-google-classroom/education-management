@@ -33,7 +33,11 @@ public class ResponseEntityWrapper {
         Map<String, Object> response = new HashMap<>();
         response.put(StatusConstants.STATUS_CODE, status.value());
         response.put(StatusConstants.MESSAGE, message);
-        response.put(StatusConstants.DATA, mapData);
+        if(mapData.containsKey(StatusConstants.STATUS_CODE)) {
+            response.put(StatusConstants.DATA, mapData.get(StatusConstants.DATA));
+        } else {
+            response.put(StatusConstants.DATA, mapData);
+        }
         return ResponseEntity.status(status).body(response);
     }
 

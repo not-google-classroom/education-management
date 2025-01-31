@@ -18,13 +18,30 @@
       "method": "GET",
       "roles": ["admin", "user"],
       "rateLimit": {
-        "limit": 2,
+        "limit": 30,
         "window": 60,
         "lockPeriod": 60
       },
       "params": [
         {
           "name": "userID",
+          "type": "long",
+          "required": false
+        }
+      ]
+    },
+    {
+      "path": "/api/users/getUserGroups",
+      "method": "GET",
+      "roles": ["admin", "user"],
+      "rateLimit": {
+        "limit": 30,
+        "window": 60,
+        "lockPeriod": 60
+      },
+      "params": [
+        {
+          "name": "ugID",
           "type": "long",
           "required": false
         }

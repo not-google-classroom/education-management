@@ -85,7 +85,24 @@ public class UserService {
     }
 
     public Map<String, Object> getUserGroups(Long ugID) {
-        return null;
+        Map<String, Object> resultMap = new HashMap<>();
+        try {
+            Map usersMap = UserMgmtUtil.getInstance().getUserGroups(ugID);
+            if (!usersMap.isEmpty()) {
+                resultMap.put(StatusConstants.STATUS_CODE, 200);
+                resultMap.put(StatusConstants.MESSAGE, "User Groups data fetched successfully");
+                resultMap.put(StatusConstants.DATA, usersMap);
+                return resultMap;
+            }
+            resultMap.put(StatusConstants.STATUS_CODE, 204);
+            resultMap.put(StatusConstants.MESSAGE, "No user groups found in the org");
+            return resultMap;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception when fetching user groups details ", e);
+            resultMap.put(StatusConstants.STATUS_CODE, 500);
+            resultMap.put(StatusConstants.MESSAGE, "Internal error when processing request");
+            return resultMap;
+        }
     }
 
     public Map<String, Object> addUsersGroup(Map<String, Object> requestMap) {

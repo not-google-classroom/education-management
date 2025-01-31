@@ -171,4 +171,14 @@ public class UserMgmtUtil {
         }
         return isExists;
     }
+
+    public Map getUserGroups(Long ugID) {
+        Map<String, Object> usersMap = new HashMap<>();
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        Result<? extends Record> result = dslContext.select(field(name("usergroup","ug_name")), field(name("usergroup","ug_desc")), field(name("usergroup","ug_type")), field(name("usergroup","created_at")), field(name("usergroup", "updated_at"))).from(table("usergroup")).innerJoin(table("usersugmapping")).on(field(name("usergroup","ug_id")).eq(field(name("usersugmapping","ug_id")))).where(ugID != null ? field(name("usergroup", "ug_id")).eq(ugID) : DSL.noCondition()).fetch();
+        for (Record record : result) {
+            usersMap.put((String) record.get("ug_name"), record.intoMap());
+        }
+        return usersMap;
+    }
 }

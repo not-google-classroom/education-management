@@ -52,7 +52,7 @@ public class UserController {
                 ugID = Long.parseLong((String) requestMap.getOrDefault("ugID", null));
             }
             resultMap = userService.getUserGroups(ugID);
-            if (resultMap != null && !resultMap.isEmpty()) {
+            if (resultMap != null && !resultMap.isEmpty() && resultMap.get(StatusConstants.STATUS_CODE).equals(200)) {
                 return buildResponse(HttpStatus.OK, "users group data fetched successfully", resultMap);
             }
             return buildResponse(HttpStatus.NO_CONTENT, "No users group found!");

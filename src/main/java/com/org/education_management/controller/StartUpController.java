@@ -44,7 +44,7 @@ public class StartUpController {
     public void createDeveloperAccount(){
         OrgService service = new OrgService();
         try {
-            service.createOrg("ERP", "admin@erp.com","admin","admin");
+            service.createOrg("ERP", "admin@erp.com","Admin@123","admin");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
