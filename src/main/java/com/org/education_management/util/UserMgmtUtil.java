@@ -181,4 +181,38 @@ public class UserMgmtUtil {
         }
         return usersMap;
     }
+
+    public boolean createStaticUserGroup(String ugName, String ugDesc, int ugType, String userIDs) throws Exception {
+        boolean isGroupCreated = false;
+        if(!isUGDetailsExists(ugName)) {
+            logger.log(Level.INFO, "Adding a static user group with name : {0}", ugName);
+            Long ugID = addUserGroupDetails(ugName, ugDesc, ugType);
+            
+        }
+        return isGroupCreated;
+    }
+
+    private Long addUserGroupDetails(String ugName, String ugDesc, int ugType) throws Exception{
+        Long ugID = null;
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        if (ugName != null && ugType != 0) {
+            long currTime = System.currentTimeMillis();
+            Record record = dslContext.insertInto(table("usergroup")).columns(field("ug_name"), field("ug_desc"), field("ug_type"), field("created_at"), field("updated_at"))
+                    .values(ugName, ugDesc, ugType, currTime, currTime).returning(field("ug_id")).fetchSingle();
+            if(record != null && record.size() > 0) {
+                logger.log(Level.INFO, "Usergroup Details added to database");
+            }
+        }
+        return null;
+    }
+
+    private boolean isUGDetailsExists(String ugName) {
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        Record record = dslContext.select(field(name("usergroup","ug_name"))).from(table("usergroup")).where(ugName != null ? field(name("usergroup", "ug_name")).eq(ugName) : DSL.noCondition()).fetchOne();
+        if(record != null) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
 }

@@ -74,6 +74,14 @@
       "filter_table": "Users",
       "filter_column": "created_at",
       "operator_for": 2
+    },
+    {
+      "filter_id": "uvg:FILTER_ID:2",
+      "filter_name": "Filter by Gender",
+      "filter_desc": "Filters the user by the available gender types",
+      "filter_table": "Users",
+      "filter_column": "gender_id",
+      "operator_for": 1
     }
   ]
 }

@@ -1,6 +1,27 @@
 {
   "tables": [
     {
+      "tableName": "Gender",
+      "columns": [
+        {
+          "name": "GENDER_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "GENDER_TYPE",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "Gender_PK",
+          "pkColumns": ["GENDER_ID"]
+        }
+      ]
+    },
+    {
       "tableName": "Users",
       "columns": [
         {
@@ -15,6 +36,11 @@
         {
           "name": "EMAIL",
           "type": "VARCHAR(100)"
+        },
+        {
+          "name": "GENDER_ID",
+          "type": "BIGINT",
+          "defaultValue": 4
         },
         {
           "name": "CREATED_AT",
@@ -37,6 +63,15 @@
         {
           "ukName": "Users_UK",
           "ukColumns": ["EMAIL"]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "fkName": "Users_FK",
+          "fkColumns": ["GENDER_ID"],
+          "referencedTable": "Gender",
+          "referencedColumns": ["GENDER_ID"],
+          "onDelete": "CASCADE"
         }
       ]
     },

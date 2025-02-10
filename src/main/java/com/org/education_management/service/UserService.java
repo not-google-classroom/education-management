@@ -105,7 +105,18 @@ public class UserService {
         }
     }
 
-    public Map<String, Object> addUsersGroup(Map<String, Object> requestMap) {
+    public Map<String, Object> addUsersGroup(Map<String, Object> requestMap) throws Exception {
+        if(requestMap != null && !requestMap.isEmpty()) {
+            String ugName = (String) requestMap.get("ugName");
+            int ugType = (Integer) requestMap.getOrDefault("ugType", 0);
+            String ugDesc = (String) requestMap.getOrDefault("ugDesc", "--");
+            if(ugType == 1) { //1 refers to dynamic group
+
+            } else if (ugType == 2) { // refers to static group
+                String userIDs = (String) requestMap.get("userIDs");
+                UserMgmtUtil.getInstance().createStaticUserGroup(ugName, ugDesc, ugType, userIDs);
+            }
+        }
         return null;
     }
 }

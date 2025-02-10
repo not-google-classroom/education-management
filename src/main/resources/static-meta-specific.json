@@ -7,8 +7,12 @@
     "file_name": "scheduler-data.json",
     "file_path": "\\resources\\Schedulers\\scheduler-data.json"
   },
-  "UserManagement": {
+  "UserManagement_UG": {
     "file_name": "static-ug.json",
     "file_path": "\\resources\\UserManagement\\static-ug.json"
+  },
+  "UserManagement": {
+    "file_name": "static-usermanagement.json",
+    "file_path": "\\resources\\UserManagement\\static-usermanagement.json"
   }
 }
