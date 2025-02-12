@@ -114,7 +114,10 @@ public class UserService {
                 int ugType = (Integer) requestMap.getOrDefault("ugType", 0);
                 String ugDesc = (String) requestMap.getOrDefault("ugDesc", "--");
                 if (ugType == 1) { //1 refers to dynamic group
-
+                    long filterID = Long.parseLong(requestMap.get("filterID").toString());
+                    long operatorID = Long.parseLong(requestMap.get("operatorID").toString());
+                    String value = (String) requestMap.get("filterByValue");
+                    isUGCreated = UserMgmtUtil.getInstance().createDynamicUserGroup(ugName, ugDesc, ugType, filterID, operatorID, value);
                 } else if (ugType == 2) { // refers to static group
                     String userIDs = (String) requestMap.get("userIDs");
                     isUGCreated = UserMgmtUtil.getInstance().createStaticUserGroup(ugName, ugDesc, ugType, userIDs);

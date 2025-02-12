@@ -313,11 +313,18 @@
         },
         {
           "name": "FILTER_ID",
-          "type": "BIGINT"
+          "type": "BIGINT",
+          "notNull": true
         },
         {
           "name": "FILTER_OPERATOR",
-          "type": "BIGINT"
+          "type": "BIGINT",
+          "notNull": true
+        },
+        {
+          "name" : "FILTER_BY_VALUE",
+          "type" : "VARCHAR(255)",
+          "notNull": true
         }
       ],
       "primaryKeys": [

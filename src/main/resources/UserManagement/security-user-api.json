@@ -114,6 +114,14 @@
         {
           "name": "filterID",
           "type": "long"
+        },
+        {
+          "name": "operatorID",
+          "type": "long"
+        },
+        {
+          "name": "filterByValue",
+          "type": "String"
         }
       ]
     }

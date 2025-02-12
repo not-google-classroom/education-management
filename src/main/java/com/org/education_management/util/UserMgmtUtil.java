@@ -61,7 +61,7 @@ public class UserMgmtUtil {
                 addUsersRoleMapping(userID, roleID);
                 addUsersUGMapping(userID, ugIDs);
                 isUserAdded = true;
-                if(isPublicPopulate) {
+                if (isPublicPopulate) {
                     addUserDetailsInPublic(userEmail, userName);
                 }
             }
@@ -142,7 +142,7 @@ public class UserMgmtUtil {
     public Map<String, Object> getUsers(Long userID) {
         Map<String, Object> usersMap = new HashMap<>();
         DSLContext dslContext = DataBaseUtil.getDSLContext();
-        Result<? extends Record> result = dslContext.select(field(name("users","username")), field(name("users","email")), field(name("users","created_at")), field(name("users","updated_at")), field(name("roles","role_name")), field(name("roles","description"))).from(table("users")).innerJoin(table("userroles")).on(field(name("users","user_id")).eq(field(name("userroles","user_id")))).innerJoin(table("roles")).on(field(name("roles", "role_id")).eq(field(name("userroles","role_id")))).where(userID != null ? field(name("users", "user_id")).eq(userID) : DSL.noCondition()).fetch();
+        Result<? extends Record> result = dslContext.select(field(name("users", "username")), field(name("users", "email")), field(name("users", "created_at")), field(name("users", "updated_at")), field(name("roles", "role_name")), field(name("roles", "description"))).from(table("users")).innerJoin(table("userroles")).on(field(name("users", "user_id")).eq(field(name("userroles", "user_id")))).innerJoin(table("roles")).on(field(name("roles", "role_id")).eq(field(name("userroles", "role_id")))).where(userID != null ? field(name("users", "user_id")).eq(userID) : DSL.noCondition()).fetch();
         for (Record record : result) {
             usersMap.put((String) record.get("username"), record.intoMap());
         }
@@ -152,7 +152,7 @@ public class UserMgmtUtil {
     public Map<Long, Object> getAllUsers() {
         Map<Long, Object> usersMap = new HashMap<>();
         DSLContext dslContext = DataBaseUtil.getDSLContext();
-        Result<? extends Record> result = dslContext.select(field(name("users", "user_id")), field(name("users","username")), field(name("users","email")), field(name("users","created_at")), field(name("users","updated_at")), field(name("roles","role_name")), field(name("roles","description"))).from(table("users")).innerJoin(table("userroles")).on(field(name("users","user_id")).eq(field(name("userroles","user_id")))).innerJoin(table("roles")).on(field(name("roles", "role_id")).eq(field(name("userroles","role_id")))).fetch();
+        Result<? extends Record> result = dslContext.select(field(name("users", "user_id")), field(name("users", "username")), field(name("users", "email")), field(name("users", "created_at")), field(name("users", "updated_at")), field(name("roles", "role_name")), field(name("roles", "description"))).from(table("users")).innerJoin(table("userroles")).on(field(name("users", "user_id")).eq(field(name("userroles", "user_id")))).innerJoin(table("roles")).on(field(name("roles", "role_id")).eq(field(name("userroles", "role_id")))).fetch();
         for (Record record : result) {
             usersMap.put((Long) record.get("user_id"), record.intoMap());
         }
@@ -177,7 +177,7 @@ public class UserMgmtUtil {
     public Map getUserGroups(Long ugID) {
         Map<String, Object> usersMap = new HashMap<>();
         DSLContext dslContext = DataBaseUtil.getDSLContext();
-        Result<? extends Record> result = dslContext.select(field(name("usergroup","ug_name")), field(name("usergroup","ug_desc")), field(name("usergroup","ug_type")), field(name("usergroup","created_at")), field(name("usergroup", "updated_at"))).from(table("usergroup")).innerJoin(table("usersugmapping")).on(field(name("usergroup","ug_id")).eq(field(name("usersugmapping","ug_id")))).where(ugID != null ? field(name("usergroup", "ug_id")).eq(ugID) : DSL.noCondition()).fetch();
+        Result<? extends Record> result = dslContext.select(field(name("usergroup", "ug_name")), field(name("usergroup", "ug_desc")), field(name("usergroup", "ug_type")), field(name("usergroup", "created_at")), field(name("usergroup", "updated_at"))).from(table("usergroup")).innerJoin(table("usersugmapping")).on(field(name("usergroup", "ug_id")).eq(field(name("usersugmapping", "ug_id")))).where(ugID != null ? field(name("usergroup", "ug_id")).eq(ugID) : DSL.noCondition()).fetch();
         for (Record record : result) {
             usersMap.put((String) record.get("ug_name"), record.intoMap());
         }
@@ -186,15 +186,15 @@ public class UserMgmtUtil {
 
     public boolean createStaticUserGroup(String ugName, String ugDesc, int ugType, String userIDs) throws Exception {
         boolean isGroupCreated = false;
-        if(!isUGDetailsExists(ugName)) {
+        if (!isUGDetailsExists(ugName)) {
             logger.log(Level.INFO, "Adding a static user group with name : {0}", ugName);
             Long ugID = addUserGroupDetails(ugName, ugDesc, ugType);
-            if(ugID != null) {
+            if (ugID != null) {
                 LinkedList<Long> userIdsList = Arrays.stream(userIDs.split(","))
                         .map(Long::parseLong)
                         .collect(Collectors.toCollection(LinkedList::new));
                 Map<Long, Object> allUsersList = getAllUsers();
-                if(allUsersList.keySet().containsAll(userIdsList)) {
+                if (allUsersList.keySet().containsAll(userIdsList)) {
                     addUsersUGMapping(userIdsList, ugID);
                     logger.log(Level.INFO, "Static group created successfully");
                     return true;
@@ -211,7 +211,7 @@ public class UserMgmtUtil {
     private void addUsersUGMapping(LinkedList<Long> userIdsList, Long ugID) {
         DSLContext dslContext = DataBaseUtil.getDSLContext();
         InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext.insertInto(table("usersugmapping", field("user_id", field("ug_id"))));
-        for(Long userID : userIdsList) {
+        for (Long userID : userIdsList) {
             insertStep.values(userID, ugID);
         }
         insertStep.execute();
@@ -221,21 +221,21 @@ public class UserMgmtUtil {
     private void addUsersUGMapping(Long userID, LinkedList<Long> ugIDs) {
         DSLContext dslContext = DataBaseUtil.getDSLContext();
         InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext.insertInto(table("usersugmapping", field("user_id", field("ug_id"))));
-        for(Long cgID : ugIDs) {
+        for (Long cgID : ugIDs) {
             insertStep.values(userID, cgID);
         }
         insertStep.execute();
         logger.log(Level.INFO, "Users UG Mapping added successfully");
     }
 
-    private Long addUserGroupDetails(String ugName, String ugDesc, int ugType) throws Exception{
+    private Long addUserGroupDetails(String ugName, String ugDesc, int ugType) throws Exception {
         Long ugID = null;
         DSLContext dslContext = DataBaseUtil.getDSLContext();
         if (ugName != null && ugType != 0) {
             long currTime = System.currentTimeMillis();
             Record record = dslContext.insertInto(table("usergroup")).columns(field("ug_name"), field("ug_desc"), field("ug_type"), field("created_at"), field("updated_at"))
                     .values(ugName, ugDesc, ugType, currTime, currTime).returning(field("ug_id")).fetchSingle();
-            if(record != null && record.size() > 0) {
+            if (record != null && record.size() > 0) {
                 ugID = (Long) record.get("ug_id");
                 logger.log(Level.INFO, "Usergroup Details added to database");
             }
@@ -245,11 +245,49 @@ public class UserMgmtUtil {
 
     private boolean isUGDetailsExists(String ugName) {
         DSLContext dslContext = DataBaseUtil.getDSLContext();
-        Record record = dslContext.select(field(name("usergroup","ug_name"))).from(table("usergroup")).where(ugName != null ? field(name("usergroup", "ug_name")).eq(ugName) : DSL.noCondition()).fetchOne();
-        if(record != null) {
+        Record record = dslContext.select(field(name("usergroup", "ug_name"))).from(table("usergroup")).where(ugName != null ? field(name("usergroup", "ug_name")).eq(ugName) : DSL.noCondition()).fetchOne();
+        if (record != null) {
             return Boolean.TRUE;
         } else {
             return Boolean.FALSE;
         }
+    }
+
+    public boolean createDynamicUserGroup(String ugName, String ugDesc, int ugType, long filterID, long operatorID, String value) throws Exception {
+        boolean isGroupCreated = false;
+        if (!isUGDetailsExists(ugName)) {
+            logger.log(Level.INFO, "Adding a dynamic user group with name : {0}", ugName);
+            Long ugID = addUserGroupDetails(ugName, ugDesc, ugType);
+            if (ugID != null) {
+                Long sFilterID = mapFilterDetailsForUG(filterID, operatorID, value);
+                mapUGAndFilters(ugID, sFilterID);
+                logger.log(Level.INFO, "Dynamic user group created successfully");
+                isGroupCreated = true;
+            }
+        }
+        return isGroupCreated;
+    }
+
+    private void mapUGAndFilters(Long ugID, Long sFilterID) throws Exception {
+        if(ugID != null && sFilterID != null) {
+            logger.log(Level.INFO, "usergroup filter mapping started...");
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            dslContext.insertInto(table("ugfiltermapping")).columns(field("ug_id"), field("filter_id")).values(ugID, sFilterID).execute();
+            logger.log(Level.INFO, "usergroup filter mapping ended...");
+        }
+    }
+
+    private Long mapFilterDetailsForUG(long filterID, long operatorID, String value) throws Exception {
+        Long sFilterID = null;
+        if (value != null && !value.isEmpty()) {
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            Record record = dslContext.insertInto(table("savedugfilters")).columns(field("filter_id"), field("filter_operator"), field("filter_by_value"))
+                    .values(filterID, operatorID, value).returning(field("s_filter_id")).fetchSingle();
+            if (record != null && record.size() > 0) {
+                sFilterID = (Long) record.get("s_filter_id");
+                logger.log(Level.INFO, "Filter Details added successfully");
+            }
+        }
+        return sFilterID;
     }
 }
