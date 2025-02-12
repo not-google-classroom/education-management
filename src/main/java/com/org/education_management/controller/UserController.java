@@ -64,12 +64,12 @@ public class UserController {
 
     @PostMapping(value = "/addUserGroup", produces = "application/json")
     private ResponseEntity<Map<String, Object>> addUserGroup(@RequestBody Map<String, Object> requestMap) {
-        Map<String, Object> resultMap = new HashMap<>();
         try {
-            if (requestMap != null && !requestMap.isEmpty()) {
-                resultMap = userService.addUsersGroup(requestMap);
-                if(resultMap != null && !requestMap.isEmpty()) {
+            if(requestMap != null && !requestMap.isEmpty()) {
+                if (userService.addUsersGroup(requestMap)) {
                     return buildResponse(HttpStatus.OK, "users group created successfully");
+                } else {
+                    return buildResponse(HttpStatus.BAD_REQUEST, "unable to create user group");
                 }
             }
             return buildResponse(HttpStatus.BAD_REQUEST, "Input data mismatch! verify data");

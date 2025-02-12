@@ -5,11 +5,13 @@ import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.*;
 
@@ -68,16 +70,6 @@ public class UserMgmtUtil {
             throw new Exception("Exception when creating user!");
         }
         return isUserAdded;
-    }
-
-    private void addUsersUGMapping(Long userID, LinkedList<Long> ugIDs) {
-        DSLContext dslContext = DataBaseUtil.getDSLContext();
-        InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext.insertInto(table("usersugmapping", field("user_id", field("ug_id"))));
-        for(Long cgID : ugIDs) {
-            insertStep.values(userID, cgID);
-        }
-        insertStep.execute();
-        logger.log(Level.INFO, "Users UG Mapping added successfully");
     }
 
     private void addUserDetailsInPublic(String userEmail, String userName) throws Exception {
@@ -157,6 +149,16 @@ public class UserMgmtUtil {
         return usersMap;
     }
 
+    public Map<Long, Object> getAllUsers() {
+        Map<Long, Object> usersMap = new HashMap<>();
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        Result<? extends Record> result = dslContext.select(field(name("users", "user_id")), field(name("users","username")), field(name("users","email")), field(name("users","created_at")), field(name("users","updated_at")), field(name("roles","role_name")), field(name("roles","description"))).from(table("users")).innerJoin(table("userroles")).on(field(name("users","user_id")).eq(field(name("userroles","user_id")))).innerJoin(table("roles")).on(field(name("roles", "role_id")).eq(field(name("userroles","role_id")))).fetch();
+        for (Record record : result) {
+            usersMap.put((Long) record.get("user_id"), record.intoMap());
+        }
+        return usersMap;
+    }
+
     public boolean isEmailExists(String userEmail) {
         boolean isExists = false;
         if (userEmail != null && !userEmail.isEmpty()) {
@@ -187,9 +189,43 @@ public class UserMgmtUtil {
         if(!isUGDetailsExists(ugName)) {
             logger.log(Level.INFO, "Adding a static user group with name : {0}", ugName);
             Long ugID = addUserGroupDetails(ugName, ugDesc, ugType);
-            
+            if(ugID != null) {
+                LinkedList<Long> userIdsList = Arrays.stream(userIDs.split(","))
+                        .map(Long::parseLong)
+                        .collect(Collectors.toCollection(LinkedList::new));
+                Map<Long, Object> allUsersList = getAllUsers();
+                if(allUsersList.keySet().containsAll(userIdsList)) {
+                    addUsersUGMapping(userIdsList, ugID);
+                    logger.log(Level.INFO, "Static group created successfully");
+                    return true;
+                }
+                logger.log(Level.WARNING, "Provided usersIDs are not valid!, userIDs : {0}", userIdsList);
+            }
+            logger.log(Level.WARNING, "unable to create static group");
+            return isGroupCreated;
         }
+        logger.log(Level.SEVERE, "user group details exists already! try with new unique name");
         return isGroupCreated;
+    }
+
+    private void addUsersUGMapping(LinkedList<Long> userIdsList, Long ugID) {
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext.insertInto(table("usersugmapping", field("user_id", field("ug_id"))));
+        for(Long userID : userIdsList) {
+            insertStep.values(userID, ugID);
+        }
+        insertStep.execute();
+        logger.log(Level.INFO, "Users UG Mapping added successfully");
+    }
+
+    private void addUsersUGMapping(Long userID, LinkedList<Long> ugIDs) {
+        DSLContext dslContext = DataBaseUtil.getDSLContext();
+        InsertValuesStepN<?> insertStep = (InsertValuesStepN<?>) dslContext.insertInto(table("usersugmapping", field("user_id", field("ug_id"))));
+        for(Long cgID : ugIDs) {
+            insertStep.values(userID, cgID);
+        }
+        insertStep.execute();
+        logger.log(Level.INFO, "Users UG Mapping added successfully");
     }
 
     private Long addUserGroupDetails(String ugName, String ugDesc, int ugType) throws Exception{
@@ -200,10 +236,11 @@ public class UserMgmtUtil {
             Record record = dslContext.insertInto(table("usergroup")).columns(field("ug_name"), field("ug_desc"), field("ug_type"), field("created_at"), field("updated_at"))
                     .values(ugName, ugDesc, ugType, currTime, currTime).returning(field("ug_id")).fetchSingle();
             if(record != null && record.size() > 0) {
+                ugID = (Long) record.get("ug_id");
                 logger.log(Level.INFO, "Usergroup Details added to database");
             }
         }
-        return null;
+        return ugID;
     }
 
     private boolean isUGDetailsExists(String ugName) {

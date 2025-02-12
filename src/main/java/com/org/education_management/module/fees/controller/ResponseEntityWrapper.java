@@ -13,7 +13,9 @@ public class ResponseEntityWrapper {
         Map<String, Object> response = new HashMap<>();
         response.put(StatusConstants.STATUS_CODE, status.value());
         response.put(StatusConstants.MESSAGE, message);
-        response.put(StatusConstants.DATA, body != null ? body.toMap() : null);
+        if(body != null && !body.isEmpty()) {
+            response.put(StatusConstants.DATA, body.toMap());
+        }
         return ResponseEntity.status(status).body(response);
     }
 

@@ -46,6 +46,17 @@
           "required": false
         }
       ]
+    },
+    {
+      "path": "/api/users/addUserGroup",
+      "method": "POST",
+      "roles": ["admin"],
+      "rateLimit": {
+        "limit": 30,
+        "window": 60,
+        "lockPeriod": 60
+      },
+      "template": "createUGTemplate"
     }
   ],
   "templates": [
@@ -73,6 +84,36 @@
         {
           "name": "cgIDs",
           "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "createUGTemplate",
+      "minLength": 20,
+      "maxLength": 2000,
+      "type": "JSONObject",
+      "params": [
+        {
+          "name": "ugName",
+          "type": "String",
+          "required": true
+        },
+        {
+          "name": "ugDesc",
+          "type": "String"
+        },
+        {
+          "name": "ugType",
+          "type": "Integer",
+          "required": true
+        },
+        {
+          "name": "userIDs",
+          "type": "String"
+        },
+        {
+          "name": "filterID",
+          "type": "long"
         }
       ]
     }

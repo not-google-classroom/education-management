@@ -171,6 +171,7 @@ public class ApiSecurityFilter implements Filter {
         }
 
         String type = rule.getType().toLowerCase();
+        type = type.replaceAll("integer", "int");
         switch (type) {
             case "string":
                 return rule.getPattern() == null || Pattern.matches(rule.getPattern(), paramValue.toString());
