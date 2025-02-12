@@ -2,15 +2,15 @@
   "Gender": [
     {
       "gender_id": "uvg:GENDER_ID:1",
-      "gender_type": "Male"
-    },
-    {
-      "gender_id": "uvg:GENDER_ID:2",
       "gender_type": "Female"
     },
     {
-      "gender_id": "uvg:GENDER_ID:3",
+      "gender_id": "uvg:GENDER_ID:2",
       "gender_type": "Not to say"
+    },
+    {
+      "gender_id": "uvg:GENDER_ID:3",
+      "gender_type": "Male"
     },
     {
       "gender_id": "uvg:GENDER_ID:4",

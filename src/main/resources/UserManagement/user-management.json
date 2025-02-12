@@ -43,6 +43,11 @@
           "defaultValue": 4
         },
         {
+          "name": "STATUS",
+          "type": "BIGINT",
+          "defaultValue": 3
+        },
+        {
           "name": "CREATED_AT",
           "type": "BIGINT",
           "defaultValue": -1

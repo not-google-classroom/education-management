@@ -1,5 +1,6 @@
 package com.org.education_management.service;
 
+import com.org.education_management.constants.UserConstants;
 import com.org.education_management.util.RolesUtil;
 import com.org.education_management.util.StatusConstants;
 import com.org.education_management.util.UserMgmtUtil;
@@ -43,6 +44,7 @@ public class UserService {
             String userEmail = (String) requestMap.get("userEmail");
             Long userRole = Long.parseLong(requestMap.get("userRole").toString());
             String ugIDs = (String) requestMap.get("ugIDs");
+            int genderID = (Integer) requestMap.get("genderID");
             LinkedList<Long> ugList = new LinkedList<>();
             ugList.add(UserMgmtUtil.getInstance().getAllUsersUGID()); // All users group
             if (ugIDs != null && !ugIDs.isEmpty()) {
@@ -62,7 +64,7 @@ public class UserService {
             }
             Map roleDetails = RolesUtil.getInstance().getRolesList(userRole);
             if (roleDetails != null && !roleDetails.isEmpty()) {
-                boolean isUserAdded = UserMgmtUtil.getInstance().addUser(userEmail, userName, "", userRole, ugList, true);
+                boolean isUserAdded = UserMgmtUtil.getInstance().addUser(userEmail, userName, "", userRole, ugList, true, genderID, UserConstants.USER_INVITED);
                 if(isUserAdded) {
                     resultMap.put(StatusConstants.STATUS_CODE, HttpStatus.OK);
                     resultMap.put(StatusConstants.MESSAGE, "User created successfully");

@@ -1,5 +1,6 @@
 package com.org.education_management.util;
 
+import com.org.education_management.constants.UserConstants;
 import com.org.education_management.database.DataBaseUtil;
 import org.jooq.*;
 import org.jooq.Record;
@@ -35,7 +36,7 @@ public class UserMgmtUtil {
         if (adminRoleID != null && allCGID != null) {
             LinkedList<Long> allCGIDs = new LinkedList<>();
             allCGIDs.add(allCGID);
-            isAdminCreated = addUser(userEmail, userName, password, adminRoleID, allCGIDs, false);
+            isAdminCreated = addUser(userEmail, userName, password, adminRoleID, allCGIDs, false, UserConstants.GENDER_OTHERS, UserConstants.USER_ACTIVE);
         }
         return isAdminCreated;
     }
@@ -46,12 +47,12 @@ public class UserMgmtUtil {
         return (record != null && record.get(field(name("usergroup", "ug_id"))) != null) ? (Long) record.get(field(name("usergroup", "ug_id"))) : null;
     }
 
-    public boolean addUser(String userEmail, String userName, String password, Long roleID, LinkedList<Long> ugIDs, boolean isPublicPopulate) throws Exception {
+    public boolean addUser(String userEmail, String userName, String password, Long roleID, LinkedList<Long> ugIDs, boolean isPublicPopulate, int genderID, int status) throws Exception {
         boolean isUserAdded = false;
         try {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
-            Record record = dslContext.insertInto(table("users")).columns(field("username"), field("email"), field("created_at"), field("updated_at"))
-                    .values(userName, userEmail, System.currentTimeMillis(), System.currentTimeMillis()).returning(field("user_id")).fetchSingle();
+            Record record = dslContext.insertInto(table("users")).columns(field("username"), field("email"), field("gender_id"), field("status"), field("created_at"), field("updated_at"))
+                    .values(userName, userEmail, genderID, status, System.currentTimeMillis(), System.currentTimeMillis()).returning(field("user_id")).fetchSingle();
             if (record != null && record.size() > 0) {
                 logger.log(Level.INFO, "User details added to database, proceeding with password and role mappings");
                 Long userID = (Long) record.get(field("user_id"));
