@@ -6,12 +6,7 @@ import com.org.education_management.model.ApiRateLimit;
 import com.org.education_management.model.TableMetaData;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -252,6 +247,13 @@ public class FileHandler {
             }
         }
         return propsMap;
+    }
+
+    public static String readHTMLFile(String filePath) throws Exception {
+        if(fileExists(filePath)) {
+            return new String(Files.readAllBytes(Paths.get(filePath)));
+        }
+        throw new FileNotFoundException("Filepath : " + filePath + "doesn't have a file!");
     }
 
     public static Map<String, ApiRateLimit> readSecurityJsonFile(String securityJson) throws Exception{

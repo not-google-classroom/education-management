@@ -1,15 +1,14 @@
 package com.org.education_management.util;
 
+import com.org.education_management.MessageUtil.MessageSender;
 import com.org.education_management.constants.UserConstants;
 import com.org.education_management.database.DataBaseUtil;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -36,7 +35,7 @@ public class UserMgmtUtil {
         if (adminRoleID != null && allCGID != null) {
             LinkedList<Long> allCGIDs = new LinkedList<>();
             allCGIDs.add(allCGID);
-            isAdminCreated = addUser(userEmail, userName, password, adminRoleID, allCGIDs, false, UserConstants.GENDER_OTHERS, UserConstants.USER_ACTIVE);
+            isAdminCreated = addUser(userEmail, userName, password, adminRoleID, allCGIDs, false, UserConstants.GENDER_OTHERS, UserConstants.USER_ACTIVE, null);
         }
         return isAdminCreated;
     }
@@ -47,7 +46,7 @@ public class UserMgmtUtil {
         return (record != null && record.get(field(name("usergroup", "ug_id"))) != null) ? (Long) record.get(field(name("usergroup", "ug_id"))) : null;
     }
 
-    public boolean addUser(String userEmail, String userName, String password, Long roleID, LinkedList<Long> ugIDs, boolean isPublicPopulate, int genderID, int status) throws Exception {
+    public boolean addUser(String userEmail, String userName, String password, Long roleID, LinkedList<Long> ugIDs, boolean isPublicPopulate, int genderID, int status, String reqAddr) throws Exception {
         boolean isUserAdded = false;
         try {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
@@ -64,6 +63,7 @@ public class UserMgmtUtil {
                 isUserAdded = true;
                 if (isPublicPopulate) {
                     addUserDetailsInPublic(userEmail, userName);
+                    sendInviteMailForUser(userID, userEmail, userName, reqAddr);
                 }
             }
         } catch (Exception e) {
@@ -71,6 +71,20 @@ public class UserMgmtUtil {
             throw new Exception("Exception when creating user!");
         }
         return isUserAdded;
+    }
+
+    private void sendInviteMailForUser(Long userID, String userEmail, String userName, String reqAddr) throws Exception {
+        String htmlFilePath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "\\resources\\MailTemplates\\UserInviteMailTemplate.html";
+        String htmlContent = FileHandler.readHTMLFile(htmlFilePath);
+        String mailSubject = "User Invite Notification";
+        String sub = userEmail + "," + SchemaUtil.getInstance().getSearchPatch();
+        String encodedSub = Base64.getEncoder().encodeToString(sub.getBytes(StandardCharsets.UTF_8));
+        String token = JWTUtil.generateToken(encodedSub);
+        String inviteLink = reqAddr + "/api/users/inviteUser?token=" + token;
+        htmlContent = htmlContent.replace("{{INVITE_LINK}}", inviteLink);
+        htmlContent = htmlContent.replace("{{USER_NAME}}", userName);
+        MessageSender.getInstance().sendMail(userEmail, mailSubject, htmlContent, null);
+        logger.log(Level.INFO, "Invite mail for userID : {0}, userEmail : {1} send successfully", new Object[]{userID, MaskUtil.getInstance().maskEmail(userEmail)});
     }
 
     private void addUserDetailsInPublic(String userEmail, String userName) throws Exception {
@@ -290,5 +304,26 @@ public class UserMgmtUtil {
             }
         }
         return sFilterID;
+    }
+
+    public int getUserStatus(String userEmail) {
+        int status = UserConstants.USER_DISABLED;
+        if(userEmail != null && !userEmail.isEmpty()) {
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            Record record = dslContext.select(field("status")).from(table("users")).where(field("email").eq(userEmail)).fetchOne();
+            if(record != null) {
+                status = (int) record.get("status");
+            }
+        }
+        return status;
+    }
+
+    public boolean activateUser(String userEmail) {
+        if(userEmail != null && !userEmail.isEmpty()) {
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            dslContext.update(table("users")).set(field("status"), UserConstants.USER_ACTIVE).execute();
+            return true;
+        }
+        return false;
     }
 }

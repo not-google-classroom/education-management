@@ -44,7 +44,7 @@
         },
         {
           "name": "STATUS",
-          "type": "BIGINT",
+          "type": "INTEGER",
           "defaultValue": 3
         },
         {

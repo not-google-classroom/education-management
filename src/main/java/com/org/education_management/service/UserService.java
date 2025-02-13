@@ -1,11 +1,13 @@
 package com.org.education_management.service;
 
 import com.org.education_management.constants.UserConstants;
-import com.org.education_management.util.RolesUtil;
-import com.org.education_management.util.StatusConstants;
-import com.org.education_management.util.UserMgmtUtil;
+import com.org.education_management.util.*;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -37,7 +39,7 @@ public class UserService {
         }
     }
 
-    public Map<String, Object> addUser(Map<String, Object> requestMap) {
+    public Map<String, Object> addUser(Map<String, Object> requestMap, HttpServletRequest request) {
         Map<String, Object> resultMap = new HashMap<>();
         try {
             String userName = (String) requestMap.get("userName");
@@ -45,6 +47,7 @@ public class UserService {
             Long userRole = Long.parseLong(requestMap.get("userRole").toString());
             String ugIDs = (String) requestMap.get("ugIDs");
             int genderID = (Integer) requestMap.get("genderID");
+            String reqAddr = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
             LinkedList<Long> ugList = new LinkedList<>();
             ugList.add(UserMgmtUtil.getInstance().getAllUsersUGID()); // All users group
             if (ugIDs != null && !ugIDs.isEmpty()) {
@@ -64,7 +67,7 @@ public class UserService {
             }
             Map roleDetails = RolesUtil.getInstance().getRolesList(userRole);
             if (roleDetails != null && !roleDetails.isEmpty()) {
-                boolean isUserAdded = UserMgmtUtil.getInstance().addUser(userEmail, userName, "", userRole, ugList, true, genderID, UserConstants.USER_INVITED);
+                boolean isUserAdded = UserMgmtUtil.getInstance().addUser(userEmail, userName, "", userRole, ugList, true, genderID, UserConstants.USER_INVITED, reqAddr);
                 if(isUserAdded) {
                     resultMap.put(StatusConstants.STATUS_CODE, HttpStatus.OK);
                     resultMap.put(StatusConstants.MESSAGE, "User created successfully");
@@ -130,5 +133,30 @@ public class UserService {
             logger.log(Level.SEVERE, "Exception when adding user group : {0}", e);
             throw new Exception("Exception when adding usergroup data");
         }
+    }
+
+    public boolean inviteUser(Map<String, Object> requestMap) throws Exception {
+        boolean isUserActivated = false;
+        try {
+            String token = (String) requestMap.get("token");
+            Claims claims = JWTUtil.validateToken(token);
+            String tokenSub = (String) claims.get("sub");
+            byte[] decodedVal = Base64.getUrlDecoder().decode(tokenSub.getBytes(StandardCharsets.UTF_8));
+            String decodedContent = new String(decodedVal);
+            String[] splitContent = decodedContent.split(",");
+            SchemaUtil.getInstance().setSearchPathForSchema(splitContent[1]);
+            String userEmail = splitContent[0];
+            int userStatus = UserMgmtUtil.getInstance().getUserStatus(userEmail);
+            if (userStatus == UserConstants.USER_INVITED) {
+                logger.log(Level.INFO, "Going to activate the user... {0}", MaskUtil.getInstance().maskEmail(userEmail));
+                isUserActivated = UserMgmtUtil.getInstance().activateUser(userEmail);
+            }
+            logger.log(Level.INFO, "token received : ", token);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception when inviting user to org! : {0}", e);
+            e.printStackTrace();
+            throw new Exception("Exception when Inviitng user to org");
+        }
+        return isUserActivated;
     }
 }

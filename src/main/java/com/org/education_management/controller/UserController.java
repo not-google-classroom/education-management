@@ -3,6 +3,7 @@ package com.org.education_management.controller;
 import com.org.education_management.service.RolesService;
 import com.org.education_management.service.UserService;
 import com.org.education_management.util.StatusConstants;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,10 +35,10 @@ public class UserController {
     }
 
     @PostMapping(value = "/addUser", produces = "application/json")
-    private ResponseEntity<Map<String, Object>> addUser(@RequestBody  Map<String, Object> requestMap) {
+    private ResponseEntity<Map<String, Object>> addUser(@RequestBody  Map<String, Object> requestMap, HttpServletRequest request) {
         Map<String, Object> resultMap = new HashMap<>();
         if(requestMap != null && !requestMap.isEmpty()) {
-            resultMap = userService.addUser(requestMap);
+            resultMap = userService.addUser(requestMap, request);
             return buildResponse(resultMap);
         }
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error when processing the request, contact support");
@@ -77,4 +78,21 @@ public class UserController {
             return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Request couldn't be processed, contact support");
         }
     }
+
+    @GetMapping(value = "/inviteUser", produces = "application/json")
+    private ResponseEntity<Map<String, Object>> inviteUser(@RequestParam Map<String, Object> requestMap) {
+        try{
+            if(requestMap != null && !requestMap.isEmpty()) {
+                if(userService.inviteUser(requestMap)) {
+                    return buildResponse(HttpStatus.OK, "User Invited successfully");
+                } else {
+                    return buildResponse(HttpStatus.BAD_REQUEST, "unable to invite user to org! ask admin to reinvite");
+                }
+            }
+            return buildResponse(HttpStatus.BAD_REQUEST, "Input data mismatch! verify data");
+        } catch (Exception e) {
+            return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Request couldn't be processed, contact support");
+        }
+    }
+
 }

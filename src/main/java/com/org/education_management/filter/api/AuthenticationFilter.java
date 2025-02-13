@@ -45,13 +45,19 @@ public class AuthenticationFilter implements Filter {
         } else {
             logger.log(Level.INFO, "Ensuring cookies values for requestURI : {0}", new Object[]{httpServletRequest.getRequestURI()});
             Cookie[] reqCookie = httpServletRequest.getCookies();
+            String tokenFromReq = request.getParameter("token");
             String token = null;
             try {
-                if (reqCookie != null) {
-                    for (Cookie cookie : reqCookie) {
-                        if (cookie.getName().equalsIgnoreCase("token")) {
-                            token = cookie.getValue();
+                if (reqCookie != null || tokenFromReq != null) {
+                    if(reqCookie != null) {
+                        for (Cookie cookie : reqCookie) {
+                            if (cookie.getName().equalsIgnoreCase("token")) {
+                                token = cookie.getValue();
+                            }
                         }
+                    }
+                    else if (!tokenFromReq.isEmpty()) {
+                        token = tokenFromReq;
                     }
                     if (token != null && !token.isEmpty()) {
                         Claims claims = JWTUtil.validateToken(token);
