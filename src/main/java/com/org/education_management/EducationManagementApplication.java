@@ -3,6 +3,7 @@ package com.org.education_management;
 import com.org.education_management.controller.StartUpController;
 import com.org.education_management.util.AppProperty;
 import com.org.education_management.util.DatabaseInitializer;
+import com.org.education_management.util.QueueUtil;
 import com.org.education_management.util.api.AppInitializer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -38,6 +39,7 @@ public class EducationManagementApplication {
             try {
                 controller.populateIfNeeded();
                 AppInitializer.startRateLimitScheduler();
+                QueueUtil.addQueues();
             } catch (Exception e1) {
                 logger.log(Level.SEVERE, "Exception when starting server ! , {0}", e1);
             }
