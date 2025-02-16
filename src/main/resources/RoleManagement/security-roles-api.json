@@ -1,0 +1,23 @@
+{
+  "urls": [
+    {
+      "path": "/api/roles/getAllRoles",
+      "method": "GET",
+      "roles": [
+        "all"
+      ],
+      "rateLimit": {
+        "limit": 2,
+        "window": 60,
+        "lockPeriod": 60
+      },
+      "params": [
+        {
+          "name": "roleID",
+          "type": "long",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

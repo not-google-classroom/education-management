@@ -1,0 +1,147 @@
+{
+  "urls": [
+    {
+      "path": "/api/users/addUser",
+      "method": "POST",
+      "roles": [
+        "admin"
+      ],
+      "rateLimit": {
+        "limit": 2,
+        "window": 60,
+        "lockPeriod": 60
+      },
+      "template": "createUserTemplate"
+    },
+    {
+      "path": "/api/users/getUsers",
+      "method": "GET",
+      "roles": ["admin", "user"],
+      "rateLimit": {
+        "limit": 30,
+        "window": 60,
+        "lockPeriod": 60
+      },
+      "params": [
+        {
+          "name": "userID",
+          "type": "long",
+          "required": false
+        }
+      ]
+    },
+    {
+      "path": "/api/users/getUserGroups",
+      "method": "GET",
+      "roles": ["admin", "user"],
+      "rateLimit": {
+        "limit": 30,
+        "window": 60,
+        "lockPeriod": 60
+      },
+      "params": [
+        {
+          "name": "ugID",
+          "type": "long",
+          "required": false
+        }
+      ]
+    },
+    {
+      "path": "/api/users/addUserGroup",
+      "method": "POST",
+      "roles": ["admin"],
+      "rateLimit": {
+        "limit": 30,
+        "window": 60,
+        "lockPeriod": 60
+      },
+      "template": "createUGTemplate"
+    },
+    {
+      "path": "/api/users/inviteUser",
+      "method": "GET",
+      "roles": ["all"],
+      "params": [
+        {
+          "name": "token",
+          "type": "String",
+          "required": true,
+          "pattern": "^[A-Za-z0-9_-]{2,}(?:\\.[A-Za-z0-9_-]{2,}){2}$"
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "name": "createUserTemplate",
+      "minLength": 20,
+      "maxLength": 2000,
+      "type": "JSONObject",
+      "params": [
+        {
+          "name": "userName",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "userEmail",
+          "type": "String",
+          "required": true
+        },
+        {
+          "name": "userRole",
+          "type": "long",
+          "required": true
+        },
+        {
+          "name": "ugIDs",
+          "type": "String"
+        },
+        {
+          "name": "genderID",
+          "type": "long",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "createUGTemplate",
+      "minLength": 20,
+      "maxLength": 2000,
+      "type": "JSONObject",
+      "params": [
+        {
+          "name": "ugName",
+          "type": "String",
+          "required": true
+        },
+        {
+          "name": "ugDesc",
+          "type": "String"
+        },
+        {
+          "name": "ugType",
+          "type": "Integer",
+          "required": true
+        },
+        {
+          "name": "userIDs",
+          "type": "String"
+        },
+        {
+          "name": "filterID",
+          "type": "long"
+        },
+        {
+          "name": "operatorID",
+          "type": "long"
+        },
+        {
+          "name": "filterByValue",
+          "type": "String"
+        }
+      ]
+    }
+  ]
+}

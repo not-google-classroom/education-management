@@ -2,6 +2,7 @@ package com.org.education_management.filter.api;
 
 import com.org.education_management.model.ApiRule;
 import com.org.education_management.model.ParamRule;
+import com.org.education_management.model.TemplateRule;
 import com.org.education_management.util.api.ApiSecurityUtil;
 import com.org.education_management.util.api.RequestBodyWrapper;
 import jakarta.servlet.Filter;
@@ -42,67 +43,122 @@ public class ApiSecurityFilter implements Filter {
 
         logger.log(Level.INFO, "Api with path : {0} and method : {1} is requested for validation", new Object[]{path, method});
 
-        // Fetch API rules from JSON file
+        // Fetch API and Template rules from JSON file
         List<ApiRule> apiRules = ApiSecurityUtil.getInstance().getApiRules();
+        List<TemplateRule> templateRules = ApiSecurityUtil.getInstance().getTemplateRules();
 
         boolean isRuleMatched = false;
         RequestBodyWrapper wrapper = new RequestBodyWrapper(httpRequest);
-        // Find matching rule
-        for(ApiRule rule : apiRules) {
-            if(rule.getPath().equalsIgnoreCase(path) && rule.getMethod().equalsIgnoreCase(method)) {
+
+        for (ApiRule rule : apiRules) {
+            if (rule.getPath().equalsIgnoreCase(path) && rule.getMethod().equalsIgnoreCase(method)) {
                 isRuleMatched = true;
-                // Check roles only if roles are defined and not empty
+
+                // Validate roles
                 if (rule.getRoles() != null && !rule.getRoles().isEmpty() && !rule.getRoles().contains("all")) {
-                    String userRole = getUserRoleFromContext(); // Assume this method fetches the user role
+                    String userRole = getUserRoleFromContext();
                     if (!rule.getRoles().contains(userRole)) {
-                        logger.log(Level.SEVERE, "you're not authorized to do this operation");
-                        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "you're not authorized to do this operation");
+                        logger.log(Level.SEVERE, "You're not authorized to do this operation");
+                        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "You're not authorized to do this operation");
                         return;
                     }
                 }
 
-                MultipartHttpServletRequest multipartHttpServletRequest = null;
+                MultipartHttpServletRequest multipartHttpRequest = null;
                 if (isMultipartRequest(httpRequest)) {
-                    multipartHttpServletRequest = new StandardMultipartHttpServletRequest(httpRequest);
+                    multipartHttpRequest = new StandardMultipartHttpServletRequest(httpRequest);
                 }
+
                 JSONObject requestBody = null;
-                if(rule.getBodyValidation() != null){
+                if (rule.getTemplate() != null) {
                     try {
                         requestBody = new JSONObject(wrapper.getBody());
                     } catch (JSONException e) {
                         logger.log(Level.SEVERE, "Request body is not in expected format");
+                        httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request body format");
+                        return;
                     }
                 }
 
-
-                // Validate request parameters
+                // Validate parameters from ApiRule
                 if (rule.getParams() != null) {
-                    for (ParamRule paramRule : rule.getParams()) {
-                        Object paramValue = httpRequest.getParameter(paramRule.getName());
-                        if (paramValue == null) {
-                            if (requestBody != null) {
-                                paramValue = requestBody.opt(paramRule.getName());
-                            }
-                            if (requestBody == null && multipartHttpServletRequest != null) {
-                                paramValue = multipartHttpServletRequest.getParameter(paramRule.getName());
-                            }
-                        }
-                        if (!validateParam(paramValue, paramRule)) {
-                            logger.log(Level.WARNING, "Invalid parameter: {0}", paramRule.getName());
-                            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request parameter format found!");
+                    if (!validateParams(rule.getParams(), httpRequest, requestBody, multipartHttpRequest)) {
+                        logger.log(Level.WARNING, "Invalid parameters in ApiRule");
+                        httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request parameter format found!");
+                        return;
+                    }
+                }
+
+                // Validate parameters from TemplateRule
+                if (rule.getTemplate() != null) {
+                    TemplateRule templateRule = templateRules.stream()
+                            .filter(t -> t.getName().equals(rule.getTemplate()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (templateRule != null && templateRule.getParams() != null) {
+                        if(!validateLength(templateRule.getMinLength(), requestBody, true)) {
+                            logger.log(Level.WARNING, "RequestBody doesn't meet minimum requestBody value");
+                            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "RequestBody doesn't meet minimum requestBody value");
                             return;
                         }
+                        if(!validateLength(templateRule.getMaxLength(), requestBody, false)) {
+                            logger.log(Level.WARNING, "RequestBody has more requestBody value");
+                            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "RequestBody has more requestBody value");
+                            return;
+                        }
+                        if (!validateParams(templateRule.getParams(), httpRequest, requestBody, multipartHttpRequest)) {
+                            logger.log(Level.WARNING, "Invalid parameters in TemplateRule: {0}", templateRule.getName());
+                            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request parameter format found in template!");
+                            return;
+                        }
+                    } else {
+                        logger.log(Level.SEVERE, "Template not found: {0}", rule.getTemplate());
+                        httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Template not found");
+                        return;
                     }
                 }
+
                 break;
             }
         }
-        if(isRuleMatched) {
+
+        if (isRuleMatched) {
             chain.doFilter(wrapper, response);  // Proceed if validation passes
         } else {
-            logger.log(Level.SEVERE,  "Invalid api details or api is not configured");
-            httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid api url");
+            logger.log(Level.SEVERE, "Invalid API details or API is not configured");
+            httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid API URL");
         }
+    }
+
+    private boolean validateLength(int length, JSONObject requestBody, boolean isMinimum) {
+        int size = requestBody.toString().length();
+        if(isMinimum && size < length){
+            return false;
+        }
+        if(!isMinimum && size > length) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateParams(List<ParamRule> paramRules, HttpServletRequest httpRequest, JSONObject requestBody, MultipartHttpServletRequest multipartHttpRequest) {
+        for (ParamRule paramRule : paramRules) {
+            Object paramValue = httpRequest.getParameter(paramRule.getName());
+            if (paramValue == null) {
+                if (requestBody != null) {
+                    paramValue = requestBody.opt(paramRule.getName());
+                }
+                if (requestBody == null && multipartHttpRequest != null) {
+                    paramValue = multipartHttpRequest.getParameter(paramRule.getName());
+                }
+            }
+            if (!validateParam(paramValue, paramRule)) {
+                logger.log(Level.WARNING, "Parameter : {0}, not found in the API request", paramRule.getName());
+                return false;
+            }
+        }
+        return true;
     }
 
     private String getUserRoleFromContext() {
@@ -114,7 +170,9 @@ public class ApiSecurityFilter implements Filter {
             return rule.getRequired() == null || !rule.getRequired();
         }
 
-        switch (rule.getType()) {
+        String type = rule.getType().toLowerCase();
+        type = type.replaceAll("integer", "int");
+        switch (type) {
             case "string":
                 return rule.getPattern() == null || Pattern.matches(rule.getPattern(), paramValue.toString());
             case "long":
@@ -122,6 +180,15 @@ public class ApiSecurityFilter implements Filter {
                     Long.parseLong(paramValue.toString());
                     return true;
                 } catch (NumberFormatException e) {
+                    logger.log(Level.SEVERE, "Invalid parameter format found! for param : {0}, paramvalue : {1}", new Object[]{rule.getName(), paramValue});
+                    return false;
+                }
+            case "int":
+                try{
+                    Integer.parseInt(paramValue.toString());
+                    return true;
+                } catch (NumberFormatException e) {
+                    logger.log(Level.SEVERE, "Invalid parameter format found! for param : {0}, paramvalue : {1}", new Object[]{rule.getName(), paramValue});
                     return false;
                 }
             case "boolean":

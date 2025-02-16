@@ -47,12 +47,6 @@
         {
           "name": "USER_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "OrgDetails_FK_1",
-            "referencedTable": "UserDetails",
-            "referencedColumn": "USER_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
         },
         {
@@ -65,6 +59,15 @@
         {
           "pkName": "OrgDetails_PK",
           "pkColumns": ["ORG_ID"]
+        }
+      ],
+      "foreignKeys":[
+        {
+        "fkName": "OrgDetails_FK_1",
+        "fkColumns": ["USER_ID"],
+        "referencedTable": "UserDetails",
+        "referencedColumns": ["USER_ID"],
+        "onDelete": "CASCADE"
         }
       ]
     },
@@ -84,12 +87,6 @@
         {
           "name": "ORG_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "SASSchemaDetails_FK",
-            "referencedTable": "OrgDetails",
-            "referencedColumn": "ORG_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
         }
       ],
@@ -97,6 +94,19 @@
         {
           "pkName": "SASSchemaDetails_PK",
           "pkColumns": ["SCHEMA_ID"]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "fkName": "SASSchemaDetails_FK",
+          "fkColumns": [
+            "ORG_ID"
+          ],
+          "referencedTable": "OrgDetails",
+          "referencedColumns": [
+            "ORG_ID"
+          ],
+          "onDelete": "CASCADE"
         }
       ]
     },
@@ -106,24 +116,28 @@
         {
           "name": "ORG_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "OrgUsersMapping_FK_1",
-            "referencedTable": "OrgDetails",
-            "referencedColumn": "ORG_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
         },
         {
           "name": "USER_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "OrgUsersMapping_FK_2",
-            "referencedTable": "UserDetails",
-            "referencedColumn": "USER_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
+        }
+      ],
+      "foreignKeys":[
+        {
+        "fkName": "OrgUsersMapping_FK_1",
+        "fkColumns": ["ORG_ID"],  
+        "referencedTable": "OrgDetails",
+        "referencedColumns": ["ORG_ID"],
+        "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "OrgUsersMapping_FK_2",
+          "fkColumns": ["USER_ID"],
+          "referencedTable": "UserDetails",
+          "referencedColumns": ["USER_ID"],
+          "onDelete": "CASCADE"
         }
       ]
     }

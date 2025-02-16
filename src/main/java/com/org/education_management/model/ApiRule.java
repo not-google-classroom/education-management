@@ -9,6 +9,8 @@ public class ApiRule {
     private List<String> roles;
     private List<ParamRule> params;
     private Map<String, String> bodyValidation; // Field name -> Regex pattern
+    private ApiRateLimit rateLimit;
+    private String template;
 
     public String getPath() {
         return path;
@@ -42,12 +44,20 @@ public class ApiRule {
         this.params = params;
     }
 
-    public Map<String, String> getBodyValidation() {
-        return bodyValidation;
+    public String getTemplate() {
+        return template;
     }
 
-    public void setBodyValidation(Map<String, String> bodyValidation) {
-        this.bodyValidation = bodyValidation;
+    public void setTemplate(String template) {
+        this.template = template;
+    }
+
+    public ApiRateLimit getRateLimit() {
+        return rateLimit;
+    }
+
+    public void setRateLimit(ApiRateLimit rateLimit) {
+        this.rateLimit = rateLimit;
     }
 
     @Override
@@ -58,6 +68,8 @@ public class ApiRule {
                 ", roles=" + roles +
                 ", params=" + params +
                 ", bodyValidation=" + bodyValidation +
+                ", apiRateLimit=" + rateLimit +
+                ", template=" + template +
                 '}';
     }
 }

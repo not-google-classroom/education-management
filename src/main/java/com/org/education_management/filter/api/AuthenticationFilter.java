@@ -1,5 +1,6 @@
 package com.org.education_management.filter.api;
 
+import com.org.education_management.util.DynamicSchedulerUtil;
 import com.org.education_management.util.JWTUtil;
 import com.org.education_management.util.SchemaUtil;
 import io.jsonwebtoken.Claims;
@@ -44,13 +45,19 @@ public class AuthenticationFilter implements Filter {
         } else {
             logger.log(Level.INFO, "Ensuring cookies values for requestURI : {0}", new Object[]{httpServletRequest.getRequestURI()});
             Cookie[] reqCookie = httpServletRequest.getCookies();
+            String tokenFromReq = request.getParameter("token");
             String token = null;
             try {
-                if (reqCookie != null) {
-                    for (Cookie cookie : reqCookie) {
-                        if (cookie.getName().equalsIgnoreCase("token")) {
-                            token = cookie.getValue();
+                if (reqCookie != null || tokenFromReq != null) {
+                    if(reqCookie != null) {
+                        for (Cookie cookie : reqCookie) {
+                            if (cookie.getName().equalsIgnoreCase("token")) {
+                                token = cookie.getValue();
+                            }
                         }
+                    }
+                    else if (!tokenFromReq.isEmpty()) {
+                        token = tokenFromReq;
                     }
                     if (token != null && !token.isEmpty()) {
                         Claims claims = JWTUtil.validateToken(token);
@@ -59,6 +66,9 @@ public class AuthenticationFilter implements Filter {
                         String decodedContent = new String(decodedVal);
                         String[] splitContent = decodedContent.split(",");
                         SchemaUtil.getInstance().setSearchPathForSchema(splitContent[1]);
+                        //Start default scheduler for the user
+                        DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
+                        schedulerUtil.loadDefaultSchedulersFromDatabase();
                     } else {
                         httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
                         try {

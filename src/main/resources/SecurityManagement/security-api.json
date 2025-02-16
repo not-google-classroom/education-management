@@ -1,0 +1,24 @@
+{
+  "urls": [
+    {
+      "path": "/api/test/api1",
+      "method": "GET",
+      "roles": ["all"],
+      "rateLimit": {
+        "limit": 2,
+        "window": 60,
+        "lockPeriod": 60
+      }
+    },
+    {
+      "path":"/api/test/api2",
+      "method": "GET",
+      "roles": ["all"],
+      "rateLimit": {
+        "limit": 5,
+        "window": 60,
+        "lockPeriod": 60
+      }
+    }
+  ]
+}

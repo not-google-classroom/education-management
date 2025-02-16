@@ -3,17 +3,16 @@ package com.org.education_management.util;
 import com.org.education_management.database.DataBaseUtil;
 import com.org.education_management.service.StartUpService;
 import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Result;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.*;
 
 public class SchemaUtil {
     private static final Logger logger = Logger.getLogger(SchemaUtil.class.getName());
@@ -43,11 +42,17 @@ public class SchemaUtil {
                         createSchema(schemaName);
                         setSearchPathForSchema(schemaName);
                         populateUserSpecificData();
+
+                        //Start default scheduler for the user
+                        DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
+                        schedulerUtil.loadDefaultSchedulersFromDatabase();
+
+                        //Do not update anything here , it is specific to Public DB
                         setSearchPathToPublic();
                         updateSchemaDetails(orgID, schemaName);
                         return schemaName;
                     } catch (Exception e) {
-                        logger.log(Level.SEVERE, "Schema creation failed!, deleting prepopulated entry");
+                        logger.log(Level.SEVERE, "Schema creation failed!, deleting prepopulated entry : {0}", e);
                         OrgUtil.getInstance().deletePrepopulatedDataForSchemaFailure(orgID, userID);
                         throw new Exception("schema creation failed");
                     }
@@ -73,6 +78,12 @@ public class SchemaUtil {
     public void setSearchPathToPublic() {
         String publicSchema = "public";
         setSearchPathForSchema(publicSchema);
+    }
+
+    public String getSearchPatch() {
+        return DataBaseUtil.getDSLContext()
+                .select(field("current_setting('search_path')", String.class))
+                .fetchOneInto(String.class);
     }
 
     public void setSearchPathForSchema(String schemaName) {
@@ -122,5 +133,45 @@ public class SchemaUtil {
         int number4 = random.nextInt(10);
 
         return "db" + number1 + number2 + number3 + number4 + letter1 + letter2 ;
+    }
+
+    public TreeMap<String, Object> getAllSchemas() {
+        TreeMap<String, Object> allSchemas = new TreeMap<>();
+        try {
+            setSearchPathToPublic();
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            Result<Record> result = dslContext.selectFrom("sasschemadetails").fetch();
+            if(!result.isEmpty()) {
+                for(Record record : result) {
+                    allSchemas.put(record.get(field(name("sasschemadetails", "schema_name"))).toString(),record.intoMap());
+                }
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception when fetching all schema details");
+        }
+        return allSchemas;
+    }
+
+    public void startUserSpecificSchedulers() {
+        try {
+            setSearchPathToPublic();
+            DSLContext dslContext = DataBaseUtil.getDSLContext();
+            Result<Record> result = dslContext.selectFrom("sasschemadetails").fetch();
+            if(!result.isEmpty()) {
+                for(Record record : result) {
+                    String schemaName = record.get(field(name("sasschemadetails", "schema_name"))).toString();
+                    setSearchPathForSchema(schemaName);
+                    //Start default scheduler for the user
+                    DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
+                    schedulerUtil.loadDefaultSchedulersFromDatabase();
+                    logger.log(Level.INFO, "Schedulers started for user schema : {0}", schemaName);
+                    setSearchPathToPublic();
+                }
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception when fetching all schema details");
+        } finally {
+            setSearchPathToPublic();
+        }
     }
 }

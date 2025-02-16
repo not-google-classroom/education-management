@@ -1,7 +1,10 @@
 package com.org.education_management.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PrimaryKey {
     @JsonProperty("pkName")
@@ -11,6 +14,14 @@ public class PrimaryKey {
     private List<String> pkColumns;
 
     public PrimaryKey() {}
+
+    public PrimaryKey(HashMap<String, List<String>> pkMap) {
+        if(pkMap != null && !pkMap.isEmpty()) {
+            String pkGenName = pkMap.keySet().iterator().next();
+            this.pkName = pkGenName;
+            this.pkColumns = pkMap.get(pkGenName);
+        }
+    }
 
     public String getPkName() {
         return pkName;

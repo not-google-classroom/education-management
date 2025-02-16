@@ -24,12 +24,6 @@
           "pkColumns": ["TABLE_ID"]
         }
       ],
-      "uniqueKeys": [
-        {
-          "ukName": "TableDetails_UK",
-          "ukColumns": ["TABLE_NAME"]
-        }
-      ],
       "indexKeys": [
         {
           "ikName": "TableDetails_IK",
@@ -58,12 +52,6 @@
         {
           "name": "TABLE_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "ColumnDetails_FK",
-            "referencedTable": "TableDetails",
-            "referencedColumn": "TABLE_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
         },
         {
@@ -77,9 +65,14 @@
           "defaultValue": false
         },
         {
-          "name": "FKEY_GEN_NAME",
-          "type": "VARCHAR(100)",
-          "defaultValue": "--"
+          "name": "IS_FOREIGN_KEY",
+          "type": "BOOLEAN",
+          "defaultValue": false
+        },
+        {
+          "name": "IS_INDEX_KEY",
+          "type": "BOOLEAN",
+          "defaultValue": false
         },
         {
           "name": "IS_NULLABLE",
@@ -96,6 +89,15 @@
         "pkName": "ColumnDetails_PK",
         "pkColumns": ["COLUMN_ID"]
       }],
+      "foreignKeys":[
+        {
+        "fkName": "ColumnDetails_FK",
+        "referencedTable": "TableDetails",
+        "referencedColumns": ["TABLE_ID"],
+        "fkColumns": ["TABLE_ID"],
+        "onDelete": "CASCADE"
+        }
+      ],
       "description": "Table to hold all column details"
     },
     {
@@ -109,12 +111,6 @@
         {
           "name": "PK_COL_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "PKDetails_FK",
-            "referencedTable": "ColumnDetails",
-            "referencedColumn": "COLUMN_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
         },
         {
@@ -127,6 +123,15 @@
         {
           "pkName": "PKDetails_PK",
           "pkColumns": ["PK_ID"]
+        }
+      ],
+      "foreignKeys": [
+        {
+        "fkName": "PKDetails_FK",
+        "referencedTable": "ColumnDetails",
+        "referencedColumns": ["COLUMN_ID"],
+        "fkColumns": ["PK_COL_ID"],
+        "onDelete": "CASCADE"
         }
       ]
     },
@@ -141,12 +146,6 @@
         {
           "name": "UK_COL_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "UKDetails_FK",
-            "referencedTable": "ColumnDetails",
-            "referencedColumn": "COLUMN_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
         },
         {
@@ -156,11 +155,71 @@
         }
       ],
       "primaryKeys": [
-      {
+        {
         "pkName": "UKDetails_PK",
         "pkColumns": ["UK_ID"]
-      }
-    ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "fkName": "UKDetails_FK",
+          "referencedTable": "ColumnDetails",
+          "referencedColumns": ["COLUMN_ID"],
+          "fkColumns": ["UK_COL_ID"],
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "tableName": "FKDetails",
+      "columns": [
+        {
+          "name": "FK_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "FK_COL_ID",
+          "type": "BIGINT",
+          "notNull": true
+        },
+        {
+          "name": "FK_REF_COL_ID",
+          "type": "BIGINT",
+          "notNull": true
+        },
+        {
+          "name": "FK_REF_TABLE_ID",
+          "type": "BIGINT",
+          "notNull": true
+        },
+        {
+          "name": "FK_TYPE",
+          "type": "VARCHAR(50)",
+          "notNull": true,
+          "defaultValue": "CASCADE"
+        },
+        {
+          "name": "FK_GEN_NAME",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "FKDetails_PK",
+          "pkColumns": ["FK_ID"]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "fkName": "FKDetails_FK_1",
+          "fkColumns": ["FK_COL_ID"],
+          "referencedTable": "ColumnDetails",
+          "referencedColumns": ["COLUMN_ID"],
+          "onDelete": "CASCADE"
+        }
+      ]
     },
     {
       "tableName": "IKDetails",
@@ -173,12 +232,6 @@
         {
           "name": "IK_COL_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "IKDetails_FK",
-            "referencedTable": "ColumnDetails",
-            "referencedColumn": "COLUMN_ID",
-            "onDelete": "CASCADE"
-          },
           "notNull": true
         },
         {
@@ -192,48 +245,14 @@
           "pkName": "IKDetails_PK",
           "pkColumns": ["IK_ID"]
         }
-      ]
-    },
-    {
-      "tableName": "FKDetails",
-      "columns": [
-        {
-          "name": "FK_ID",
-          "type": "BIGINT",
-          "autoIncrement": true
-        },
-        {
-          "name": "FK_GEN_NAME",
-          "type": "VARCHAR(100)",
-          "notNull": true
-        },
-        {
-          "name": "FKEY_TABLE_ID",
-          "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "FKDetails_FK_1",
-            "referencedTable": "TableDetails",
-            "referencedColumn": "TABLE_ID",
-            "onDelete": "CASCADE"
-          },
-          "notNull": true
-        },
-        {
-          "name": "FKEY_COLUMN_ID",
-          "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "FKDetails_FK_2",
-            "referencedTable": "ColumnDetails",
-            "referencedColumn": "COLUMN_ID",
-            "onDelete": "CASCADE"
-          },
-          "notNull": true
-        }
       ],
-      "primaryKeys": [
+      "foreignKeys": [
         {
-          "pkName": "FKDetails_PK",
-          "pkColumns": ["FK_ID"]
+        "fkName": "IKDetails_FK",
+        "referencedTable": "ColumnDetails",
+        "referencedColumns": ["COLUMN_ID"],
+        "fkColumns":["IK_COL_ID"],
+        "onDelete": "CASCADE"
         }
       ]
     },

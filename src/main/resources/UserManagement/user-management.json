@@ -1,6 +1,27 @@
 {
   "tables": [
     {
+      "tableName": "Gender",
+      "columns": [
+        {
+          "name": "GENDER_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "GENDER_TYPE",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "Gender_PK",
+          "pkColumns": ["GENDER_ID"]
+        }
+      ]
+    },
+    {
       "tableName": "Users",
       "columns": [
         {
@@ -15,6 +36,16 @@
         {
           "name": "EMAIL",
           "type": "VARCHAR(100)"
+        },
+        {
+          "name": "GENDER_ID",
+          "type": "BIGINT",
+          "defaultValue": 4
+        },
+        {
+          "name": "STATUS",
+          "type": "INTEGER",
+          "defaultValue": 3
         },
         {
           "name": "CREATED_AT",
@@ -38,6 +69,15 @@
           "ukName": "Users_UK",
           "ukColumns": ["EMAIL"]
         }
+      ],
+      "foreignKeys": [
+        {
+          "fkName": "Users_FK",
+          "fkColumns": ["GENDER_ID"],
+          "referencedTable": "Gender",
+          "referencedColumns": ["GENDER_ID"],
+          "onDelete": "CASCADE"
+        }
       ]
     },
     {
@@ -50,17 +90,13 @@
         },
         {
           "name": "USER_ID",
-          "type": "INTEGER",
-          "foreignKey": {
-            "fkName": "Passwords_FK",
-            "referencedTable": "Users",
-            "referencedColumn": "USER_ID",
-            "onDelete": "CASCADE"
-          }
+          "type": "BIGINT",
+          "notNull": true
         },
         {
           "name": "HASHED_PASSWORD",
-          "type": "VARCHAR(255)"
+          "type": "VARCHAR(255)",
+          "notNull": true
         },
         {
           "name": "CREATED_AT",
@@ -77,6 +113,276 @@
         {
           "pkName": "Passwords_PK",
           "pkColumns": ["PASSWORD_ID"]
+        }
+      ],
+      "foreignKeys": [
+        {
+        "fkName": "Passwords_FK",
+        "referencedTable": "Users",
+        "fkColumns": ["USER_ID"],
+        "referencedColumns": ["USER_ID"],
+        "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "tableName": "UserGroup",
+      "columns": [
+        {
+          "name": "UG_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "UG_NAME",
+          "type": "VARCHAR(50)",
+          "notNull": true
+        },
+        {
+          "name": "UG_DESC",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "UG_TYPE",
+          "type": "INT",
+          "notNull": true,
+          "defaultValue": 1
+        },
+        {
+          "name": "CREATED_AT",
+          "type": "BIGINT",
+          "defaultValue": -1
+        },
+        {
+          "name": "UPDATED_AT",
+          "type": "BIGINT",
+          "defaultValue": -1
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "UserGroup_PK",
+          "pkColumns": ["UG_ID"]
+        }
+      ]
+    },
+    {
+      "tableName": "UsersUGMapping",
+      "columns": [
+        {
+          "name": "USER_ID",
+          "type": "BIGINT",
+          "notNull": true
+        },
+        {
+          "name": "UG_ID",
+          "type": "BIGINT",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [
+        {
+        "fkName": "UsersUGMapping_FK_1",
+        "fkColumns": ["USER_ID"],
+        "referencedTable": "Users",
+        "referencedColumns": ["USER_ID"],
+        "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "UsersUGMapping_FK_2",
+          "fkColumns": ["UG_ID"],
+          "referencedTable": "UserGroup",
+          "referencedColumns": ["UG_ID"],
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "tableName": "DataTypes",
+      "columns": [
+        {
+          "name": "DT_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "DT_NAME",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        },
+        {
+          "name": "DT_DESC",
+          "type": "VARCHAR(255)",
+          "defaultValue": "--"
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "DataTypes_PK",
+          "pkColumns": ["DT_ID"]
+        }
+      ]
+    },
+    {
+      "tableName": "FilterOperators",
+      "columns": [
+        {
+          "name": "FILTER_OP_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "OPERATOR_NAME",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        },
+        {
+          "name": "OPERATOR_FOR",
+          "type": "BIGINT",
+          "notNull": true,
+          "defaultValue": 1
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "FilterOperator_PK",
+          "pkColumns": ["FILTER_OP_ID"]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "fkName": "FilterOperators_FK",
+          "fkColumns": ["OPERATOR_FOR"],
+          "referencedTable": "DataTypes",
+          "referencedColumns": ["DT_ID"],
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "tableName": "FilterDetails",
+      "columns": [
+        {
+          "name": "FILTER_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "FILTER_NAME",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        },
+        {
+          "name": "FILTER_DESC",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "FILTER_COLUMN",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        },
+        {
+          "name": "FILTER_TABLE",
+          "type": "VARCHAR(100)",
+          "notNull": true
+        },
+        {
+          "name": "OPERATOR_FOR",
+          "type": "INT",
+          "notNull": true
+        }
+      ],
+      "primaryKeys": [
+        {
+        "pkName": "FilterDetails_PK",
+        "pkColumns": ["FILTER_ID"]
+        }
+      ],
+      "foreignKeys":[
+        {
+        "fkName": "FilterDetails_FK_1",
+        "fkColumns": ["OPERATOR_FOR"],
+        "referencedTable": "DataTypes",
+        "referencedColumns": ["DT_ID"],
+        "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "tableName": "SavedUGFilters",
+      "columns": [
+        {
+          "name": "S_FILTER_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "FILTER_ID",
+          "type": "BIGINT",
+          "notNull": true
+        },
+        {
+          "name": "FILTER_OPERATOR",
+          "type": "BIGINT",
+          "notNull": true
+        },
+        {
+          "name" : "FILTER_BY_VALUE",
+          "type" : "VARCHAR(255)",
+          "notNull": true
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "SavedUGFilters_PK",
+          "pkColumns": ["S_FILTER_ID"]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "fkName": "SavedUGFilters_FK_1",
+          "fkColumns": ["FILTER_ID"],
+          "referencedTable": "FilterDetails",
+          "referencedColumns": ["FILTER_ID"],
+          "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "SavedUGFilters_FK_2",
+          "fkColumns": ["FILTER_OPERATOR"],
+          "referencedTable": "FilterOperators",
+          "referencedColumns": ["FILTER_OP_ID"],
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "tableName": "UGFilterMapping",
+      "columns": [
+        {
+          "name": "UG_ID",
+          "type": "BIGINT",
+          "notNull": true
+        },
+        {
+          "name": "FILTER_ID",
+          "type": "BIGINT",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [
+        {
+        "fkName": "UGFilterMapping_FK_1",
+        "fkColumns": ["UG_ID"],
+        "referencedTable": "UserGroup",
+        "referencedColumns": ["UG_ID"],
+        "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "UGFilterMapping_FK_2",
+          "fkColumns": ["FILTER_ID"],
+          "referencedTable": "SavedUGFilters",
+          "referencedColumns": ["S_FILTER_ID"],
+          "onDelete": "CASCADE"
         }
       ]
     }

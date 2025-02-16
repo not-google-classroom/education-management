@@ -13,7 +13,9 @@ public class ResponseEntityWrapper {
         Map<String, Object> response = new HashMap<>();
         response.put(StatusConstants.STATUS_CODE, status.value());
         response.put(StatusConstants.MESSAGE, message);
-        response.put(StatusConstants.DATA, body);
+        if(body != null && !body.isEmpty()) {
+            response.put(StatusConstants.DATA, body.toMap());
+        }
         return ResponseEntity.status(status).body(response);
     }
 
@@ -27,5 +29,28 @@ public class ResponseEntityWrapper {
 
     public static ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status) {
         return buildResponse(status, "");
+    }
+
+    public static ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message, Map mapData) {
+        Map<String, Object> response = new HashMap<>();
+        response.put(StatusConstants.STATUS_CODE, status.value());
+        response.put(StatusConstants.MESSAGE, message);
+        if(mapData.containsKey(StatusConstants.STATUS_CODE)) {
+            response.put(StatusConstants.DATA, mapData.get(StatusConstants.DATA));
+        } else {
+            response.put(StatusConstants.DATA, mapData);
+        }
+        return ResponseEntity.status(status).body(response);
+    }
+
+    public static ResponseEntity<Map<String, Object>> buildResponse(Map responseData) {
+        if(responseData.containsKey(StatusConstants.STATUS_CODE)) {
+            HttpStatus status = (HttpStatus) responseData.get(StatusConstants.STATUS_CODE);
+            if(responseData.containsKey(StatusConstants.MESSAGE) || responseData.containsKey(StatusConstants.DATA)) {
+                return ResponseEntity.status(status).body(responseData);
+            }
+            return buildResponse(status);
+        }
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid request received from entity");
     }
 }

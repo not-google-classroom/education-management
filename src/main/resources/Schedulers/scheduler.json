@@ -1,0 +1,39 @@
+{
+  "tables": [
+    {
+      "tableName": "Scheduler",
+      "columns": [
+        {
+          "name": "SCHEDULER_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "SCHEDULER_NAME",
+          "type": "VARCHAR(255)",
+          "notNull": true
+        },
+        {
+          "name": "SCHEDULER_CRON",
+          "type": "VARCHAR(255)",
+          "notNull": true
+        },
+        {
+          "name": "SCHEDULER_RUN_TIME",
+          "type": "BIGINT"
+        },
+        {
+          "name": "TASK_NAME",
+          "type": "VARCHAR(255)",
+          "notNull": true
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "Scheduler_PK",
+          "pkColumns": ["SCHEDULER_ID"]
+        }
+      ]
+    }
+  ]
+}

@@ -2,18 +2,20 @@
   "tables": [
     {
       "tableName": "Fees",
-      "primaryKeys": [
+      "primaryKeys" : [
         {
-          "pkName": "Fees_Pk_1",
-          "pkColumns": [
+          "pkName" : "Fees_Pk_1",
+          "pkColumns" : [
             "FEES_ID"
           ]
         }
       ],
-      "indexKeys": [
+      "indexKeys" : [
         {
-          "ikName": "Fees_IK",
-          "ikColumns": ["FEES_ID"]
+          "ikName" : "Fees_Pk_1",
+          "ikColumns" : [
+            "FEES_ID"
+          ]
         }
       ],
       "columns": [
@@ -39,10 +41,10 @@
     },
     {
       "tableName": "Installments",
-      "primaryKeys": [
+      "primaryKeys" : [
         {
-          "pkName": "Installments_pk_1",
-          "pkColumns": [
+          "pkName" : "Installments_pk_1",
+          "pkColumns" : [
             "INSTALLMENT_ID"
           ]
         }
@@ -56,12 +58,7 @@
         {
           "name": "FEES_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "Installments_Fees_FK",
-            "referencedTable": "Fees",
-            "referencedColumn": "FEES_ID",
-            "onDelete": "CASCADE"
-          }
+          "notNull": true
         },
         {
           "name": "INSTALLMENT_NAME",
@@ -76,14 +73,23 @@
           "name": "DUE_DATE",
           "type": "BIGINT"
         }
+      ],
+      "foreignKeys": [
+        {
+          "fkName": "Installments_FK",
+          "fkColumns": ["FEES_ID"],
+          "referencedTable": "Fees",
+          "referencedColumns": ["FEES_ID"],
+          "onDelete": "CASCADE"
+        }
       ]
     },
     {
       "tableName": "Transactions",
-      "primaryKeys": [
+      "primaryKeys" : [
         {
-          "pkName": "Transactions_pk_1",
-          "pkColumns": [
+          "pkName" : "Transactions_pk_1",
+          "pkColumns" : [
             "TRANSACTION_ID"
           ]
         }
@@ -97,32 +103,17 @@
         {
           "name": "FEES_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "Transactions_Fees_FK",
-            "referencedTable": "Fees",
-            "referencedColumn": "FEES_ID",
-            "onDelete": "CASCADE"
-          }
+          "notNull": true
         },
         {
           "name": "INSTALLMENT_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "Transactions_Installments_FK",
-            "referencedTable": "Installments",
-            "referencedColumn": "INSTALLMENT_ID",
-            "onDelete": "CASCADE"
-          }
+          "notNull": true
         },
         {
           "name": "USER_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "Transactions_Users_FK",
-            "referencedTable": "Users",
-            "referencedColumn": "USER_ID",
-            "onDelete": "CASCADE"
-          }
+          "notNull": true
         },
         {
           "name": "TRANSACTION_AMOUNT",
@@ -132,20 +123,43 @@
           "name": "TRANSACTION_DATE",
           "type": "BIGINT"
         }
+      ],
+      "foreignKeys": [
+        {
+          "fkName": "Transactions_FK",
+          "fkColumns": ["FEES_ID"],
+          "referencedTable": "Fees",
+          "referencedColumns": ["FEES_ID"],
+          "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "Transactions_FK_1",
+          "fkColumns": ["INSTALLMENT_ID"],
+          "referencedTable": "Installments",
+          "referencedColumns": ["INSTALLMENT_ID"],
+          "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "Transactions_FK_2",
+          "fkColumns": ["USER_ID"],
+          "referencedTable": "Users",
+          "referencedColumns": ["USER_ID"],
+          "onDelete": "CASCADE"
+        }
       ]
     },
     {
       "tableName": "FeesMapping",
-      "primaryKeys": [
+      "primaryKeys" : [
         {
-          "pkName": "FeesMapping_pk_1",
-          "pkColumns": [
+          "pkName" : "FeesMapping_pk_1",
+          "pkColumns" : [
             "FEES_ID"
           ]
         },
         {
-          "pkName": "FeesMapping_pk_2",
-          "pkColumns": [
+          "pkName" : "FeesMapping_pk_2",
+          "pkColumns" : [
             "USER_ID"
           ]
         }
@@ -154,22 +168,12 @@
         {
           "name": "FEES_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "FeesMapping_Fees_FK",
-            "referencedTable": "Fees",
-            "referencedColumn": "FEES_ID",
-            "onDelete": "CASCADE"
-          }
+          "notNull": true
         },
         {
           "name": "USER_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "FeesMapping_Users_FK",
-            "referencedTable": "Users",
-            "referencedColumn": "USER_ID",
-            "onDelete": "CASCADE"
-          }
+          "notNull": true
         },
         {
           "name": "TOTAL_FEES",
@@ -179,13 +183,29 @@
           "name": "BALANCE_FEES",
           "type": "BIGINT"
         }
+      ],
+      "foreignKeys": [
+        {
+          "fkName": "FeesMapping_FK",
+          "fkColumns": ["FEES_ID"],
+          "referencedTable": "Fees",
+          "referencedColumns": ["FEES_ID"],
+          "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "FeesMapping_FK_1",
+          "fkColumns": ["USER_ID"],
+          "referencedTable": "Users",
+          "referencedColumns": ["USER_ID"],
+          "onDelete": "CASCADE"
+        }
       ]
     },
     {
       "tableName": "Fine",
       "primaryKeys": [
         {
-          "pkName": "fine_pk",
+          "pkName": "Fine_PK",
           "pkColumns": ["FINE_ID"]
         }
       ],
@@ -213,15 +233,18 @@
         },
         {
           "name": "FINE_EVERY_DURATION",
-          "type": "VARCHAR(255)"
+          "type": "VARCHAR(255)",
+          "notNull": false
         },
         {
           "name": "FINE_FROM",
-          "type": "BIGINT"
+          "type": "BIGINT",
+          "notNull": false
         },
         {
           "name": "FINE_TILL",
-          "type": "BIGINT"
+          "type": "BIGINT",
+          "notNull": false
         }
       ]
     },
@@ -231,32 +254,40 @@
         {
           "name": "FINE_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "FineMapping_Fine_FK",
-            "referencedTable": "Fine",
-            "referencedColumn": "FINE_ID",
-            "onDelete": "CASCADE"
-          }
+          "notNull": true
         },
         {
           "name": "FEES_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "FineMapping_Fees_FK",
-            "referencedTable": "Fees",
-            "referencedColumn": "FEES_ID",
-            "onDelete": "CASCADE"
-          }
+          "notNull": true
         },
         {
           "name": "USER_ID",
           "type": "BIGINT",
-          "foreignKey": {
-            "fkName": "FineMapping_Users_FK",
-            "referencedTable": "Users",
-            "referencedColumn": "USER_ID",
-            "onDelete": "CASCADE"
-          }
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [
+        {
+        "fkName": "FineMapping_FK",
+        "fkColumns": ["FINE_ID"],
+        "referencedTable": "Fine",
+        "referencedColumns": ["FINE_ID"],
+        "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "FineMapping_FK_1",
+          "fkColumns": ["FEES_ID"],
+          "referencedTable": "Fees",
+          "referencedColumns": ["FEES_ID"],
+          "onDelete": "CASCADE"
+        },
+        {
+          "fkName": "FineMapping_FK_2",
+          "fkColumns": ["USER_ID"],
+          "referencedTable": "Users",
+          "referencedColumns": ["USER_ID"],
+          "onDelete": "CASCADE"
         }
       ]
     }

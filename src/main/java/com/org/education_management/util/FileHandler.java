@@ -2,20 +2,19 @@ package com.org.education_management.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.org.education_management.model.ApiRateLimit;
 import com.org.education_management.model.TableMetaData;
+import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class FileHandler {
 
@@ -38,6 +37,16 @@ public class FileHandler {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public static void createDirectoryIfNotExists(String filePath) {
+        try {
+            if(!fileExists(filePath)){
+                Files.createDirectory(Path.of(filePath));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -221,5 +230,47 @@ public class FileHandler {
                 writer.newLine();
             }
         }
+    }
+
+    public static HashMap<String, String> readPropsFile(String filePath) throws IOException {
+        HashMap<String, String> propsMap = new HashMap<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                String[] keyValue = line.split("=", 2);
+                if (keyValue.length == 2) {
+                    String key = keyValue[0].trim();
+                    String value = keyValue[1].trim();
+                    propsMap.put(key, value);
+                }
+            }
+        }
+        return propsMap;
+    }
+
+    public static String readHTMLFile(String filePath) throws Exception {
+        if(fileExists(filePath)) {
+            return new String(Files.readAllBytes(Paths.get(filePath)));
+        }
+        throw new FileNotFoundException("Filepath : " + filePath + "doesn't have a file!");
+    }
+
+    public static Map<String, ApiRateLimit> readSecurityJsonFile(String securityJson) throws Exception{
+        String jsonContent = new String(Files.readAllBytes(Paths.get(securityJson)));
+        JSONObject jsonObject = new JSONObject(jsonContent);
+
+        // Convert JSON to Map using streams
+        return jsonObject.keySet().stream()
+                .collect(Collectors.toMap(
+                        key -> key, // Key is the API path
+                        key -> {
+                            JSONObject ruleObject = jsonObject.getJSONObject(key);
+                            int limit = ruleObject.getInt("limit");
+                            int window = ruleObject.getInt("window");
+                            int lock = ruleObject.getInt("lockPeriod");
+                            return new ApiRateLimit(limit, window, lock);
+                        }
+                ));
     }
 }

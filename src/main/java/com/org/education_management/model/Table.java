@@ -24,16 +24,24 @@ public class Table {
     @JsonProperty("indexKeys")
     private List<IndexKey> indexKeys; // For Index Keys
 
+    @JsonProperty("foreignKeys")
+    private List<ForeignKey> foreignKeys;
+
     private PrimaryKey primaryKey;
     private UniqueKey uniqueKey;
     private IndexKey indexKey;
+    private ForeignKey foreignKey;
 
     public Table() {}
 
-    public Table(String tableName, String tableDesc, List<Column> columns) {
+    public Table(String tableName, String tableDesc, List<Column> columns, PrimaryKey primaryKey, ForeignKey foreignKey, UniqueKey uniqueKey, IndexKey indexKey) {
         this.tableName = tableName;
         this.description = tableDesc;
         this.columns = columns;
+        this.primaryKey = primaryKey;
+        this.foreignKey = foreignKey;
+        this.uniqueKey = uniqueKey;
+        this.indexKey = indexKey;
     }
 
     public UniqueKey getUniqueKey() {
@@ -116,5 +124,24 @@ public class Table {
         if(indexKeys != null && !indexKeys.isEmpty()) {
             this.indexKey = indexKeys.get(0);
         }
+    }
+
+    public List<ForeignKey> getForeignKeys() {
+        return foreignKeys;
+    }
+
+    public void setForeignKeys(List<ForeignKey> foreignKeys) {
+        this.foreignKeys = foreignKeys;
+        if(foreignKeys != null && !foreignKeys.isEmpty()) {
+            this.foreignKey = foreignKeys.get(0);
+        }
+    }
+
+    public ForeignKey getForeignKey() {
+        return foreignKey;
+    }
+
+    public void setForeignKey(ForeignKey foreignKey) {
+        this.foreignKey = foreignKey;
     }
 }
