@@ -41,7 +41,7 @@
         },
         {
           "name": "COLUMN_NAME",
-          "type": "VARCHAR(20)",
+          "type": "VARCHAR(100)",
           "notNull": true
         },
         {

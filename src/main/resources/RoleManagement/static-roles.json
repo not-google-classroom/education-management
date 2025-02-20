@@ -3,29 +3,29 @@
     {
       "role_id": "uvg:role_id:1",
       "role_name": "Admin",
-      "description": "Full access to manage users, roles, and permissions"
+      "role_description": "Full access to manage users, roles, and permissions"
     },
     {
       "role_id": "uvg:role_id:2",
       "role_name": "User",
-      "description": "Standard access to use the application features"
+      "role_description": "Standard access to use the application features"
     }
   ],
   "Permissions": [
     {
       "permission_id": "uvg:permission_id:1",
       "permission_name": "UserMgmt_Read",
-      "description": "Permission to view the dashboard"
+      "permission_description": "Permission to view the dashboard"
     },
     {
       "permission_id": "uvg:permission_id:2",
       "permission_name": "UserMgmt_Write",
-      "description": "Permission to edit users"
+      "permission_description": "Permission to edit users"
     },
     {
       "permission_id": "uvg:permission_id:3",
       "permission_name": "UserMgmt_Admin",
-      "description": "Permission to delete projects"
+      "permission_description": "Permission to delete projects"
     }
   ],
   "RolePermissions": [

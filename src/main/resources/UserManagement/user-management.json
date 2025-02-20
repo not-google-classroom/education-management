@@ -99,6 +99,11 @@
           "notNull": true
         },
         {
+          "name": "CHANGE_PASSWORD",
+          "type": "BOOLEAN",
+          "defaultValue": false
+        },
+        {
           "name": "CREATED_AT",
           "type": "BIGINT",
           "defaultValue": -1

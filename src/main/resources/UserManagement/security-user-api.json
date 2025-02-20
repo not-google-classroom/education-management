@@ -70,6 +70,17 @@
           "pattern": "^[A-Za-z0-9_-]{2,}(?:\\.[A-Za-z0-9_-]{2,}){2}$"
         }
       ]
+    },
+    {
+      "path": "/api/users/changeNewUserPwd",
+      "method": "PUT",
+      "roles": ["User"],
+      "rateLimit": {
+        "limit": 2,
+        "window": 60,
+        "lockPeriod": 60
+      },
+      "template": "changePwdTemplate"
     }
   ],
   "templates": [
@@ -140,6 +151,26 @@
         {
           "name": "filterByValue",
           "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "changePwdTemplate",
+      "minLength": 20,
+      "maxLength": 2000,
+      "type": "JSONObject",
+      "params": [
+        {
+          "name": "newPassword",
+          "type": "String",
+          "required": true,
+          "pattern": "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,15}$"
+        },
+        {
+          "name": "confirmPassword",
+          "type": "String",
+          "required": true,
+          "pattern": "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,15}$"
         }
       ]
     }

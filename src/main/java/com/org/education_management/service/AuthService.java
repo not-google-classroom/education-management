@@ -21,7 +21,7 @@ public class AuthService {
                 if(schemaName != null) {
                     SchemaUtil.getInstance().setSearchPathForSchema(schemaName);
                     if(UserMgmtUtil.getInstance().validateUser(userEmail, password)) {
-                        String subject = userEmail + "," + schemaName;
+                        String subject = userID + "," + userEmail + "," + schemaName;
                         subject = Base64.getEncoder().encodeToString(subject.getBytes(StandardCharsets.UTF_8));
                         return JWTUtil.generateToken(subject);
                     }
