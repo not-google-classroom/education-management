@@ -147,8 +147,8 @@ public class UserService {
             byte[] decodedVal = Base64.getUrlDecoder().decode(tokenSub.getBytes(StandardCharsets.UTF_8));
             String decodedContent = new String(decodedVal);
             String[] splitContent = decodedContent.split(",");
-            SchemaUtil.getInstance().setSearchPathForSchema(splitContent[1]);
-            String userEmail = splitContent[0];
+            SchemaUtil.getInstance().setSearchPathForSchema(splitContent[2]);
+            String userEmail = splitContent[1];
             int userStatus = UserMgmtUtil.getInstance().getUserStatus(userEmail);
             if (userStatus == UserConstants.USER_INVITED) {
                 logger.log(Level.INFO, "Going to activate the user... {0}", MaskUtil.getInstance().maskEmail(userEmail));
