@@ -22,5 +22,9 @@
   "UserManagement": {
     "file_name": "security-user-api.json",
     "file_path": "\\resources\\UserManagement\\security-user-api.json"
+  },
+  "FileManagement": {
+    "file_name": "security-files-api.json",
+    "file_path": "\\resources\\FileManagement\\security-files-api.json"
   }
 }

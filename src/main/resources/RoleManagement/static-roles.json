@@ -25,7 +25,22 @@
     {
       "permission_id": "uvg:permission_id:3",
       "permission_name": "UserMgmt_Admin",
-      "permission_description": "Permission to delete projects"
+      "permission_description": "Permission to delete users"
+    },
+    {
+      "permission_id": "uvg:permission_id:4",
+      "permission_name": "FileMgmt_Read",
+      "permission_description": "Permission to read files"
+    },
+    {
+      "permission_id": "uvg:permission_id:5",
+      "permission_name": "FileMgmt_Write",
+      "permission_description": "Permission to upload files"
+    },
+    {
+      "permission_id": "uvg:permission_id:6",
+      "permission_name": "FileMgmt_Admin",
+      "permission_description": "Permission to fullcontrol files"
     }
   ],
   "RolePermissions": [
@@ -42,8 +57,28 @@
       "permission_id": "uvg:permission_id:3"
     },
     {
+      "role_id": "uvg:role_id:1",
+      "permission_id": "uvg:permission_id:4"
+    },
+    {
+      "role_id": "uvg:role_id:1",
+      "permission_id": "uvg:permission_id:5"
+    },
+    {
+      "role_id": "uvg:role_id:1",
+      "permission_id": "uvg:permission_id:6"
+    },
+    {
       "role_id": "uvg:role_id:2",
       "permission_id": "uvg:permission_id:1"
+    },
+    {
+      "role_id": "uvg:role_id:2",
+      "permission_id": "uvg:permission_id:4"
+    },
+    {
+      "role_id": "uvg:role_id:2",
+      "permission_id": "uvg:permission_id:5"
     }
   ]
 }

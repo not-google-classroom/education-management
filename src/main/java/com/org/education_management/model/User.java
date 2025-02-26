@@ -1,8 +1,6 @@
 package com.org.education_management.model;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 public class User {
 
@@ -14,7 +12,7 @@ public class User {
     private long userID;
     private long roleID;
     private String roleName;
-    LinkedList<String> permissionList;
+    Set<String> permissionList;
     private long createdAt;
     private long updatedAt;
     boolean isChangePwd;
@@ -31,7 +29,7 @@ public class User {
 
     }
 
-    public User(Long userID, String userName, String userEmail, String roleName, long roleID, LinkedList<String> permissionsList, long createdAt, long updatedAt, String gender, int status, boolean isChangePwd) {
+    public User(Long userID, String userName, String userEmail, String roleName, long roleID, Set<String> permissionsList, long createdAt, long updatedAt, String gender, int status, boolean isChangePwd) {
         this.userID = userID;
         this.userName = userName;
         this.userEmail = userEmail;
@@ -60,11 +58,11 @@ public class User {
         User.user = user;
     }
 
-    public LinkedList<String> getPermissionList() {
+    public Set<String> getPermissionList() {
         return permissionList;
     }
 
-    public void setPermissionList(LinkedList<String> permissionList) {
+    public void setPermissionList(Set<String> permissionList) {
         this.permissionList = permissionList;
     }
 
@@ -153,7 +151,7 @@ public class User {
             String gender = (String) userDetailsMap.get("gender_type");
             int status = (int) userDetailsMap.get("status");
             boolean isChangePwd = (boolean) userDetailsMap.get("change_password");
-            LinkedList<String> permissionsList = new LinkedList<>(Arrays.asList(permissions.split(",")));
+            Set<String> permissionsList = new HashSet<>(Arrays.asList(permissions.split(",")));
             User user = new User(userID, userName, userEmail, roleName, roleID, permissionsList, createdAt, updatedAt, gender, status, isChangePwd);
             return user;
         }

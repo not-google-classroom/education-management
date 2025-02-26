@@ -5,6 +5,15 @@ public class ParamRule {
     private String type;
     private String pattern;
     private Boolean required;
+    private long size;
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
+    }
 
     public String getType() {
         return type;

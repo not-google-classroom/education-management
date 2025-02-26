@@ -5,7 +5,7 @@
       "method": "POST",
       "roles": ["all"],
       "rateLimit": {
-        "limit": 2,
+        "limit": 30,
         "window": 60,
         "lockPeriod": 60
       },
@@ -16,7 +16,7 @@
       "method": "POST",
       "roles": ["all"],
       "rateLimit": {
-        "limit": 2,
+        "limit": 30,
         "window": 60,
         "lockPeriod": 60
       },

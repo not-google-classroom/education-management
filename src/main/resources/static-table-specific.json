@@ -18,5 +18,9 @@
   "Scheduler": {
     "file_name": "scheduler.json",
     "file_path": "\\resources\\Schedulers\\scheduler.json"
+  },
+  "FileManagement": {
+    "file_name": "file-management.json",
+    "file_path": "\\resources\\FileManagement\\file-management.json"
   }
 }
