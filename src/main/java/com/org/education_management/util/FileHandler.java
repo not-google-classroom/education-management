@@ -14,6 +14,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class FileHandler {
@@ -247,6 +248,25 @@ public class FileHandler {
             }
         }
         return propsMap;
+    }
+
+    public static void writePropsFile(String filePath, Properties props) throws Exception {
+        writePropsFile(filePath, props, Boolean.FALSE);
+    }
+
+    public static void writePropsFile(String filePath, Properties props, Boolean createIfAbsent) throws Exception {
+        File file = new File(filePath);
+        if (file.exists()) {
+            try (FileInputStream fis = new FileInputStream(file)) {
+                props.load(fis);
+                createIfAbsent = Boolean.TRUE;
+            }
+        }
+        if (createIfAbsent) {
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                props.store(fos, filePath + " updated");
+            }
+        }
     }
 
     public static String readHTMLFile(String filePath) throws Exception {
