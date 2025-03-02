@@ -1,4 +1,4 @@
-package com.security.test.crypto;
+package com.security.crypto;
 
 public interface Crypto {
     String encrypt(String plainText) throws Exception;

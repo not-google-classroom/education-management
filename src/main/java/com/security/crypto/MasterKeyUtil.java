@@ -1,4 +1,4 @@
-package com.security.test.crypto;
+package com.security.crypto;
 
 import com.org.education_management.util.FileHandler;
 
@@ -7,7 +7,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
 import java.util.Base64;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MasterKeyUtil {
 
@@ -27,9 +28,9 @@ public class MasterKeyUtil {
     }
 
     public static void generateMasterKey() throws Exception{
-        Properties props = new Properties();
-        props.setProperty(CryptoConstants.AES_MASTER_KEY, encodeKey(createMasterKey()));
-        FileHandler.writePropsFile(CryptoConstants.APP_PROPERTIES_FILE, props, Boolean.TRUE);
+        Map<String, String> props = new HashMap<>();
+        props.put(CryptoConstants.AES_MASTER_KEY, encodeKey(createMasterKey()));
+        FileHandler.writePropsFile(CryptoConstants.APP_PROPERTIES_FILE, props);
     }
 
     public static SecretKey getMasterKey() {

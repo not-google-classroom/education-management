@@ -1,11 +1,12 @@
-package com.security.test.crypto;
+package com.security.crypto;
 
 
 import com.org.education_management.util.FileHandler;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class AESCrypto implements Crypto{
     protected static final String AES_ALGORITHM = "AES";
@@ -21,9 +22,9 @@ public abstract class AESCrypto implements Crypto{
         SecretKey key = null;
         try {
             key = generateKey();
-            Properties props = new Properties();
-            props.setProperty(CryptoConstants.AES_GCM_ENCRYPTION_KEY, AESKeyEncryptionUtil.getInstance().encryptAESKey(key));
-            FileHandler.writePropsFile(CryptoConstants.APP_PROPERTIES_FILE, props, Boolean.TRUE);
+            Map<String, String> props = new HashMap<>();
+            props.put(CryptoConstants.AES_GCM_ENCRYPTION_KEY, AESKeyEncryptionUtil.getInstance().encryptAESKey(key));
+            FileHandler.writePropsFile(CryptoConstants.APP_PROPERTIES_FILE, props);
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate secret key", e);
         }

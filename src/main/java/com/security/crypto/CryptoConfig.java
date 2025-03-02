@@ -1,4 +1,4 @@
-package com.security.test.crypto;
+package com.security.crypto;
 
 import com.org.education_management.util.FileHandler;
 import java.util.HashMap;

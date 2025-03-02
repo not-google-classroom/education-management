@@ -1,4 +1,4 @@
-package com.security.test.crypto;
+package com.security.crypto;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;

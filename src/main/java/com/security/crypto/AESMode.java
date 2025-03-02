@@ -1,4 +1,4 @@
-package com.security.test.crypto;
+package com.security.crypto;
 
 public enum AESMode {
     CTR, CBC, GCM

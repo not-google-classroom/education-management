@@ -1,4 +1,4 @@
-package com.security.test.crypto;
+package com.security.crypto;
 
 public class CryptoFactory {
     public static AESCrypto getCrypto(AESMode mode) {

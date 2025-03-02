@@ -250,21 +250,19 @@ public class FileHandler {
         return propsMap;
     }
 
-    public static void writePropsFile(String filePath, Properties props) throws Exception {
-        writePropsFile(filePath, props, Boolean.FALSE);
-    }
+    public static void writePropsFile(String filePath, Map<String, String> props) throws Exception {
 
-    public static void writePropsFile(String filePath, Properties props, Boolean createIfAbsent) throws Exception {
-        File file = new File(filePath);
-        if (file.exists()) {
-            try (FileInputStream fis = new FileInputStream(file)) {
-                props.load(fis);
-                createIfAbsent = Boolean.TRUE;
-            }
+        Map<String, String> existingMap = new HashMap<>();
+
+        if(fileExists(filePath)){
+            existingMap = readPropsFile(filePath);
         }
-        if (createIfAbsent) {
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                props.store(fos, filePath + " updated");
+        existingMap.putAll(props);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (Map.Entry<String, String> entry : existingMap.entrySet()) {
+                writer.write(entry.getKey() + "=" + entry.getValue());
+                writer.newLine();
             }
         }
     }

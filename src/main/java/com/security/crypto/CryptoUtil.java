@@ -1,8 +1,6 @@
-package com.security.test.crypto;
+package com.security.crypto;
 
-import javax.crypto.SecretKey;
 import java.security.SecureRandom;
-import java.util.logging.Logger;
 
 public class CryptoUtil {
     private static Crypto cryptInstance = null;
