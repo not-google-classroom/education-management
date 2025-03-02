@@ -1,6 +1,8 @@
 package com.org.education_management.service;
 
 import com.org.education_management.constants.UserConstants;
+import com.org.education_management.model.User;
+import com.org.education_management.model.UserContext;
 import com.org.education_management.util.*;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,6 +43,7 @@ public class UserService {
 
     public Map<String, Object> addUser(Map<String, Object> requestMap, HttpServletRequest request) {
         Map<String, Object> resultMap = new HashMap<>();
+        boolean isPassChangeRequired = true;
         try {
             String userName = (String) requestMap.get("userName");
             String userEmail = (String) requestMap.get("userEmail");
@@ -67,7 +70,7 @@ public class UserService {
             }
             Map roleDetails = RolesUtil.getInstance().getRolesList(userRole);
             if (roleDetails != null && !roleDetails.isEmpty()) {
-                boolean isUserAdded = UserMgmtUtil.getInstance().addUser(userEmail, userName, "", userRole, ugList, true, genderID, UserConstants.USER_INVITED, reqAddr);
+                boolean isUserAdded = UserMgmtUtil.getInstance().addUser(userEmail, userName, "", userRole, ugList, true, genderID, UserConstants.USER_INVITED, reqAddr, isPassChangeRequired);
                 if(isUserAdded) {
                     resultMap.put(StatusConstants.STATUS_CODE, HttpStatus.OK);
                     resultMap.put(StatusConstants.MESSAGE, "User created successfully");
@@ -144,8 +147,8 @@ public class UserService {
             byte[] decodedVal = Base64.getUrlDecoder().decode(tokenSub.getBytes(StandardCharsets.UTF_8));
             String decodedContent = new String(decodedVal);
             String[] splitContent = decodedContent.split(",");
-            SchemaUtil.getInstance().setSearchPathForSchema(splitContent[1]);
-            String userEmail = splitContent[0];
+            SchemaUtil.getInstance().setSearchPathForSchema(splitContent[2]);
+            String userEmail = splitContent[1];
             int userStatus = UserMgmtUtil.getInstance().getUserStatus(userEmail);
             if (userStatus == UserConstants.USER_INVITED) {
                 logger.log(Level.INFO, "Going to activate the user... {0}", MaskUtil.getInstance().maskEmail(userEmail));
@@ -158,5 +161,24 @@ public class UserService {
             throw new Exception("Exception when Inviitng user to org");
         }
         return isUserActivated;
+    }
+
+    public boolean updatePassword(Map<String, Object> requestMap) throws Exception {
+        boolean isPwdUpdated = false;
+        User currentUser = UserContext.getUser();
+        if(currentUser != null) {
+            String newPwd = (String) requestMap.get("newPassword");
+            String cnfrmPwd = (String) requestMap.get("confirmPassword");
+            if (newPwd.equals(cnfrmPwd)) {
+                isPwdUpdated = UserMgmtUtil.getInstance().updateUserPwd(newPwd, currentUser);
+            } else {
+                logger.log(Level.SEVERE, "both password and confirm password doesn't match!");
+                throw new Exception("Passwords doesn't match!");
+            }
+        } else {
+            logger.log(Level.SEVERE, "unable to find current loggedIn user!");
+            throw new Exception("current loggedIn user, couldn't be found!");
+        }
+        return isPwdUpdated;
     }
 }

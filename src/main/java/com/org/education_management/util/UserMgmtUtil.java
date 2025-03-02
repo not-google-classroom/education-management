@@ -3,6 +3,7 @@ package com.org.education_management.util;
 import com.org.education_management.MessageUtil.MessageSender;
 import com.org.education_management.constants.UserConstants;
 import com.org.education_management.database.DataBaseUtil;
+import com.org.education_management.model.User;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -35,7 +36,7 @@ public class UserMgmtUtil {
         if (adminRoleID != null && allCGID != null) {
             LinkedList<Long> allCGIDs = new LinkedList<>();
             allCGIDs.add(allCGID);
-            isAdminCreated = addUser(userEmail, userName, password, adminRoleID, allCGIDs, false, UserConstants.GENDER_OTHERS, UserConstants.USER_ACTIVE, null);
+            isAdminCreated = addUser(userEmail, userName, password, adminRoleID, allCGIDs, false, UserConstants.GENDER_OTHERS, UserConstants.USER_ACTIVE, null, false);
         }
         return isAdminCreated;
     }
@@ -46,7 +47,7 @@ public class UserMgmtUtil {
         return (record != null && record.get(field(name("usergroup", "ug_id"))) != null) ? (Long) record.get(field(name("usergroup", "ug_id"))) : null;
     }
 
-    public boolean addUser(String userEmail, String userName, String password, Long roleID, LinkedList<Long> ugIDs, boolean isPublicPopulate, int genderID, int status, String reqAddr) throws Exception {
+    public boolean addUser(String userEmail, String userName, String password, Long roleID, LinkedList<Long> ugIDs, boolean isPublicPopulate, int genderID, int status, String reqAddr, boolean isPassChangeRequired) throws Exception {
         boolean isUserAdded = false;
         try {
             DSLContext dslContext = DataBaseUtil.getDSLContext();
@@ -56,7 +57,7 @@ public class UserMgmtUtil {
                 logger.log(Level.INFO, "User details added to database, proceeding with password and role mappings");
                 Long userID = (Long) record.get(field("user_id"));
                 if (password != null && !password.isEmpty()) {
-                    addPasswordMappingForUser(userID, password);
+                    addPasswordMappingForUser(userID, password, isPassChangeRequired);
                 }
                 addUsersRoleMapping(userID, roleID);
                 addUsersUGMapping(userID, ugIDs);
@@ -77,7 +78,7 @@ public class UserMgmtUtil {
         String htmlFilePath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "\\resources\\MailTemplates\\UserInviteMailTemplate.html";
         String htmlContent = FileHandler.readHTMLFile(htmlFilePath);
         String mailSubject = "User Invite Notification";
-        String sub = userEmail + "," + SchemaUtil.getInstance().getSearchPatch();
+        String sub = userID + "," + userEmail + "," + SchemaUtil.getInstance().getSearchPatch();
         String encodedSub = Base64.getEncoder().encodeToString(sub.getBytes(StandardCharsets.UTF_8));
         String token = JWTUtil.generateToken(encodedSub);
         String inviteLink = reqAddr + "/api/users/inviteUser?token=" + token;
@@ -106,12 +107,12 @@ public class UserMgmtUtil {
         return 1L;
     }
 
-    private void addPasswordMappingForUser(Long userID, String password) throws Exception {
+    private void addPasswordMappingForUser(Long userID, String password, boolean isPassChangeRequired) throws Exception {
         if (userID != null) {
             String hashedPassword = PasswordUtil.hashPassword(password);
             DSLContext dslContext = DataBaseUtil.getDSLContext();
-            dslContext.insertInto(table("passwords")).columns(field("user_id"), field("hashed_password"), field("created_at"), field("updated_at"))
-                    .values(userID, hashedPassword, System.currentTimeMillis(), System.currentTimeMillis()).execute();
+            dslContext.insertInto(table("passwords")).columns(field("user_id"), field("hashed_password"), field("change_password"), field("created_at"), field("updated_at"))
+                    .values(userID, hashedPassword, isPassChangeRequired, System.currentTimeMillis(), System.currentTimeMillis()).execute();
             logger.log(Level.INFO, "password mapping and hashing completed.");
         }
     }
@@ -157,9 +158,21 @@ public class UserMgmtUtil {
     public Map<String, Object> getUsers(Long userID) {
         Map<String, Object> usersMap = new HashMap<>();
         DSLContext dslContext = DataBaseUtil.getDSLContext();
-        Result<? extends Record> result = dslContext.select(field(name("users", "username")), field(name("users", "email")), field(name("users", "created_at")), field(name("users", "updated_at")), field(name("roles", "role_name")), field(name("roles", "description"))).from(table("users")).innerJoin(table("userroles")).on(field(name("users", "user_id")).eq(field(name("userroles", "user_id")))).innerJoin(table("roles")).on(field(name("roles", "role_id")).eq(field(name("userroles", "role_id")))).where(userID != null ? field(name("users", "user_id")).eq(userID) : DSL.noCondition()).fetch();
+        Result<? extends Record> result = dslContext.select(field(name("users", "username")), field(name("passwords", "change_password")), field(name("gender", "gender_type")), field(name("users", "status")), field(name("users", "email")), field(name("users", "user_id")), field(name("users", "created_at")), field(name("users", "updated_at")), field(name("roles", "role_name")), field(name("roles", "role_description")), field(name("roles", "role_id")),
+                        groupConcat(field(name("permissions", "permission_name"))).separator(", ").as("permissions")).from(table("users")).innerJoin(table("userroles")).on(field(name("users", "user_id")).eq(field(name("userroles", "user_id")))).innerJoin(table("roles")).on(field(name("roles", "role_id")).eq(field(name("userroles", "role_id"))))
+                .innerJoin(table("passwords")).on(field(name("passwords", "user_id")).eq(field(name("users","user_id")))).innerJoin(table("gender")).on(field(name("gender","gender_id")).eq(field(name("users", "gender_id")))).innerJoin(table("rolepermissions")).on(field(name("rolepermissions", "role_id")).eq(field(name("roles", "role_id")))).innerJoin(table("permissions")).on(field(name("permissions", "permission_id")).eq(field(name("rolepermissions", "permission_id")))).where(userID != null ? field(name("users", "user_id")).eq(userID) : DSL.noCondition())
+                .groupBy(field("users.username"),
+                        field("users.email"),
+                        field("users.user_id"),
+                        field("users.created_at"),
+                        field("users.updated_at"),
+                        field("roles.role_name"),
+                        field("roles.role_id"),
+                        field("gender.gender_type"),
+                        field("users.status"),
+                        field("passwords.change_password")).fetch();
         for (Record record : result) {
-            usersMap.put((String) record.get("username"), record.intoMap());
+            usersMap.put(record.get("user_id").toString(), record.intoMap());
         }
         return usersMap;
     }
@@ -325,5 +338,11 @@ public class UserMgmtUtil {
             return true;
         }
         return false;
+    }
+
+    public boolean updateUserPwd(String newPwd, User currentUser) throws Exception {
+        Long userID = currentUser.getUserID();
+        addPasswordMappingForUser(userID, newPwd, false);
+        return true;
     }
 }

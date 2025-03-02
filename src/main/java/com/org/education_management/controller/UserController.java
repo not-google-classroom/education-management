@@ -95,4 +95,20 @@ public class UserController {
         }
     }
 
+    @PutMapping(value = "/changeNewUserPwd", produces = "application/json")
+    private ResponseEntity<Map<String, Object>> changeNewUserPwd(@RequestBody Map<String, Object> requestMap) {
+        try {
+            if(requestMap != null && !requestMap.isEmpty()) {
+                if(userService.updatePassword(requestMap)) {
+                    return buildResponse(HttpStatus.OK, "user password updated successfully.");
+                } else {
+                    return buildResponse(HttpStatus.BAD_REQUEST, "unable to update password.");
+                }
+            }
+            return buildResponse(HttpStatus.BAD_REQUEST, "Input data mismatch! verify data");
+        } catch (Exception e) {
+            return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Request couldn't be processed, contact support");
+        }
+    }
+
 }

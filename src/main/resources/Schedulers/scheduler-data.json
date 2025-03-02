@@ -6,13 +6,6 @@
       "SCHEDULER_CRON": "0/10 * * * * *",
       "SCHEDULER_RUN_TIME": "3",
       "TASK_NAME": "AsyncSampleFiniteTask"
-    },
-    {
-      "SCHEDULER_ID": "uvg:SCHEDULER_ID:2",
-      "SCHEDULER_NAME": "DynamicUserGroupScheduler",
-      "SCHEDULER_CRON": "*/10 * * * * *",
-      "SCHEDULER_RUN_TIME": -1,
-      "TASK_NAME": "DynamicUserGroupTask"
     }
   ]
 }

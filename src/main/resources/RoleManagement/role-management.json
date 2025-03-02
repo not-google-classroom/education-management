@@ -14,7 +14,7 @@
           "notNull": true
         },
         {
-          "name": "DESCRIPTION",
+          "name": "ROLE_DESCRIPTION",
           "type": "TEXT"
         }
       ],
@@ -45,7 +45,7 @@
           "notNull": true
         },
         {
-          "name": "DESCRIPTION",
+          "name": "PERMISSION_DESCRIPTION",
           "type": "TEXT"
         }
       ],
