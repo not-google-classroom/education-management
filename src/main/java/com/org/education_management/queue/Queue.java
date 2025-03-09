@@ -10,4 +10,5 @@ public interface Queue {
     public QueueObject getQueue(String queue);
 
     public void removeQueue(String queueName);
+    public void send(String queueName, String message);
 }

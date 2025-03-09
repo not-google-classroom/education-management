@@ -3,22 +3,33 @@ package com.org.education_management.queue.kafka;
 import com.org.education_management.model.QueueObject;
 import com.org.education_management.queue.QueueProcessor;
 import com.org.education_management.util.CommonUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
+import org.springframework.kafka.support.KafkaHeaders;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class KafkaQueueConsumer {
 
-    private final KafkaQueue queueRegistry;
+    private static final Logger LOGGER = Logger.getLogger(KafkaQueueConsumer.class.getName());
+    private static KafkaQueue queueRegistry;
 
-    public KafkaQueueConsumer(KafkaQueue queueRegistry, QueueProcessor processorFactory) {
+    @Autowired
+    public KafkaQueueConsumer(KafkaQueue queueRegistry) {
         this.queueRegistry = queueRegistry;
     }
 
-    @KafkaListener(topics = "#{'${kafka.topics}'.split(',')}", groupId = "dynamic-group")
+    @KafkaListener(topics = "#{'${kafka.topics:default-topic}'.split(',')}", groupId = "dynamic-group")
     public void consume(String message, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+        LOGGER.log(Level.INFO, "Message received from topic: {0} | Message: {1}", new Object[]{topic, message});
+        processMessage(topic, message);
+    }
+
+    public static void processMessage(String topic, String message) {
         QueueObject queue = queueRegistry.getQueue(topic);
         if (queue != null) {
             Object instance = CommonUtil.getInstance().getObjForClassName(queue.getProcessorClassName());
@@ -31,8 +42,7 @@ public class KafkaQueueConsumer {
             QueueProcessor processor = (QueueProcessor) instance;
             processor.process(message);
         } else {
-            System.out.println("No processor found for topic: " + topic);
+            LOGGER.log(Level.WARNING, "No processor found for topic: {0}", topic);
         }
     }
 }
-

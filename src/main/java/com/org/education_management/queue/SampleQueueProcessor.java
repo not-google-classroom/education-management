@@ -7,6 +7,6 @@ public class SampleQueueProcessor implements QueueProcessor {
     private static Logger logger = Logger.getLogger(SampleQueueProcessor.class.getName());
     @Override
     public void process(String message) {
-        logger.log(Level.INFO, "Message received" + message);
+        logger.log(Level.INFO, "Queue processed successfully - " + message);
     }
 }

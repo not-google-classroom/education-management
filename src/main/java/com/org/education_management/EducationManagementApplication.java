@@ -20,6 +20,7 @@ public class EducationManagementApplication {
 
     public static void main(String[] args) {
         try {
+            AppInitializer.startQueue();
             String dbUrl = AppProperty.getInstance().getProperty("spring.datasource.url.without");
             String user = AppProperty.getInstance().getProperty("spring.datasource.username");
             String pwd = AppProperty.getInstance().getProperty("spring.datasource.password");
@@ -38,8 +39,8 @@ public class EducationManagementApplication {
             }
             try {
                 controller.populateIfNeeded();
-                AppInitializer.startRateLimitScheduler();
-                QueueUtil.addQueues();
+                QueueUtil.getInstance().addQueues();
+                AppInitializer.initialize();
             } catch (Exception e1) {
                 logger.log(Level.SEVERE, "Exception when starting server ! , {0}", e1);
             }
