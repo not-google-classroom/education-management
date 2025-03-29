@@ -10,6 +10,6 @@ public class AppInitializer {
         HashMap<String, SchedulerConfig> map = new HashMap<>();
         map.put("ApiRateLimitScheduler", new SchedulerConfig("*/60 * * * * *",
                 -1, "ApiRateLimitTask"));
-        DynamicSchedulerUtil.getInstance().addOrUpdateSchedulers(map);
+        DynamicSchedulerUtil.getInstance().addOrUpdateSchedulers(map, 0L, "public");
     }
 }

@@ -59,9 +59,9 @@ public class EducationManagementApplication {
 
         try {
             // File Handler with Rotation
-            String filePath = com.org.education_management.util.FileHandler.getHomeDir() + com.org.education_management.util.FileHandler.getFileSeparator() + "logs";
-            com.org.education_management.util.FileHandler.createDirectoryIfNotExists(filePath);
-            filePath += com.org.education_management.util.FileHandler.getFileSeparator() + "application-%g.log";
+            String filePath = com.org.education_management.util.files.FileHandler.getHomeDir() + com.org.education_management.util.files.FileHandler.getFileSeparator() + "logs";
+            com.org.education_management.util.files.FileHandler.createDirectoryIfNotExists(filePath);
+            filePath += com.org.education_management.util.files.FileHandler.getFileSeparator() + "application-%g.log";
             System.out.println("Logger File Location : " + filePath);
             Handler fileHandler = new FileHandler(filePath, 5 * 1024 * 1024, 10, true); // 10 MB file size, 5 backups
             fileHandler.setFormatter(new SimpleFormatter());

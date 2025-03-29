@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.org.education_management.model.ApiRule;
 import com.org.education_management.model.ApiRulesWrapper;
 import com.org.education_management.model.TemplateRule;
-import com.org.education_management.util.FileHandler;
+import com.org.education_management.util.files.FileHandler;
 
 import java.io.File;
 import java.io.IOException;

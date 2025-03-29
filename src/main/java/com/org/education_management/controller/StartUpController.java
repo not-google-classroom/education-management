@@ -4,7 +4,7 @@ import com.org.education_management.registry.RegistryManager;
 import com.org.education_management.service.OrgService;
 import com.org.education_management.service.StartUpService;
 import com.org.education_management.util.AppProperty;
-import com.org.education_management.util.FileHandler;
+import com.org.education_management.util.files.FileHandler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

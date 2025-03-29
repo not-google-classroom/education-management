@@ -4,6 +4,7 @@ import com.org.education_management.MessageUtil.MessageSender;
 import com.org.education_management.constants.UserConstants;
 import com.org.education_management.database.DataBaseUtil;
 import com.org.education_management.model.User;
+import com.org.education_management.util.files.FileHandler;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -159,7 +160,7 @@ public class UserMgmtUtil {
         Map<String, Object> usersMap = new HashMap<>();
         DSLContext dslContext = DataBaseUtil.getDSLContext();
         Result<? extends Record> result = dslContext.select(field(name("users", "username")), field(name("passwords", "change_password")), field(name("gender", "gender_type")), field(name("users", "status")), field(name("users", "email")), field(name("users", "user_id")), field(name("users", "created_at")), field(name("users", "updated_at")), field(name("roles", "role_name")), field(name("roles", "role_description")), field(name("roles", "role_id")),
-                        groupConcat(field(name("permissions", "permission_name"))).separator(", ").as("permissions")).from(table("users")).innerJoin(table("userroles")).on(field(name("users", "user_id")).eq(field(name("userroles", "user_id")))).innerJoin(table("roles")).on(field(name("roles", "role_id")).eq(field(name("userroles", "role_id"))))
+                        groupConcat(field(name("permissions", "permission_name"))).separator(",").as("permissions")).from(table("users")).innerJoin(table("userroles")).on(field(name("users", "user_id")).eq(field(name("userroles", "user_id")))).innerJoin(table("roles")).on(field(name("roles", "role_id")).eq(field(name("userroles", "role_id"))))
                 .innerJoin(table("passwords")).on(field(name("passwords", "user_id")).eq(field(name("users","user_id")))).innerJoin(table("gender")).on(field(name("gender","gender_id")).eq(field(name("users", "gender_id")))).innerJoin(table("rolepermissions")).on(field(name("rolepermissions", "role_id")).eq(field(name("roles", "role_id")))).innerJoin(table("permissions")).on(field(name("permissions", "permission_id")).eq(field(name("rolepermissions", "permission_id")))).where(userID != null ? field(name("users", "user_id")).eq(userID) : DSL.noCondition())
                 .groupBy(field("users.username"),
                         field("users.email"),

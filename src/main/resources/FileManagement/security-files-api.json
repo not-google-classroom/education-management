@@ -5,6 +5,18 @@
       "method": "POST",
       "roles": ["FileMgmt_Read"],
       "template": "uploadFileTemplate"
+    },
+    {
+      "path": "/api/files/getFile",
+      "method": "GET",
+      "roles": ["FileMgmt_Read"],
+      "params": [
+        {
+          "name": "fileID",
+          "type": "Long",
+          "required": true
+        }
+      ]
     }
   ],
   "templates": [
@@ -15,10 +27,9 @@
         {
           "name": "file",
           "type": "file",
-          "pattern": "pdf,doc,xls,xlsx,img,jpeg,gif,csv,zip,tar,7z,svg,png",
+          "pattern": "pdf,doc,xls,xlsx,img,jpeg,gif,csv,zip,tar,7z,svg,png,gz",
           "required": true,
           "size": 1000000
-
         }
       ]
     }
