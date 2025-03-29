@@ -1,0 +1,50 @@
+{
+  "tables": [
+    {
+      "tableName": "TempFilesDetails",
+      "columns": [
+        {
+          "name": "FILE_ID",
+          "type": "BIGINT",
+          "autoIncrement": true
+        },
+        {
+          "name": "FILE_NAME",
+          "type": "VARCHAR(500)",
+          "notNull": true
+        },
+        {
+          "name": "FILE_EXTN",
+          "type": "VARCHAR(50)",
+          "notNull": true
+        },
+        {
+          "name": "FILE_PATH",
+          "type": "VARCHAR(5000)",
+          "notNull": true
+        },
+        {
+          "name": "STORAGE_TYPE",
+          "type": "VARCHAR(25)",
+          "defaultValue": "Local"
+        },
+        {
+          "name": "FILE_CHECKSUM",
+          "type": "VARCHAR(255)",
+          "notNull": true
+        },
+        {
+          "name": "UPLOADED_TIME",
+          "type": "BIGINT",
+          "defaultValue": -1
+        }
+      ],
+      "primaryKeys": [
+        {
+          "pkName": "TempFileDetails_PK",
+          "pkColumns": ["FILE_ID"]
+        }
+      ]
+    }
+  ]
+}

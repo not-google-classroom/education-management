@@ -1,8 +1,6 @@
 package com.org.education_management.filter.api;
 
-import com.org.education_management.model.ApiRule;
-import com.org.education_management.model.ParamRule;
-import com.org.education_management.model.TemplateRule;
+import com.org.education_management.model.*;
 import com.org.education_management.util.api.ApiSecurityUtil;
 import com.org.education_management.util.api.RequestBodyWrapper;
 import jakarta.servlet.Filter;
@@ -17,11 +15,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.logging.Logger;
@@ -56,10 +55,11 @@ public class ApiSecurityFilter implements Filter {
 
                 // Validate roles
                 if (rule.getRoles() != null && !rule.getRoles().isEmpty() && !rule.getRoles().contains("all")) {
-                    String userRole = getUserRoleFromContext();
-                    if (!rule.getRoles().contains(userRole)) {
-                        logger.log(Level.SEVERE, "You're not authorized to do this operation");
-                        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "You're not authorized to do this operation");
+                    Set<String> apiRoles = rule.getRoles();
+                    Set<String> userRoles = getUserRoleFromContext();
+                    if(userRoles != null && apiRoles != null && userRoles.stream().noneMatch(apiRoles::contains)) {
+                        logger.log(Level.SEVERE, "You're not authorized to do this operation, Insufficient roles");
+                        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "You're not authorized to do this operation, insufficient roles");
                         return;
                     }
                 }
@@ -69,26 +69,6 @@ public class ApiSecurityFilter implements Filter {
                     multipartHttpRequest = new StandardMultipartHttpServletRequest(httpRequest);
                 }
 
-                JSONObject requestBody = null;
-                if (rule.getTemplate() != null) {
-                    try {
-                        requestBody = new JSONObject(wrapper.getBody());
-                    } catch (JSONException e) {
-                        logger.log(Level.SEVERE, "Request body is not in expected format");
-                        httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request body format");
-                        return;
-                    }
-                }
-
-                // Validate parameters from ApiRule
-                if (rule.getParams() != null) {
-                    if (!validateParams(rule.getParams(), httpRequest, requestBody, multipartHttpRequest)) {
-                        logger.log(Level.WARNING, "Invalid parameters in ApiRule");
-                        httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request parameter format found!");
-                        return;
-                    }
-                }
-
                 // Validate parameters from TemplateRule
                 if (rule.getTemplate() != null) {
                     TemplateRule templateRule = templateRules.stream()
@@ -96,13 +76,31 @@ public class ApiSecurityFilter implements Filter {
                             .findFirst()
                             .orElse(null);
 
+                    JSONObject requestBody = null;
+                    if (templateRule != null && templateRule.getType().equalsIgnoreCase("JSONObject")) {
+                        try {
+                            requestBody = new JSONObject(wrapper.getBody());
+                        } catch (JSONException e) {
+                            logger.log(Level.SEVERE, "Request body is not in expected format");
+                        }
+                    }
+
+                    // Validate parameters from ApiRule
+                    if (rule.getParams() != null) {
+                        if (!validateParams(rule.getParams(), httpRequest, requestBody, multipartHttpRequest)) {
+                            logger.log(Level.WARNING, "Invalid parameters in ApiRule");
+                            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid request parameter format found!");
+                            return;
+                        }
+                    }
+
                     if (templateRule != null && templateRule.getParams() != null) {
-                        if(!validateLength(templateRule.getMinLength(), requestBody, true)) {
+                        if(requestBody != null && !validateLength(templateRule.getMinLength(), requestBody, true)) {
                             logger.log(Level.WARNING, "RequestBody doesn't meet minimum requestBody value");
                             httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "RequestBody doesn't meet minimum requestBody value");
                             return;
                         }
-                        if(!validateLength(templateRule.getMaxLength(), requestBody, false)) {
+                        if(requestBody != null && !validateLength(templateRule.getMaxLength(), requestBody, false)) {
                             logger.log(Level.WARNING, "RequestBody has more requestBody value");
                             httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "RequestBody has more requestBody value");
                             return;
@@ -142,27 +140,67 @@ public class ApiSecurityFilter implements Filter {
         return true;
     }
 
-    private boolean validateParams(List<ParamRule> paramRules, HttpServletRequest httpRequest, JSONObject requestBody, MultipartHttpServletRequest multipartHttpRequest) {
+    private boolean validateParams(List<ParamRule> paramRules, HttpServletRequest httpRequest, JSONObject requestBody, MultipartHttpServletRequest multipartHttpRequest) throws ServletException, IOException {
         for (ParamRule paramRule : paramRules) {
-            Object paramValue = httpRequest.getParameter(paramRule.getName());
-            if (paramValue == null) {
-                if (requestBody != null) {
-                    paramValue = requestBody.opt(paramRule.getName());
+            if(paramRule.getType().equalsIgnoreCase("file")) {
+                MultipartFile filePart = multipartHttpRequest.getFile(paramRule.getName());
+                if(filePart != null) {
+                    if(!validateFileLength(filePart, paramRule)) {
+                        logger.log(Level.SEVERE, "File size is too large than threshold value, uploadedFileSize : {0}", filePart.getSize());
+                        return false;
+                    }
+                    if(!validateFileExtension(filePart, paramRule)) {
+                        logger.log(Level.SEVERE, "Requested File Extension is not allowed : {0}", filePart.getOriginalFilename());
+                        return false;
+                    }
                 }
-                if (requestBody == null && multipartHttpRequest != null) {
-                    paramValue = multipartHttpRequest.getParameter(paramRule.getName());
+            } else {
+                Object paramValue = httpRequest.getParameter(paramRule.getName());
+                if (paramValue == null) {
+                    if (requestBody != null) {
+                        paramValue = requestBody.opt(paramRule.getName());
+                    }
+                    if (requestBody == null && multipartHttpRequest != null) {
+                        paramValue = multipartHttpRequest.getParameter(paramRule.getName());
+                    }
                 }
-            }
-            if (!validateParam(paramValue, paramRule)) {
-                logger.log(Level.WARNING, "Parameter : {0}, not found in the API request", paramRule.getName());
-                return false;
+                if (!validateParam(paramValue, paramRule)) {
+                    logger.log(Level.WARNING, "Parameter : {0}, not found in the API request", paramRule.getName());
+                    return false;
+                }
             }
         }
         return true;
     }
 
-    private String getUserRoleFromContext() {
-        return "admin";
+    private boolean validateFileExtension(MultipartFile filePart, ParamRule paramRule) {
+        String pattern = paramRule.getPattern();
+        if(pattern != null) {
+            List<String> allowedExtn = Arrays.stream(pattern.split(",")).toList();
+            String fileName = filePart.getOriginalFilename();
+            String extn = fileName.substring(fileName.lastIndexOf(".") + 1);
+            if(allowedExtn.contains(extn)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean validateFileLength(MultipartFile filePart, ParamRule paramRule) {
+        if(paramRule.getSize() != -1L) {
+            long fileMaxSize = paramRule.getSize();
+            return filePart.getSize() <= fileMaxSize;
+        }
+        return true;
+    }
+
+    private Set<String> getUserRoleFromContext() {
+        Set<String> userRoles = null;
+        User user = UserContext.getUser();
+        if(user != null) {
+            userRoles = user.getPermissionList();
+        }
+        return userRoles;
     }
 
     private boolean validateParam(Object paramValue, ParamRule rule) {

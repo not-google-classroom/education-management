@@ -1,4 +1,4 @@
-package com.org.education_management.util;
+package com.org.education_management.util.files;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,13 +7,17 @@ import com.org.education_management.model.TableMetaData;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class FileHandler {
@@ -38,6 +42,19 @@ public class FileHandler {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static String calculateCheckSum(InputStream inputStream) throws Exception {
+        String checksum = null;
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] buffer = new byte[8192];
+        int numOfBytesRead;
+        while( (numOfBytesRead = inputStream.read(buffer)) > 0){
+            md.update(buffer, 0, numOfBytesRead);
+        }
+        byte[] hash = md.digest();
+        checksum = new BigInteger(1, hash).toString(16); //don't use this, truncates leading zero
+        return checksum;
     }
 
     public static void createDirectoryIfNotExists(String filePath) {

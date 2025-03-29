@@ -71,9 +71,6 @@ public class AuthenticationFilter implements Filter {
                         userID = Long.parseLong(splitContent[0]);
                         validateSchemaName(splitContent);
                         SchemaUtil.getInstance().setSearchPathForSchema(schemaName);
-                        //Start default scheduler for the user
-                        DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
-                        schedulerUtil.loadDefaultSchedulersFromDatabase();
                     } else {
                         httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
                         try {

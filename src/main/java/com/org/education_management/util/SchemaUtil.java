@@ -2,12 +2,12 @@ package com.org.education_management.util;
 
 import com.org.education_management.database.DataBaseUtil;
 import com.org.education_management.service.StartUpService;
+import com.org.education_management.util.files.FileHandler;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,7 +45,7 @@ public class SchemaUtil {
 
                         //Start default scheduler for the user
                         DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
-                        schedulerUtil.loadDefaultSchedulersFromDatabase();
+                        schedulerUtil.loadDefaultSchedulersFromDatabase(orgID, schemaName);
 
                         //Do not update anything here , it is specific to Public DB
                         setSearchPathToPublic();
@@ -160,10 +160,11 @@ public class SchemaUtil {
             if(!result.isEmpty()) {
                 for(Record record : result) {
                     String schemaName = record.get(field(name("sasschemadetails", "schema_name"))).toString();
+                    Long orgID = (Long) record.get(field(name("sasschemadetails", "org_id")));
                     setSearchPathForSchema(schemaName);
                     //Start default scheduler for the user
                     DynamicSchedulerUtil schedulerUtil = new DynamicSchedulerUtil();
-                    schedulerUtil.loadDefaultSchedulersFromDatabase();
+                    schedulerUtil.loadDefaultSchedulersFromDatabase(orgID, schemaName);
                     logger.log(Level.INFO, "Schedulers started for user schema : {0}", schemaName);
                     setSearchPathToPublic();
                 }

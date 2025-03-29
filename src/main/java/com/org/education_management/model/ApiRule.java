@@ -2,11 +2,12 @@ package com.org.education_management.model;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ApiRule {
     private String path;
     private String method;
-    private List<String> roles;
+    private Set<String> roles;
     private List<ParamRule> params;
     private Map<String, String> bodyValidation; // Field name -> Regex pattern
     private ApiRateLimit rateLimit;
@@ -28,11 +29,11 @@ public class ApiRule {
         this.method = method;
     }
 
-    public List<String> getRoles() {
+    public Set<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<String> roles) {
+    public void setRoles(Set<String> roles) {
         this.roles = roles;
     }
 

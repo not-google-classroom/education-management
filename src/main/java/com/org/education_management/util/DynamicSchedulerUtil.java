@@ -40,17 +40,17 @@ public class DynamicSchedulerUtil {
     /**
      * Create infinite schedulers based on cron expressions.
      */
-    public void addOrUpdateSchedulers(Map<String, SchedulerConfig> infiniteSchedulers) {
+    public void addOrUpdateSchedulers(Map<String, SchedulerConfig> infiniteSchedulers, Long orgID, String schemaName) {
         infiniteSchedulers.forEach((name, config) -> {
             try {
                 if(runningSchedulers.containsKey(name)){
                     stopScheduler(name);
                 }
                 if (config.getMaxRuns() < 0) {
-                    createInfiniteTimeScheduler(name, config);
+                    createInfiniteTimeScheduler(name, config, orgID, schemaName);
                 }
                 else {
-                    createLimitedTimeScheduler(name, config);
+                    createLimitedTimeScheduler(name, config, orgID, schemaName);
                 }
             } catch (Exception e) {
                 logger.log(Level.SEVERE,"Failed to add or update scheduler: " + name + ".", e);
@@ -58,22 +58,25 @@ public class DynamicSchedulerUtil {
         });
     }
 
-    private void createInfiniteTimeScheduler(String name, SchedulerConfig config) {
-        logger.log(Level.INFO,"Creating infinite scheduler: " + name);
+    private void createInfiniteTimeScheduler(String name, SchedulerConfig config, Long orgID, String schemaName) {
+        logger.log(Level.INFO,"Creating infinite scheduler: " + name + ", orgID : "+ orgID);
 
         executionCounts.put(name, 0L);
 
         // Schedule the task
         ScheduledFuture<?> future = taskScheduler.schedule(() -> {
             try {
-                logger.log(Level.INFO,"Executing infinite task for " + name + " at: " + System.currentTimeMillis());
+                logger.log(Level.INFO,"Executing infinite task for " + name + " for orgID : " + orgID +", at " + System.currentTimeMillis());
+                SchemaUtil.getInstance().setSearchPathForSchema(schemaName);
                 executeTask(config.getTaskClass());
                 long currentCount = executionCounts.get(name);
                 executionCounts.put(name, currentCount + 1L);
             }
             catch (Exception e) {
-                logger.log(Level.SEVERE,"Error while executing task for " + name, e);
+                logger.log(Level.SEVERE,"Error while executing limited task for " + name + ", orgID : " + orgID + ", Exception : ", e);
                 throw new RuntimeException(e);
+            }  finally {
+                SchemaUtil.getInstance().setSearchPathToPublic();
             }
         }, new CronTrigger(config.getCronString()));
 
@@ -81,8 +84,8 @@ public class DynamicSchedulerUtil {
         runningSchedulers.put(name, future);
     }
 
-    private void createLimitedTimeScheduler(String name, SchedulerConfig config) throws IllegalArgumentException {
-        logger.log(Level.INFO,"Creating limited scheduler: " + name);
+    private void createLimitedTimeScheduler(String name, SchedulerConfig config, Long orgID, String schemaName) throws IllegalArgumentException {
+        logger.log(Level.INFO,"Creating limited scheduler: " + name + ", orgID : " + orgID);
 
         // Reset execution count for this scheduler
         executionCounts.put(name, 0L);
@@ -91,19 +94,22 @@ public class DynamicSchedulerUtil {
         ScheduledFuture<?> future = taskScheduler.schedule(() -> {
             try {
                 long currentCount = executionCounts.get(name);
-                logger.log(Level.INFO,"Executing limited task for " + name + ": Run " + (currentCount + 1));
+                SchemaUtil.getInstance().setSearchPathForSchema(schemaName);
+                logger.log(Level.INFO,"Executing limited task for " + name + " for orgID : " + orgID +", Run " + (currentCount + 1));
                 executeTask(config.getTaskClass());
                 // Increment execution count
                 executionCounts.put(name, currentCount + 1L);
 
                 // Stop scheduler if maxRuns is reached
                 if (currentCount + 1 >= config.getMaxRuns()) {
-                    logger.log(Level.INFO,"Stopping scheduler: " + name);
+                    logger.log(Level.INFO,"Stopping scheduler: " + name + " for orgID : " + orgID +" , max run reached");
                     stopScheduler(name);
                 }
             } catch (Exception e) {
-                logger.log(Level.SEVERE,"Error while executing limited task for " + name , e);
+                logger.log(Level.SEVERE,"Error while executing limited task for " + name + ", orgID : " + orgID + ", Exception : ", e);
                 throw new RuntimeException(e);
+            } finally {
+                SchemaUtil.getInstance().setSearchPathToPublic();
             }
         }, new CronTrigger(config.getCronString()));
 
@@ -161,7 +167,7 @@ public class DynamicSchedulerUtil {
     /**
      * Load scheduler configurations from a persistent store.
      */
-    public void loadDefaultSchedulersFromDatabase() {
+    public void loadDefaultSchedulersFromDatabase(Long orgID, String schemaName) {
         try {
             Map<String, SchedulerConfig> schedulerList = new HashMap<>();
             Result<Record> result = DataBaseUtil.getDSLContext().select().from("scheduler").fetch();
@@ -170,7 +176,7 @@ public class DynamicSchedulerUtil {
                         (long) record.get("scheduler_run_time"), (String) record.get("task_name"));
                 schedulerList.put((String) record.get("scheduler_name"), config);
             }
-            addOrUpdateSchedulers(schedulerList);
+            addOrUpdateSchedulers(schedulerList, orgID, schemaName);
         } catch (Exception e) {
             logger.log(Level.SEVERE,"Error occurred while loading schedulers from database: ", e);
         }
