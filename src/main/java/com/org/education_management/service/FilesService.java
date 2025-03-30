@@ -11,9 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -110,8 +107,8 @@ public class FilesService {
     public Map<Long, Object> getAllFilesOfThreshold(Long thresholdTime) {
         Map<Long, Object> resultMap = new HashMap<>();
         DSLContext dslContext = DataBaseUtil.getDSLContext();
-        Long actualThresholdTime = System.currentTimeMillis() * thresholdTime;
-        Result<Record> result = dslContext.select().from(table("TempFilesDetails")).where(field("uploaded_time").greaterOrEqual(actualThresholdTime)).fetch();
+        Long actualThresholdTime = System.currentTimeMillis() - (thresholdTime * 60 * 1000);
+        Result<Record> result = dslContext.select().from(table("TempFilesDetails")).where(field("uploaded_time").lessOrEqual(actualThresholdTime)).fetch();
         for(Record record : result) {
             resultMap.put((Long) record.get("file_id"), record.intoMap());
         }

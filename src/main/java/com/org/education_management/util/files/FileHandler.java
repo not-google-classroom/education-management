@@ -13,11 +13,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class FileHandler {
@@ -289,5 +288,19 @@ public class FileHandler {
                             return new ApiRateLimit(limit, window, lock);
                         }
                 ));
+    }
+
+    public static void removeTempFilesDirectory(String tempFilesPath) {
+        if (tempFilesPath != null && !tempFilesPath.isEmpty()) {
+            File file = new File(tempFilesPath);
+            if(fileExists(tempFilesPath)) {
+                for (File subfile : Objects.requireNonNull(file.listFiles())) {
+                    if (subfile.isDirectory()) {
+                        removeTempFilesDirectory(subfile.getPath());
+                    }
+                    subfile.delete();
+                }
+            }
+        }
     }
 }

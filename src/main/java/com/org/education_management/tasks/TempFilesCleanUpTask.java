@@ -9,7 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class TempFilesCleanUpTask {
-    private static Logger logger = Logger.getLogger(TempFilesCleanUpTask.class.getName());
+    private static final Logger logger = Logger.getLogger(TempFilesCleanUpTask.class.getName());
     public void execute() {
         logger.log(Level.INFO, "temporary files clean up task started.");
         Long thresholdTime = 10L;
