@@ -110,8 +110,8 @@ public class FilesService {
     public Map<Long, Object> getAllFilesOfThreshold(Long thresholdTime) {
         Map<Long, Object> resultMap = new HashMap<>();
         DSLContext dslContext = DataBaseUtil.getDSLContext();
-        Long actualThresholdTime = System.currentTimeMillis() * thresholdTime;
-        Result<Record> result = dslContext.select().from(table("TempFilesDetails")).where(field("uploaded_time").greaterOrEqual(actualThresholdTime)).fetch();
+        Long actualThresholdTime = System.currentTimeMillis() - (thresholdTime * 60 * 1000);
+        Result<Record> result = dslContext.select().from(table("TempFilesDetails")).where(field("uploaded_time").lessOrEqual(actualThresholdTime)).fetch();
         for(Record record : result) {
             resultMap.put((Long) record.get("file_id"), record.intoMap());
         }

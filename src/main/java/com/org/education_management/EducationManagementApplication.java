@@ -64,12 +64,12 @@ public class EducationManagementApplication {
             filePath += com.org.education_management.util.files.FileHandler.getFileSeparator() + "application-%g.log";
             System.out.println("Logger File Location : " + filePath);
             Handler fileHandler = new FileHandler(filePath, 5 * 1024 * 1024, 10, true); // 10 MB file size, 5 backups
-            fileHandler.setFormatter(new SimpleFormatter());
+            fileHandler.setFormatter(new CustomizedLogFormatter());
             fileHandler.setLevel(Level.INFO);
 
             // Console Handler
             Handler consoleHandler = new ConsoleHandler();
-            consoleHandler.setFormatter(new SimpleFormatter());
+            consoleHandler.setFormatter(new CustomizedLogFormatter());
             consoleHandler.setLevel(Level.INFO);
 
             // Add handlers to the root logger
