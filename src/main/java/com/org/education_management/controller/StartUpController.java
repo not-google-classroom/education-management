@@ -25,6 +25,8 @@ public class StartUpController {
             logger.log(Level.INFO, "Server startup_type is warm, so skipping static data population");
             startUpService.startSchedulers();
         }
+        String tempFilesPath = FileHandler.getHomeDir() + FileHandler.getFileSeparator() + "temp";
+        FileHandler.removeTempFilesDirectory(tempFilesPath);
     }
 
     private void populateStaticTableData() throws Exception {
